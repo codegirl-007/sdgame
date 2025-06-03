@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The System Design Game - Interactive Browser-Based Learning</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #333;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            padding: 15px 0;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #e0e0e0;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: #00ff88;
+        }
+
+        .beta-badge {
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            background: radial-gradient(circle at 30% 50%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 70% 80%, rgba(255, 107, 53, 0.1) 0%, transparent 50%);
+            position: relative;
+            padding-top: 80px;
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .hero-text h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .hero-text .subtitle {
+            font-size: 1.3rem;
+            color: #b0b0b0;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        .hero-text .description {
+            font-size: 1.1rem;
+            color: #888;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .cta-form {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .cta-form h3 {
+            color: #00ff88;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .email-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-family: inherit;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            transition: border-color 0.3s ease;
+        }
+
+        .email-input:focus {
+            outline: none;
+            border-color: #00ff88;
+            box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.2);
+        }
+
+        .cta-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .beta-info {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        /* Browser Demo */
+        .browser-demo {
+            background: #161b22;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
+            border: 1px solid #30363d;
+        }
+
+        .browser-header {
+            background: #0d1117;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .browser-dots {
+            display: flex;
+            gap: 8px;
+            margin-right: 15px;
+        }
+
+        .browser-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background: #ff5f56; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #27ca3f; }
+
+        .browser-address {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 6px 12px;
+            color: #8b949e;
+            font-size: 0.8rem;
+            flex: 1;
+        }
+
+        .browser-content {
+            padding: 20px;
+            height: 350px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Game Interface */
+        .game-interface {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 15px;
+            height: 100%;
+        }
+
+        .game-sidebar {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        .sidebar-title {
+            color: #00ff88;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .challenge-list {
+            list-style: none;
+        }
+
+        .challenge-item {
+            padding: 8px 10px;
+            margin: 5px 0;
+            background: #161b22;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+        }
+
+        .challenge-item.active {
+            border-left-color: #00ff88;
+            background: #1a3d2a;
+        }
+
+        .difficulty {
+            font-size: 0.7rem;
+            color: #8b949e;
+        }
+
+        .difficulty.easy { color: #3fb950; }
+        .difficulty.medium { color: #d29922; }
+        .difficulty.hard { color: #f85149; }
+
+        .game-main {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 15px;
+            position: relative;
+        }
+
+        .game-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #30363d;
+            padding-bottom: 10px;
+        }
+
+        .game-tab {
+            padding: 5px 12px;
+            background: #161b22;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #8b949e;
+            cursor: pointer;
+        }
+
+        .game-tab.active {
+            background: #1a3d2a;
+            color: #00ff88;
+        }
+
+        .design-canvas {
+            background: #0d1117;
+            border: 2px dashed #30363d;
+            border-radius: 8px;
+            height: 200px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+        .component {
+            position: absolute;
+            background: #161b22;
+            border: 2px solid #00ff88;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            cursor: move;
+        }
+
+        .component.database {
+            top: 120px;
+            left: 50px;
+            border-color: #3fb950;
+        }
+
+        .component.api {
+            top: 50px;
+            left: 150px;
+            border-color: #00ff88;
+        }
+
+        .component.cache {
+            top: 120px;
+            left: 250px;
+            border-color: #d29922;
+        }
+
+        .connection-line {
+            position: absolute;
+            height: 2px;
+            background: #00ff88;
+            transform-origin: 0 0;
+            z-index: -1;
+        }
+
+        .line1 {
+            width: 120px;
+            top: 65px;
+            left: 200px;
+            transform: rotate(45deg);
+        }
+
+        .line2 {
+            width: 120px;
+            top: 65px;
+            left: 200px;
+            transform: rotate(-45deg);
+        }
+
+        .metrics-panel {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .metric-box {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #00ff88;
+        }
+
+        .metric-label {
+            font-size: 0.7rem;
+            color: #8b949e;
+        }
+
+        /* Problem Section */
+        .problem {
+            padding: 100px 0;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .problem h2 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 60px;
+            color: #ff6b35;
+        }
+
+        .problem-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .problem-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .problem-card:hover {
+            border-color: #ff6b35;
+            transform: translateY(-5px);
+        }
+
+        .problem-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .problem-card h3 {
+            color: #ff6b35;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        /* Solution Section */
+        .solution {
+            padding: 100px 0;
+        }
+
+        .solution h2 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 60px;
+            color: #00ff88;
+        }
+
+        .solution-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(0, 255, 136, 0.05);
+            border-radius: 8px;
+            border-left: 4px solid #00ff88;
+        }
+
+        .feature-icon {
+            font-size: 1.5rem;
+            color: #00ff88;
+            margin-top: 5px;
+        }
+
+        .feature-text h4 {
+            color: #00ff88;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .feature-text p {
+            color: #b0b0b0;
+            line-height: 1.5;
+        }
+
+        /* How It Works */
+        .how-it-works {
+            padding: 100px 0;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .how-it-works h2 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 60px;
+            color: #00ff88;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .step {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #00ff88;
+            color: #000;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .step-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #00ff88;
+        }
+
+        .step h3 {
+            color: #00ff88;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .step p {
+            color: #b0b0b0;
+        }
+
+        /* FAQ Section */
+        .faq {
+            padding: 100px 0;
+        }
+
+        .faq h2 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 60px;
+            color: #00ff88;
+        }
+
+        .faq-list {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .faq-question {
+            font-size: 1.2rem;
+            color: #00ff88;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .faq-answer {
+            color: #b0b0b0;
+            line-height: 1.6;
+        }
+
+        /* Final CTA */
+        .final-cta {
+            padding: 100px 0;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(255, 107, 53, 0.1));
+        }
+
+        .final-cta h2 {
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+            color: #e0e0e0;
+        }
+
+        .final-cta p {
+            font-size: 1.2rem;
+            color: #888;
+            margin-bottom: 40px;
+        }
+
+        .final-cta-form {
+            max-width: 500px;
+            margin: 0 auto;
+            display: flex;
+            gap: 15px;
+        }
+
+        .final-cta-form input {
+            flex: 1;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+
+        .final-cta-form button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        /* Footer */
+        footer {
+            background: #000;
+            padding: 40px 0;
+            text-align: center;
+            border-top: 1px solid #333;
+        }
+
+        .footer-content {
+            color: #666;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            
+            .hero-text h1 {
+                font-size: 2.5rem;
+            }
+            
+            .solution-content {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            
+            .final-cta-form {
+                flex-direction: column;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+
+        .success-message {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            color: #00ff88;
+            text-align: center;
+            display: none;
+        }
+
+        /* Browser UI Elements */
+        .component-palette {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .palette-item {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 0.7rem;
+            cursor: grab;
+        }
+
+        .palette-item:hover {
+            border-color: #00ff88;
+        }
+
+        .game-controls {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .game-button {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            padding: 5px 10px;
+            font-size: 0.7rem;
+            color: #e0e0e0;
+            cursor: pointer;
+        }
+
+        .game-button.primary {
+            background: #1a3d2a;
+            border-color: #00ff88;
+            color: #00ff88;
+        }
+
+        /* Coming Soon Badge */
+        .coming-soon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            z-index: 10;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">System Design Game</div>
+            <ul class="nav-links">
+                <li><a href="#problem">Problem</a></li>
+                <li><a href="#solution">Solution</a></li>
+                <li><a href="#how">How It Works</a></li>
+                <li><a href="#faq">FAQ</a></li>
+            </ul>
+            <div class="beta-badge">COMING SOON</div>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>Master System Design Through Interactive Challenges</h1>
+                    <p class="subtitle">Stop memorizing. Start building. Learn system design by solving real-world problems in your browser.</p>
+                    <p class="description">Level up your architecture skills through our interactive, browser-based system design platform. No installation required - just open your browser and start designing.</p>
+                </div>
+                
+                <div class="cta-form">
+                    <h3>🚀 Get Early Access</h3>
+                    <form id="betaForm">
+                        <input type="email" class="email-input" placeholder="your.email@company.com" required>
+                        <button type="submit" class="cta-button">Join Beta Waitlist</button>
+                    </form>
+                    <div class="success-message" id="successMessage">
+                        ✅ You're in! We'll notify you when beta access is available.
+                    </div>
+                    <p class="beta-info">🔥 Be the first to know when we launch</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="problem" id="problem">
+        <div class="container">
+            <h2>The Problem Every Engineer Faces</h2>
+            <div class="problem-grid">
+                <div class="problem-card">
+                    <div class="problem-icon">😵</div>
+                    <h3>System Design Interviews Are Brutal</h3>
+                    <p>You can code, but when asked to design Instagram or Netflix, you freeze. Theory doesn't prepare you for the real thing.</p>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">📚</div>
+                    <h3>Learning Resources Suck</h3>
+                    <p>Books are boring. Videos are passive. You need hands-on practice with real constraints and trade-offs.</p>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">⏰</div>
+                    <h3>No Time for Side Projects</h3>
+                    <p>Building distributed systems takes months. You need a way to practice system design without the overhead.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="solution" id="solution">
+        <div class="container">
+            <h2>Learn System Design The Right Way</h2>
+            <div class="solution-content">
+                <div class="browser-demo">
+                    <div class="browser-header">
+                        <div class="browser-dots">
+                            <div class="browser-dot dot-red"></div>
+                            <div class="browser-dot dot-yellow"></div>
+                            <div class="browser-dot dot-green"></div>
+                        </div>
+                        <div class="browser-address">https://systemdesigngame.com/challenges/url-shortener</div>
+                    </div>
+                    <div class="browser-content">
+                        <div class="coming-soon">PREVIEW</div>
+                        <div class="game-interface">
+                            <div class="game-sidebar">
+                                <div class="sidebar-title">Challenges</div>
+                                <ul class="challenge-list">
+                                    <li class="challenge-item active">
+                                        <div>URL Shortener</div>
+                                        <div class="difficulty easy">Easy</div>
+                                    </li>
+                                    <li class="challenge-item">
+                                        <div>Chat System</div>
+                                        <div class="difficulty medium">Medium</div>
+                                    </li>
+                                    <li class="challenge-item">
+                                        <div>Video Streaming</div>
+                                        <div class="difficulty hard">Hard</div>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="game-main">
+                                <div class="game-tabs">
+                                    <div class="game-tab">Requirements</div>
+                                    <div class="game-tab active">Design</div>
+                                    <div class="game-tab">Metrics</div>
+                                    <div class="game-tab">Code</div>
+                                </div>
+                                
+                                <div class="component-palette">
+                                    <div class="palette-item">Load Balancer</div>
+                                    <div class="palette-item">API Server</div>
+                                    <div class="palette-item">Database</div>
+                                    <div class="palette-item">Cache</div>
+                                    <div class="palette-item">CDN</div>
+                                </div>
+                                
+                                <div class="design-canvas">
+                                    <div class="component api">API Server</div>
+                                    <div class="component database">Database</div>
+                                    <div class="component cache">Cache</div>
+                                    <div class="connection-line line1"></div>
+                                    <div class="connection-line line2"></div>
+                                </div>
+                                
+                                <div class="metrics-panel">
+                                    <div class="metric-box">
+                                        <div class="metric-value">1,250</div>
+                                        <div class="metric-label">Requests/sec</div>
+                                    </div>
+                                    <div class="metric-box">
+                                        <div class="metric-value">45ms</div>
+                                        <div class="metric-label">Latency</div>
+                                    </div>
+                                    <div class="metric-box">
+                                        <div class="metric-value">99.2%</div>
+                                        <div class="metric-label">Availability</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="game-controls">
+                                    <div class="game-button">Reset</div>
+                                    <div class="game-button">Test Load</div>
+                                    <div class="game-button primary">Submit</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <ul class="feature-list">
+                    <li class="feature-item">
+                        <div class="feature-icon">🎯</div>
+                        <div class="feature-text">
+                            <h4>Interactive Browser Experience</h4>
+                            <p>Drag-and-drop components to build your system architecture. No installation required - works in any modern browser.</p>
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon">⚡</div>
+                        <div class="feature-text">
+                            <h4>Real-Time Feedback</h4>
+                            <p>See how your design performs under load. Get instant metrics on throughput, latency, and availability.</p>
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon">🏆</div>
+                        <div class="feature-text">
+                            <h4>Progressive Difficulty</h4>
+                            <p>Start with simple systems, work up to complex distributed architectures. Master one concept at a time.</p>
+                        </div>
+                    </li>
+                    <li class="feature-item">
+                        <div class="feature-icon">🤝</div>
+                        <div class="feature-text">
+                            <h4>Learn With Others</h4>
+                            <p>Compare your solutions with different approaches. Discuss trade-offs and learn from the community.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-it-works" id="how">
+        <div class="container">
+            <h2>How It Works</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-icon">📋</div>
+                    <h3>Choose a Challenge</h3>
+                    <p>Select from various system design scenarios like URL shorteners, chat systems, or video streaming platforms.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-icon">🔍</div>
+                    <h3>Analyze Requirements</h3>
+                    <p>Review functional and non-functional requirements to understand the problem constraints.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-icon">🎨</div>
+                    <h3>Design Your Solution</h3>
+                    <p>Drag and drop components to build your architecture. Connect services and define relationships.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-icon">🧪</div>
+                    <h3>Test Under Load</h3>
+                    <p>Simulate real-world traffic and see how your system performs. Identify bottlenecks and failure points.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="faq" id="faq">
+        <div class="container">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question">When will the beta be available?</div>
+                    <div class="faq-answer">We're currently in development and aiming to launch the beta in the coming months. Sign up for the waitlist to be notified as soon as it's ready.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">Do I need to install anything to use the System Design Game?</div>
+                    <div class="faq-answer">No! The entire game runs in your browser. As long as you have a modern web browser (Chrome, Firefox, Safari, Edge), you're good to go.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">What kind of system design challenges will be available?</div>
+                    <div class="faq-answer">We're planning a wide range of challenges from URL shorteners and chat systems to social networks and video streaming platforms. We'll start with fundamental challenges and add more complex scenarios over time.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">Is this suitable for beginners?</div>
+                    <div class="faq-answer">Yes! We're designing the game with progressive difficulty levels. Beginners can start with simpler challenges that introduce core concepts, while experienced engineers can tackle more complex distributed systems.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">Will there be a cost to use the platform?</div>
+                    <div class="faq-answer">We plan to offer both free and premium tiers. The free tier will include access to basic challenges, while the premium tier will unlock advanced scenarios, detailed analytics, and additional features.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="final-cta">
+        <div class="container">
+            <h2>Ready to Level Up Your System Design Skills?</h2>
+            <p>Join the waitlist and be the first to know when our interactive browser-based platform launches.</p>
+            <form 
+                    class="final-cta-form" 
+                    id="finalBetaForm" 
+                    action="https://gmail.us7.list-manage.com/subscribe/post?u=913ad95101d97bff0b1873301&amp;id=77dabc87db&amp;f_id=0070c9e4f0" 
+                    method="post" 
+                    target="_blank" 
+                    novalidate>
+                <input type="email" name="EMAIL" id="mce-EMAIL" placeholder="Enter your email" required>
+                <div style="position: absolute; left: -5000px;" aria-hidden="true">
+                    <input type="text" name="b_913ad95101d97bff0b1873301_77dabc87db" tabindex="-1" value="">
+                  </div>
+                <button type="submit">Join Waitlist</button>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p>&copy; 2024 System Design Game. Built by engineers, for engineers.</p>
+                <p style="margin-top: 10px; font-size: 0.9rem;">Works in all modern browsers. No installation required.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Form handling
+        document.getElementById('betaForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = this.querySelector('input[type="email"]').value;
+            
+            // Simulate API call
+            setTimeout(() => {
+                document.getElementById('successMessage').style.display = 'block';
+                this.style.display = 'none';
+                
+                // Track conversion (in real app, send to analytics)
+                console.log('Beta signup:', email);
+            }, 500);
+        });
+
+        
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
