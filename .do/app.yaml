@@ -1,4 +1,4 @@
-name: sample-golang
+name: systemdesigngame 
 services:
 - name: web
   github:

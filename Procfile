@@ -1,1 +1,1 @@
-web: bin/sample-golang
+web: go run main.go  

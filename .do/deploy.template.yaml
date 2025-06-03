@@ -1,7 +1,7 @@
 spec:
-  name: sample-golang
+  name: systemdesigngame 
   services:
   - name: web
     git:
       branch: main
-      repo_clone_url: https://github.com/digitalocean/sample-golang.git
+      repo_clone_url:  https://github.com/codegirl-007/sdgame
