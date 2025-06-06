@@ -94,20 +94,21 @@
       stroke-width: 2;
     }
 
-    #run-button {
-      margin-top: auto;
-      padding: 10px;
-      background-color: #007acc;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
+    /* === PANELS === */
+    #info-panel {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: var(--color-bg-dark);
+      color: var(--color-text-primary);
+      padding: 1rem;
+      border-radius: var(--radius-large);
+      font-family: monospace;
       font-size: 14px;
-    }
-
-    #run-button:disabled {
-      background-color: #555;
-      cursor: not-allowed;
+      min-width: 220px;
+      z-index: 10;
+      border: 1px solid var(--color-text-dark);
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
     }
 
     #node-props-panel {
@@ -334,146 +335,172 @@
     <div id="page-container">
       <div id="sd-header">System Design Game</div>
       <div id="main-content">
-      <div id="challenge-container">
-        Challenges
-      </div>
-      <div id="canvas-wrapper">
-        <input type="radio" id="tab1" name="tab" checked>
-        <input type="radio" id="tab2" name="tab">
-        <input type="radio" id="tab3" name="tab">
+        <div id="challenge-container">
+          <h2 class="sidebar-title">Challenges</h2>
 
-        <div class="tabs">
-          <div class="tab-labels">
-            <label for="tab1">Requirements</label>
-            <label for="tab2">Design</label>
-            <label for="tab3">Metrics</label>
-          </div>
-
-          <!-- Requirements -->
-          <div id="content1" class="tab-content">This is Tab 1 content.</div>
-
-          <!-- Design-->
-          <div id="content2" class="tab-content">
-            <div id="sidebar">
-              <div class="component-icon" draggable="true" data-type="user">
-                user
-                <span class="tooltip">simulates user traffic</span>
-              </div>
-
-              <div class="component-icon" draggable="true" data-type="loadbalancer">
-                load balancer
-                <span class="tooltip">cost: $5/mo<br>distributes traffic evenly<br>latency: 5 ms</span>
-              </div>
-
-              <div class="component-icon" draggable="true" data-type="webserver (small)">
-                web server (small)
-                <span class="tooltip">cost: $10/mo<br>capacity: 100 rps<br>base latency: 50 ms</span>
-              </div>
-
-              <div class="component-icon" draggable="true" data-type="webserver (medium)">
-                web server (medium)
-                <span class="tooltip">cost: $20/mo<br>capacity: 200 rps<br>base latency: 40 ms</span>
-              </div>
-
-              <div class="component-icon" draggable="true" data-type="database">
-                database
-                <span class="tooltip">cost: $20/mo<br>read capacity: 150 rps<br>base latency: 80 ms<br>supports replication</span>
-              </div>
-
-              <div class="component-icon" draggable="true" data-type="cachestandard">
-                cache (standard)
-                <span class="tooltip">cost: $10/mo<br>capacity: 100 rps<br>latency: 5 ms<br>80% hit rate with 1hr ttl</span>
-              </div>
-
-              <div class="component-icon" draggable="true" data-type="cachelarge">
-                cache (large)
-                <span class="tooltip">cost: $20/mo<br>capacity: 200 rps<br>latency: 5 ms<br>higher hit rate for large datasets</span>
-              </div>
-
-              <div class="component-icon" draggable="true" data-type="messagequeue">
-                message queue
-                <span class="tooltip">cost: $15/mo<br>decouples components<br>useful for batching writes</span>
-              </div>
-
-              <div class="component-icon" draggable="true" data-type="cdn">
-                cdn/edge cache
-                <span class="tooltip">cost: $0.03/gb<br>improves global latency<br>caches static content</span>
-              </div>
-
-              <div class="component-icon" draggable="true" data-type="microservice">
-                microservice node
-                <span class="tooltip">cost: $10/mo<br>stateless container<br>use for modular logic</span>
-              </div>
-
-              <div class="component-icon" draggable="true" data-type="datapipeline">
-                data pipeline
-                <span class="tooltip">cost: $25/mo<br>stream or batch processing<br>used for analytics / etl</span>
-              </div>
-
-              <div class="component-icon" draggable="true" data-type="monitoring">
-                monitoring/alerting
-                <span class="tooltip">cost: $5/mo<br>health checks + logs<br>alerts on failures</span>
-              </div>
-
-              <div class="component-icon" draggable="true" data-type="thirdparty">
-                third-party service
-                <span class="tooltip">external apis<br>latency + cost vary<br>examples: payment, email, search</span>
-              </div>
-
-              <div id="arrow-tool">arrow tool</div>
-              <button id="run-button" disabled>Test Design</button>
-            </div>
-
-            <div id="canvas-container">
-              <div id="info-panel">
-                <div id="constraints-panel">
-                  <div class="panel-title">level constraints</div>
-                  <div class="panel-metric"><span class="label">🎯 target rps:</span> <span id="constraint-rps">–</span></div>
-                  <div class="panel-metric"><span class="label">⏱️ max p95 latency:</span> <span id="constraint-latency">–</span></div>
-                  <div class="panel-metric"><span class="label">💸 max cost:</span> <span id="constraint-cost">–</span></div>
-                  <div class="panel-metric"><span class="label">🔒 availability:</span> <span id="constraint-availability">–</span></div>
-                </div>
-
-                <div id="score-panel">
-                  <div class="panel-title">simulation results</div>
-                  <div class="panel-metric"><span class="label">✅ cost:</span> <span id="score-cost">–</span></div>
-                  <div class="panel-metric"><span class="label">⚡ p95 latency:</span> <span id="score-p95">–</span></div>
-                  <div class="panel-metric"><span class="label">📈 achieved rps:</span> <span id="score-rps">–</span></div>
-                  <div class="panel-metric"><span class="label">🛡️ availability:</span> <span id="score-availability">–</span></div>
-                </div>
-              </div>
-
-              <svg id="canvas">
-                <defs>
-                  <marker id="arrowhead" markerwidth="10" markerheight="7" refx="10" refy="3.5" orient="auto">
-                    <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
-                  </marker>
-                </defs>
-              </svg>
-              <div id="node-props-panel">
-                <h3>node properties</h3>
-                <div id="label-group">
-                  <label>label:<input type="text" name="label" /></label>
-                </div>
-                <div id="db-group" class="prop-group">
-                  <label>replication factor:<input type="number" name="replication" min="1" step="1" /></label>
-                </div>
-                <div id="cache-group" class="prop-group">
-                  <label>cache ttl (secs):<input type="number" name="cachettl" min="0" step="60" /></label>
-                </div>
-                <button id="node-props-save" disabled>save</button>
-              </div>
-              <div id="bottom-panel">
-                Hi
-              </div>
-
-            </div>
-
-          </div>
-
-          <!-- Metrics-->
-          <div id="content3" class="tab-content">This is Tab 3 content.</div>
+          <ul class="challenge-list">
+            <li class="challenge-item active">
+              <div class="challenge-name">Url Shortener</div>
+              <div class="challenge-difficulty easy">Easy</div>
+            </li>
+            <li class="challenge-item">
+              <div class="challenge-name">Url Shortener</div>
+              <div class="challenge-difficulty easy">Easy</div>
+            </li>
+            <li class="challenge-item">
+              <div class="challenge-name">Url Shortener</div>
+              <div class="challenge-difficulty medium">Medium</div>
+            </li>
+            <li class="challenge-item">
+              <div class="challenge-name">Something hard</div>
+              <div class="challenge-difficulty hard">Hard</div>
+            </li>
+          </ul>
         </div>
+        <div id="canvas-wrapper">
+          <input type="radio" id="tab1" name="tab" checked>
+          <input type="radio" id="tab2" name="tab">
+          <input type="radio" id="tab3" name="tab">
+
+          <div class="tabs">
+            <div class="tab-labels">
+              <label for="tab1">Requirements</label>
+              <label for="tab2">Design</label>
+              <label for="tab3">Metrics</label>
+            </div>
+
+            <!-- Requirements -->
+            <div id="content1" class="tab-content">
+              <div class="requirements-section">
+                <h3>Functional Requirements</h3>
+                <ul class="requirements-list">
+                  <li class="requirement-item">Something</li>
+                  <li class="requirement-item">Something else</li>
+                </ul>
+            </div>
+
+            <!-- Design-->
+            <div id="content2" class="tab-content">
+              <div id="sidebar">
+                <div class="component-icon" draggable="true" data-type="user">
+                  user
+                  <span class="tooltip">simulates user traffic</span>
+                </div>
+
+                <div class="component-icon" draggable="true" data-type="loadbalancer">
+                  load balancer
+                  <span class="tooltip">cost: $5/mo<br>distributes traffic evenly<br>latency: 5 ms</span>
+                </div>
+
+                <div class="component-icon" draggable="true" data-type="webserver (small)">
+                  web server (small)
+                  <span class="tooltip">cost: $10/mo<br>capacity: 100 rps<br>base latency: 50 ms</span>
+                </div>
+
+                <div class="component-icon" draggable="true" data-type="webserver (medium)">
+                  web server (medium)
+                  <span class="tooltip">cost: $20/mo<br>capacity: 200 rps<br>base latency: 40 ms</span>
+                </div>
+
+                <div class="component-icon" draggable="true" data-type="database">
+                  database
+                  <span class="tooltip">cost: $20/mo<br>read capacity: 150 rps<br>base latency: 80 ms<br>supports replication</span>
+                </div>
+
+                <div class="component-icon" draggable="true" data-type="cachestandard">
+                  cache (standard)
+                  <span class="tooltip">cost: $10/mo<br>capacity: 100 rps<br>latency: 5 ms<br>80% hit rate with 1hr ttl</span>
+                </div>
+
+                <div class="component-icon" draggable="true" data-type="cachelarge">
+                  cache (large)
+                  <span class="tooltip">cost: $20/mo<br>capacity: 200 rps<br>latency: 5 ms<br>higher hit rate for large datasets</span>
+                </div>
+
+                <div class="component-icon" draggable="true" data-type="messagequeue">
+                  message queue
+                  <span class="tooltip">cost: $15/mo<br>decouples components<br>useful for batching writes</span>
+                </div>
+
+                <div class="component-icon" draggable="true" data-type="cdn">
+                  cdn/edge cache
+                  <span class="tooltip">cost: $0.03/gb<br>improves global latency<br>caches static content</span>
+                </div>
+
+                <div class="component-icon" draggable="true" data-type="microservice">
+                  microservice node
+                  <span class="tooltip">cost: $10/mo<br>stateless container<br>use for modular logic</span>
+                </div>
+
+                <div class="component-icon" draggable="true" data-type="datapipeline">
+                  data pipeline
+                  <span class="tooltip">cost: $25/mo<br>stream or batch processing<br>used for analytics / etl</span>
+                </div>
+
+                <div class="component-icon" draggable="true" data-type="monitoring">
+                  monitoring/alerting
+                  <span class="tooltip">cost: $5/mo<br>health checks + logs<br>alerts on failures</span>
+                </div>
+
+                <div class="component-icon" draggable="true" data-type="thirdparty">
+                  third-party service
+                  <span class="tooltip">external apis<br>latency + cost vary<br>examples: payment, email, search</span>
+                </div>
+
+                <div id="arrow-tool">arrow tool</div>
+              </div>
+
+              <div id="canvas-container">
+                <div id="info-panel">
+                  <div id="constraints-panel">
+                    <div class="panel-title">level constraints</div>
+                    <div class="panel-metric"><span class="label">🎯 target rps:</span> <span id="constraint-rps">–</span></div>
+                    <div class="panel-metric"><span class="label">⏱️ max p95 latency:</span> <span id="constraint-latency">–</span></div>
+                    <div class="panel-metric"><span class="label">💸 max cost:</span> <span id="constraint-cost">–</span></div>
+                    <div class="panel-metric"><span class="label">🔒 availability:</span> <span id="constraint-availability">–</span></div>
+                  </div>
+
+                  <div id="score-panel">
+                    <div class="panel-title">simulation results</div>
+                    <div class="panel-metric"><span class="label">✅ cost:</span> <span id="score-cost">–</span></div>
+                    <div class="panel-metric"><span class="label">⚡ p95 latency:</span> <span id="score-p95">–</span></div>
+                    <div class="panel-metric"><span class="label">📈 achieved rps:</span> <span id="score-rps">–</span></div>
+                    <div class="panel-metric"><span class="label">🛡️ availability:</span> <span id="score-availability">–</span></div>
+                  </div>
+                </div>
+
+                <svg id="canvas">
+                  <defs>
+                    <marker id="arrowhead" markerwidth="10" markerheight="7" refx="10" refy="3.5" orient="auto">
+                      <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+                    </marker>
+                  </defs>
+                </svg>
+                <div id="node-props-panel">
+                  <h3>node properties</h3>
+                  <div id="label-group">
+                    <label>label:<input type="text" name="label" /></label>
+                  </div>
+                  <div id="db-group" class="prop-group">
+                    <label>replication factor:<input type="number" name="replication" min="1" step="1" /></label>
+                  </div>
+                  <div id="cache-group" class="prop-group">
+                    <label>cache ttl (secs):<input type="number" name="cachettl" min="0" step="60" /></label>
+                  </div>
+                  <button id="node-props-save" disabled>save</button>
+                </div>
+                <div id="bottom-panel">
+                  <button id="run-button" disabled>Test Design</button>
+
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- Metrics-->
+            <div id="content3" class="tab-content">This is Tab 3 content.</div>
+          </div>
         </div>
       </div>
     </div>
