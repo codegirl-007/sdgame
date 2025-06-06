@@ -5,15 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System Design Game</title>
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap');
+
+    /* === CSS VARIABLES === */
+    :root {
+      /* Colors */
+      --color-bg-body: #161b22;
+      --color-bg-dark: #121212;
+      --color-bg-sidebar: #111;
+      --color-bg-component: #1e1e1e;
+      --color-bg-hover: #2a2a2a;
+      --color-bg-accent: #005f87;
+      --color-bg-tab-active: #1a3d2a;
+
+      --color-border: #444;
+      --color-border-accent: #00ff88;
+      --color-border-panel: #30363d;
+
+      --color-text-primary: #ccc;
+      --color-text-muted: #888;
+      --color-text-accent: #00ff88;
+      --color-text-white: #fff;
+      --color-text-dark: #333;
+
+      --color-button: #238636;
+      --color-button-disabled: #555;
+
+      --color-connection: #333;
+      --color-connection-selected: #007bff;
+
+      --color-tooltip-bg: #333;
+      --color-tooltip-text: #fff;
+
+      /* Sizes */
+      --radius-small: 4px;
+      --radius-medium: 6px;
+      --radius-large: 8px;
+
+      --font-family-mono: 'JetBrains Mono', monospace;
+      --font-family-code: 'Fira Code', monospace;
+
+      --component-padding: 8px;
+      --component-gap: 12px;
+    }
+
+    /* === RESET === */
     * {
       box-sizing: border-box;
     }
 
     body {
       margin: 0;
-      font-family: 'JetBrains Mono', monospace;
-      background-color: #161b22;
-      color: #ccc;
+      font-family: var(--font-family-mono);
+      background-color: var(--color-bg-body);
+      color: var(--color-text-primary);
       display: flex;
       flex-direction: row;
       height: 100vh;
@@ -22,9 +67,14 @@
     #sidebar {
       width: 100%;
       background-color: #111;
+    #main-content {
       display: flex;
       flex-direction: row;
-      gap: 12px;
+      height: 100%;
+      background: radial-gradient(circle at 30% 50%, rgba(0, 255, 136, 0.1), transparent 50%),
+        radial-gradient(circle at 70% 80%, rgba(255, 107, 53, 0.1), transparent 50%);
+    }
+
       flex-wrap: wrap;
     }
 
@@ -33,56 +83,95 @@
       background-color: #1e1e1e;
       border: 1px solid #444;
       border-radius: 4px;
+    /* === COMPONENT ICONS === */
+    .component-icon,
+    #arrow-tool {
+      position: relative;
+      padding: var(--component-padding) 12px;
+      background-color: var(--color-bg-component);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-medium);
       text-align: center;
       cursor: grab;
       user-select: none;
       font-size: 16px;
+      color: var(--color-text-primary);
       transition: background-color 0.1s ease;
-      color: rgb(204, 204, 204);
     }
 
-    .component-icon:hover, #arrow-tool:hover {
-      background-color: #2a2a2a;
-      border: 1px solid #00ff88;
+    .component-icon:hover,
+    #arrow-tool:hover {
+      background-color: var(--color-bg-hover);
+      border-color: var(--color-border-accent);
     }
 
-    .component-icon:active, #arrow-tool:active {
+    .component-icon:active,
+    #arrow-tool:active {
       cursor: grabbing;
     }
 
     #arrow-tool.active {
-      background-color: #005f87;
-      color: white;
-      border-color: #007acc;
+      background-color: var(--color-bg-accent);
+      color: var(--color-text-white);
+      border-color: var(--color-button);
+    }
+
+    /* === TOOLTIP === */
+    .tooltip {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      z-index: 10;
+      background: var(--color-tooltip-bg);
+      color: var(--color-tooltip-text);
+      padding: 6px 8px;
+      border-radius: var(--radius-small);
+      white-space: nowrap;
+      font-size: 14px;
+      line-height: 1.4;
+      margin-top: 4px;
+      transition: opacity 0.2s;
+    }
+
+    .component-icon:hover .tooltip {
+      visibility: visible;
+      opacity: 1;
+      z-index: 1000;
+    }
+
+    .component-icon.dragging .tooltip {
+      display: none;
+    }
+
+    /* === CANVAS === */
+    #canvas-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border-radius: var(--radius-large);
+      border: 2px solid var(--color-border-panel);
+      overflow: hidden;
+      background: var(--color-bg-dark);
+      margin: 12px 12px 12px 0;
+      padding: 16px;
     }
 
     #canvas-container {
       flex: 1;
       position: relative;
-      background: #121212;
-      box-sizing: border-box;
+      background: var(--color-bg-dark);
       height: 100%;
-      margin: 16px 0 0;
-
+      margin-top: 16px;
     }
 
-    #canvas-wrapper {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      border-radius: 8px;
-      border: 2px solid #30363d;
-      overflow: hidden;
-      background: #121212;
-      margin: 12px 12px 12px 0;
-      padding: 16px;
-    }
     #canvas {
       width: 100%;
       height: 90%;
-      background: #121212;
-      border: 2px dashed #30363d;
-      border-radius: 8px;
+      background: var(--color-bg-dark);
+      border: 2px dashed var(--color-border-panel);
+      border-radius: var(--radius-large);
     }
 
     .dropped {
