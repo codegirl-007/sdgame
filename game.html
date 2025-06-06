@@ -199,6 +199,41 @@
       stroke-width: 2;
     }
 
+    #canvas-toolbar {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 20;
+      display: flex;
+      gap: 8px;
+      background: var(--color-bg-component);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-small);
+      padding: 6px;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .toolbar-btn {
+      background: none;
+      border: 1px solid var(--color-border);
+      color: var(--color-text-primary);
+      padding: 6px 10px;
+      border-radius: var(--radius-small);
+      font-size: 14px;
+      cursor: pointer;
+      font-family: var(--font-family-mono);
+    }
+
+    .toolbar-btn:hover {
+      background-color: var(--color-bg-hover);
+      border-color: var(--color-border-accent);
+    }
+
+    .toolbar-btn.active {
+      background-color: var(--color-bg-accent);
+      color: var(--color-text-white);
+      border-color: var(--color-button);
+    }
     /* === PANELS === */
     #info-panel {
       position: absolute;
@@ -218,8 +253,6 @@
 
     #node-props-panel {
       position: absolute;
-      top: 20px;
-      right: 20px;
       width: 220px;
       background-color: var(--color-bg-sidebar);
       border: 1px solid var(--color-border);
@@ -235,6 +268,17 @@
       margin-top: 0;
       font-size: 15px;
       color: var(--color-text-primary);
+    }
+
+    #node-props-save {
+      margin-top: 8px;
+      padding: 10px;
+      background-color: var(--color-button);
+      color: var(--color-text-white);
+      border: none;
+      border-radius: var(--radius-small);
+      cursor: pointer;
+      font-size: 14px;
     }
 
     .prop-group {
@@ -261,8 +305,7 @@
     }
 
     /* === BUTTONS === */
-    #run-button,
-    #node-props-panel button {
+    #run-button {
       margin-top: auto;
       padding: 10px;
       background-color: var(--color-button);
@@ -368,7 +411,7 @@
     .challenge-difficulty.easy {
       color: #3fb950;
     }
-    
+
     .challenge-difficulty.medium {
       color: #d29922;
     }
@@ -376,7 +419,7 @@
     .challenge-difficulty.hard {
       color: #f85149
     }
-    
+
     .challenge-item:hover {
       background: #30363d;
     }
@@ -430,7 +473,7 @@
 
     .requirement-item {
       position: relative;
-      padding: 8px 0 0 25px;
+      padding: 8px 0 8px 25px;
       margin: 0;
       border-bottom: 1px solid #30363d;;
     }
@@ -489,6 +532,15 @@
                   <li class="requirement-item">Something else</li>
                 </ul>
               </div>
+
+              <div class="requirements-section">
+                <h3>Non-Functional Requirements</h3>
+                <ul class="requirements-list">
+                  <li class="requirement-item">Something</li>
+                  <li class="requirement-item">Something else</li>
+                </ul>
+              </div>
+
             </div>
 
             <!-- Design-->
@@ -499,7 +551,7 @@
                   <span class="tooltip">simulates user traffic</span>
                 </div>
 
-                <div class="component-icon" draggable="true" data-type="loadbalancer">
+                <div class="component-icon" draggable="true" data-type="load balancer">
                   load balancer
                   <span class="tooltip">cost: $5/mo<br>distributes traffic evenly<br>latency: 5 ms</span>
                 </div>
@@ -519,12 +571,12 @@
                   <span class="tooltip">cost: $20/mo<br>read capacity: 150 rps<br>base latency: 80 ms<br>supports replication</span>
                 </div>
 
-                <div class="component-icon" draggable="true" data-type="cachestandard">
+                <div class="component-icon" draggable="true" data-type="cache (standard)">
                   cache (standard)
                   <span class="tooltip">cost: $10/mo<br>capacity: 100 rps<br>latency: 5 ms<br>80% hit rate with 1hr ttl</span>
                 </div>
 
-                <div class="component-icon" draggable="true" data-type="cachelarge">
+                <div class="component-icon" draggable="true" data-type="cache (large)">
                   cache (large)
                   <span class="tooltip">cost: $20/mo<br>capacity: 200 rps<br>latency: 5 ms<br>higher hit rate for large datasets</span>
                 </div>
@@ -535,7 +587,7 @@
                 </div>
 
                 <div class="component-icon" draggable="true" data-type="cdn">
-                  cdn/edge cache
+                  CDN
                   <span class="tooltip">cost: $0.03/gb<br>improves global latency<br>caches static content</span>
                 </div>
 
@@ -544,25 +596,26 @@
                   <span class="tooltip">cost: $10/mo<br>stateless container<br>use for modular logic</span>
                 </div>
 
-                <div class="component-icon" draggable="true" data-type="datapipeline">
+                <div class="component-icon" draggable="true" data-type="data pipeline">
                   data pipeline
                   <span class="tooltip">cost: $25/mo<br>stream or batch processing<br>used for analytics / etl</span>
                 </div>
 
-                <div class="component-icon" draggable="true" data-type="monitoring">
+                <div class="component-icon" draggable="true" data-type="monitoring/alerting">
                   monitoring/alerting
                   <span class="tooltip">cost: $5/mo<br>health checks + logs<br>alerts on failures</span>
                 </div>
 
-                <div class="component-icon" draggable="true" data-type="thirdparty">
+                <div class="component-icon" draggable="true" data-type="third party service">
                   third-party service
                   <span class="tooltip">external apis<br>latency + cost vary<br>examples: payment, email, search</span>
                 </div>
-
-                <div id="arrow-tool">arrow tool</div>
               </div>
 
               <div id="canvas-container">
+                <div id="canvas-toolbar">
+                  <button id="arrow-tool-btn" class="toolbar-btn">Arrow Tool</button>
+                </div>
                 <div id="info-panel">
                   <div id="constraints-panel">
                     <div class="panel-title">level constraints</div>
@@ -656,7 +709,7 @@
           x: x + app.componentSize.width / 2,
           y: y + app.componentSize.height / 2 + 5,
           'text-anchor': 'middle',
-          'font-size': 14,
+          'font-size': 16,
           fill: '#ccc'
         });
         this.text.textContent = this.props.label;
@@ -677,6 +730,11 @@
           } else {
             app.clearSelection();
             this.select();
+          }
+        });
+        this.group.addEventListener('dblclick', (e) => {
+          e.stopPropagation();
+          if (!app.arrowMode) {
             app.showPropsPanel(this);
           }
         });
@@ -763,26 +821,26 @@
 
       getConnectionPointToward(otherNode) {
         const bbox = this.group.getBBox();
-  const ctm = this.group.getCTM();
+        const ctm = this.group.getCTM();
 
-  const centerX = ctm.e + bbox.x + bbox.width / 2;
-  const centerY = ctm.f + bbox.y + bbox.height / 2;
+        const centerX = ctm.e + bbox.x + bbox.width / 2;
+        const centerY = ctm.f + bbox.y + bbox.height / 2;
 
-  const otherCenter = otherNode.getCenter();
+        const otherCenter = otherNode.getCenter();
 
-  let edgeX = centerX;
-  let edgeY = centerY;
+        let edgeX = centerX;
+        let edgeY = centerY;
 
-  const dx = otherCenter.x - centerX;
-  const dy = otherCenter.y - centerY;
+        const dx = otherCenter.x - centerX;
+        const dy = otherCenter.y - centerY;
 
-  if (Math.abs(dx) > Math.abs(dy)) {
-    edgeX += dx > 0 ? bbox.width / 2 : -bbox.width / 2;
-  } else {
-    edgeY += dy > 0 ? bbox.height / 2 : -bbox.height / 2;
-  }
+        if (Math.abs(dx) > Math.abs(dy)) {
+          edgeX += dx > 0 ? bbox.width / 2 : -bbox.width / 2;
+        } else {
+          edgeY += dy > 0 ? bbox.height / 2 : -bbox.height / 2;
+        }
 
-  return { x: edgeX, y: edgeY };
+        return { x: edgeX, y: edgeY };
       }
     }
 
@@ -812,7 +870,7 @@
 
       updatePosition() {
         const s = this.start.getConnectionPointToward(this.end);
-const e = this.end.getConnectionPointToward(this.start);
+        const e = this.end.getConnectionPointToward(this.start);
         this.line.setAttribute('x1', s.x);
         this.line.setAttribute('y1', s.y);
         this.line.setAttribute('x2', e.x);
@@ -849,7 +907,7 @@ const e = this.end.getConnectionPointToward(this.start);
         this.selectedConnection = null;
 
         this.sidebar = document.getElementById('sidebar');
-        this.arrowTool = document.getElementById('arrow-tool');
+        this.arrowToolBtn = document.getElementById('arrow-tool-btn');
         this.canvasContainer = document.getElementById('canvas-container');
         this.canvas = document.getElementById('canvas');
         this.runButton = document.getElementById('run-button');
@@ -860,24 +918,34 @@ const e = this.end.getConnectionPointToward(this.start);
         this.cacheGroup = document.getElementById('cache-group');
         this.selectedNode = null;
 
+        this.placeholderText = createSVGElement('text', {
+          x: '50%',
+          y: '50%',
+          'text-anchor': 'middle',
+          'dominant-baseline': 'middle',
+          fill: '#444',
+          'font-size': 18,
+          'pointer-events': 'none'
+        });
+        this.placeholderText.textContent = 'Drag and drop elements to start building your system. Press backspace or delete to remove elements.';
+        this.canvas.appendChild(this.placeholderText);
         this.initEventHandlers();
       }
 
       initEventHandlers() {
-        this.arrowTool.addEventListener('click', () => {
+        this.arrowToolBtn.addEventListener('click', () => {
           this.arrowMode = !this.arrowMode;
           if (this.arrowMode) {
-            this.arrowTool.classList.add('active');
+            this.arrowToolBtn.classList.add('active');
             this.hidePropsPanel();
           } else {
-            this.arrowTool.classList.remove('active');
+            this.arrowToolBtn.classList.remove('active');
             if (this.connectionStart) {
               this.connectionStart.group.classList.remove('selected');
               this.connectionStart = null;
             }
           }
-        });
-
+        }); 
         this.sidebar.addEventListener('dragstart', (e) => {
           if (e.target.classList.contains('component-icon')) {
             e.dataTransfer.setData('text/plain', e.target.getAttribute('data-type'));
@@ -901,6 +969,10 @@ const e = this.end.getConnectionPointToward(this.start);
           const x = svgP.x - this.componentSize.width / 2;
           const y = svgP.y - this.componentSize.height / 2;
           new Node(type, x, y, this);
+          if (this.placeholderText) {
+            this.placeholderText.remove();
+            this.placeholderText = null;
+          }
         });
 
         this.runButton.addEventListener('click', () => {
@@ -979,7 +1051,6 @@ const e = this.end.getConnectionPointToward(this.start);
       }
 
       showPropsPanel(nodeObj) {
-        // ... unchanged ...
         this.activeNode = nodeObj;
         const panel = this.nodePropsPanel;
 
