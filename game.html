@@ -64,9 +64,23 @@
       height: 100vh;
     }
 
-    #sidebar {
+    /* === LAYOUT === */
+    #page-container {
+      display: flex;
+      flex-direction: column;
       width: 100%;
-      background-color: #111;
+    }
+
+    #sd-header {
+      width: 100%;
+      background: none;
+      padding: 12px 24px;
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--color-text-accent);
+      border-bottom: 1px solid var(--color-text-dark);
+    }
+
     #main-content {
       display: flex;
       flex-direction: row;
@@ -75,14 +89,16 @@
         radial-gradient(circle at 70% 80%, rgba(255, 107, 53, 0.1), transparent 50%);
     }
 
+    /* === SIDEBAR === */
+    #sidebar {
+      width: 100%;
+      background-color: var(--color-bg-sidebar);
+      display: flex;
       flex-wrap: wrap;
+      flex-direction: row;
+      gap: var(--component-gap);
     }
 
-    .component-icon, #arrow-tool {
-      padding: 10px 12px;
-      background-color: #1e1e1e;
-      border: 1px solid #444;
-      border-radius: 4px;
     /* === COMPONENT ICONS === */
     .component-icon,
     #arrow-tool {
@@ -205,12 +221,12 @@
       top: 20px;
       right: 20px;
       width: 220px;
-      background-color: #111;
-      border: 1px solid #444;
-      border-radius: 4px;
+      background-color: var(--color-bg-sidebar);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-small);
       padding: 12px;
-      color: #eee;
-      box-shadow: 0 0 10px rgba(0,0,0,0.6);
+      color: var(--color-text-white);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
       display: none;
       z-index: 10;
     }
@@ -218,7 +234,7 @@
     #node-props-panel h3 {
       margin-top: 0;
       font-size: 15px;
-      color: #ccc;
+      color: var(--color-text-primary);
     }
 
     .prop-group {
@@ -226,7 +242,8 @@
       margin-bottom: 12px;
     }
 
-    .prop-group label, .prop-group input {
+    .prop-group label,
+    .prop-group input {
       display: block;
       width: 100%;
       margin-top: 6px;
@@ -237,111 +254,32 @@
     input[type="number"] {
       padding: 6px;
       background-color: #222;
-      border: 1px solid #555;
-      color: #eee;
-      border-radius: 4px;
-      font-family: 'Fira Code', monospace;
+      border: 1px solid var(--color-border);
+      color: var(--color-text-white);
+      border-radius: var(--radius-small);
+      font-family: var(--font-family-code);
     }
 
+    /* === BUTTONS === */
+    #run-button,
     #node-props-panel button {
-      padding: 8px;
-      background-color: #007acc;
-      color: white;
+      margin-top: auto;
+      padding: 10px;
+      background-color: var(--color-button);
+      color: var(--color-text-white);
       border: none;
-      border-radius: 4px;
+      border-radius: var(--radius-small);
       cursor: pointer;
       font-size: 14px;
-      margin-top: 8px;
     }
 
+    #run-button:disabled,
     #node-props-panel button:disabled {
-      background-color: #555;
+      background-color: var(--color-button-disabled);
       cursor: not-allowed;
     }
 
-    #info-panel {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: #121212;
-      color: #ccc;
-      padding: 1rem;
-      border-radius: 8px;
-      font-family: monospace;
-      font-size: 14px;
-      min-width: 220px;
-      z-index: 10;
-      border: 1px solid #333;
-      box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
-    }
-
-    #constraints-panel,
-    #score-panel {
-      margin-bottom: 1rem;
-    }
-
-    .panel-title {
-      font-weight: bold;
-      color: #fff;
-      font-size: 15px;
-      margin-bottom: 0.5rem;
-    }
-
-    .panel-metric {
-      margin-bottom: 0.4rem;
-    }
-
-    .panel-metric .label {
-      display: inline-block;
-      width: 140px;
-      color: #888;
-    }
-
-    .component-icon {
-      position: relative;
-      padding: 8px;
-      background: #1e1e1e;
-      color: rgb(204, 204, 204);
-      border: 1px solid #444;
-      border-radius: 6px;
-      cursor: grab;
-    }
-
-    .component-icon .tooltip {
-      visibility: hidden;
-      opacity: 0;
-      position: absolute;
-      top: 100%;
-      left: 0;
-      z-index: 10;
-      background: #333;
-      color: #fff;
-      padding: 6px 8px;
-      border-radius: 4px;
-      white-space: nowrap;
-      font-size: 12px;
-      line-height: 1.4;
-      margin-top: 4px;
-      transition: opacity 0.2s;
-    }
-
-    .component-icon:hover .tooltip {
-      visibility: visible;
-      opacity: 1;
-      z-index:1000;
-    }
-
-    .component-icon.dragging .tooltip {
-      display: none;
-    }
-
-    #challenge-container {
-      width: 15%;
-      box-sizing: border-box;
-      margin-left: 16px;
-      margin-top: 24px;
-    }
-
+    /* === TABS === */
     .tabs {
       display: flex;
       flex-direction: column;
@@ -356,14 +294,14 @@
 
     .tab-labels label {
       padding: 10px 20px;
-      background: #161b22;
+      background: var(--color-bg-body);
       margin-right: 4px;
       margin-bottom: 20px;
-      border-radius: 4px;
+      border-radius: var(--radius-small);
     }
 
     .tab-content {
-      border-top: 1px solid #30363d;
+      border-top: 1px solid var(--color-border-panel);
       padding: 20px 0 0;
       display: none;
       height: 100%;
@@ -376,9 +314,9 @@
     #tab1:checked ~ .tabs .tab-labels label[for="tab1"],
     #tab2:checked ~ .tabs .tab-labels label[for="tab2"],
     #tab3:checked ~ .tabs .tab-labels label[for="tab3"] {
-      background: #1a3d2a;
+      background: var(--color-bg-tab-active);
       font-weight: bold;
-      color: #00ff88;
+      color: var(--color-text-accent);
     }
 
     #tab1:checked ~ .tabs #content1,
@@ -387,36 +325,120 @@
       display: flex;
       flex-direction: column;
       height: 100%;
-      overflow:hidden;
-    }
-    #sd-header {
-      width: 100%;
-      background: none;
-      padding: 12px 24px;
-      font-size: 24px;
-      font-weight: bold;
-      color: #00ff88;
-      border-bottom: 1px solid #333;
+      overflow: hidden;
     }
 
-    #page-container {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-    }
-    #main-content {
-      display: flex;
-      flex-direction: row;
-      height: 100%;
-      background: radial-gradient(circle at 30% 50%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 70% 80%, rgba(255, 107, 53, 0.1) 0%, transparent 50%)
-    }
-
+    /* === CHALLENGE PANEL === */
     #challenge-container {
-      background: #121212;
-      margin: 12px 24px;
-      border: 2px solid #30363d;
+      width: 15%;
+      background: var(--color-bg-dark);
+      margin: 12px 12px;
+      border: 2px solid var(--color-border-panel);
+      border-radius: var(--radius-large);
+      padding: 0 12px;
+    }
+
+    .challenge-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .challenge-name {
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+
+    .challenge-item {
+      padding: 10px;
+      margin: 5px  0;
+      background: #21262d;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-left: 3px solid transparent;
+      list-style: none;
+    }
+
+    .challenge-difficulty {
+      font-size: 0.8rem;
+      color: #0b949e;
+    }
+
+    .challenge-difficulty.easy {
+      color: #3fb950;
+    }
+    
+    .challenge-difficulty.medium {
+      color: #d29922;
+    }
+
+    .challenge-difficulty.hard {
+      color: #f85149
+    }
+    
+    .challenge-item:hover {
+      background: #30363d;
+    }
+    .challenge-item.active {
+      background: #1a3d2a;
+      border-left-color: #00ff88;
+    }
+
+    /* === PANEL METRICS === */
+    .panel-title {
+      font-weight: bold;
+      color: var(--color-text-white);
+      font-size: 15px;
+      margin-bottom: 0.5rem;
+    }
+
+    .panel-metric {
+      margin-bottom: 0.4rem;
+    }
+
+    .panel-metric .label {
+      display: inline-block;
+      width: 140px;
+      color: var(--color-text-muted);
+    }
+
+    .sidebar-title {
+      color: #8b949e;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      padding-left: 8px;
+      border-bottom: 1px solid #303638;
+    }
+
+    .requirements-section {
+      background: #161b22;
+      border: 1px solid #30363d;
       border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .requirements-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .requirement-item {
+      position: relative;
+      padding: 8px 0 0 25px;
+      margin: 0;
+      border-bottom: 1px solid #30363d;;
+    }
+    .requirement-item:before {
+      content: "✓";
+      color: #00ff88;
+      position: absolute;
+      left: 0;
     }
     </style>
   </head>
@@ -466,6 +488,7 @@
                   <li class="requirement-item">Something</li>
                   <li class="requirement-item">Something else</li>
                 </ul>
+              </div>
             </div>
 
             <!-- Design-->
@@ -561,7 +584,7 @@
                 <svg id="canvas">
                   <defs>
                     <marker id="arrowhead" markerwidth="10" markerheight="7" refx="10" refy="3.5" orient="auto">
-                      <polygon points="0 0, 10 3.5, 0 7" fill="#333" />
+                      <polygon points="0 0, 10 3.5, 0 7" fill="#ccc" />
                     </marker>
                   </defs>
                 </svg>
@@ -737,6 +760,30 @@
           this.app.selectedNode = null;
         }
       }
+
+      getConnectionPointToward(otherNode) {
+        const bbox = this.group.getBBox();
+  const ctm = this.group.getCTM();
+
+  const centerX = ctm.e + bbox.x + bbox.width / 2;
+  const centerY = ctm.f + bbox.y + bbox.height / 2;
+
+  const otherCenter = otherNode.getCenter();
+
+  let edgeX = centerX;
+  let edgeY = centerY;
+
+  const dx = otherCenter.x - centerX;
+  const dy = otherCenter.y - centerY;
+
+  if (Math.abs(dx) > Math.abs(dy)) {
+    edgeX += dx > 0 ? bbox.width / 2 : -bbox.width / 2;
+  } else {
+    edgeY += dy > 0 ? bbox.height / 2 : -bbox.height / 2;
+  }
+
+  return { x: edgeX, y: edgeY };
+      }
     }
 
     class Connection {
@@ -745,10 +792,10 @@
         this.end = endNode;
         this.app = app;
         this.line = createSVGElement('line', {
-          stroke: '#333', 'stroke-width': 2, 'marker-end': 'url(#arrowhead)'
+          stroke: '#ccc', 'stroke-width': 2, 'marker-end': 'url(#arrowhead)'
         });
         this.text = createSVGElement('text', {
-          'text-anchor': 'middle', 'font-size': 12, fill: '#333'
+          'text-anchor': 'middle', 'font-size': 12, fill: '#ccc'
         });
         this.text.textContent = label;
         app.canvas.appendChild(this.line);
@@ -764,8 +811,8 @@
       }
 
       updatePosition() {
-        const s = this.start.getCenter();
-        const e = this.end.getCenter();
+        const s = this.start.getConnectionPointToward(this.end);
+const e = this.end.getConnectionPointToward(this.start);
         this.line.setAttribute('x1', s.x);
         this.line.setAttribute('y1', s.y);
         this.line.setAttribute('x2', e.x);
