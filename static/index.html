@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The System Design Game - Interactive Browser-Based Learning</title>
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>The System Design Game - Interactive Browser-Based Learning</title>
+        <style>
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap');
-        
+
         * {
             margin: 0;
             padding: 0;
@@ -83,7 +83,7 @@
             display: flex;
             align-items: center;
             background: radial-gradient(circle at 30% 50%, rgba(0, 255, 136, 0.1) 0%, transparent 50%),
-                        radial-gradient(circle at 70% 80%, rgba(255, 107, 53, 0.1) 0%, transparent 50%);
+                radial-gradient(circle at 70% 80%, rgba(255, 107, 53, 0.1) 0%, transparent 50%);
             position: relative;
             padding-top: 80px;
         }
@@ -661,20 +661,20 @@
                 grid-template-columns: 1fr;
                 gap: 40px;
             }
-            
+
             .hero-text h1 {
                 font-size: 2.5rem;
             }
-            
+
             .solution-content {
                 grid-template-columns: 1fr;
                 gap: 40px;
             }
-            
+
             .final-cta-form {
                 flex-direction: column;
             }
-            
+
             .nav-links {
                 display: none;
             }
@@ -748,288 +748,294 @@
             font-weight: 500;
             z-index: 10;
         }
-    </style>
-</head>
-<body>
-    <header>
-        <nav class="container">
-            <div class="logo">System Design Game</div>
-            <ul class="nav-links">
-                <li><a href="#problem">Problem</a></li>
-                <li><a href="#solution">Solution</a></li>
-                <li><a href="#how">How It Works</a></li>
-                <li><a href="#faq">FAQ</a></li>
-            </ul>
-            <div class="beta-badge">COMING SOON</div>
-        </nav>
-    </header>
 
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <div class="hero-text">
-                    <h1>Master System Design Through Interactive Challenges</h1>
-                    <p class="subtitle">Stop memorizing. Start building. Learn system design by solving real-world problems in your browser.</p>
-                    <p class="description">Level up your architecture skills through our interactive, browser-based system design platform. No installation required - just open your browser and start designing.</p>
-                </div>
-                
-                <div class="cta-form">
-                    <h3>🚀 Get Early Access</h3>
-                    <form class="final-cta-form" id="finalBetaForm" action="https://gmail.us7.list-manage.com/subscribe/post?u=913ad95101d97bff0b1873301&amp;id=77dabc87db&amp;f_id=0070c9e4f0" method="post" target="_blank" novalidate>
-                <input type="email" name="EMAIL" id="mce-EMAIL" placeholder="Enter your email" required>
-                <div style="position: absolute; left: -5000px;" aria-hidden="true">
-                    <input type="text" name="b_913ad95101d97bff0b1873301_77dabc87db" tabindex="-1" value="">
-                </div>
-                <button type="submit">Join Waitlist</button>
-            </form>
-                   <div class="success-message" id="successMessage">
-                        ✅ You're in! We'll notify you when beta access is available.
-                    </div>
-                    <p class="beta-info">🔥 Be the first to know when we launch</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="problem" id="problem">
-        <div class="container">
-            <h2>The Problem Every Engineer Faces</h2>
-            <div class="problem-grid">
-                <div class="problem-card">
-                    <div class="problem-icon">😵</div>
-                    <h3>System Design Interviews Are Brutal</h3>
-                    <p>You can code, but when asked to design Instagram or Netflix, you freeze. Theory doesn't prepare you for the real thing.</p>
-                </div>
-                <div class="problem-card">
-                    <div class="problem-icon">📚</div>
-                    <h3>Learning Resources Suck</h3>
-                    <p>Books are boring. Videos are passive. You need hands-on practice with real constraints and trade-offs.</p>
-                </div>
-                <div class="problem-card">
-                    <div class="problem-icon">⏰</div>
-                    <h3>No Time for Side Projects</h3>
-                    <p>Building distributed systems takes months. You need a way to practice system design without the overhead.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="solution" id="solution">
-        <div class="container">
-            <h2>Learn System Design The Right Way</h2>
-            <div class="solution-content">
-                <div class="browser-demo">
-                    <div class="browser-header">
-                        <div class="browser-dots">
-                            <div class="browser-dot dot-red"></div>
-                            <div class="browser-dot dot-yellow"></div>
-                            <div class="browser-dot dot-green"></div>
-                        </div>
-                        <div class="browser-address">https://www.systemdesigngame.dev</div>
-                    </div>
-                    <div class="browser-content">
-                        <div class="coming-soon">PREVIEW</div>
-                        <div class="game-interface">
-                            <div class="game-sidebar">
-                                <div class="sidebar-title">Challenges</div>
-                                <ul class="challenge-list">
-                                    <li class="challenge-item active">
-                                        <div>URL Shortener</div>
-                                        <div class="difficulty easy">Easy</div>
-                                    </li>
-                                    <li class="challenge-item">
-                                        <div>Chat System</div>
-                                        <div class="difficulty medium">Medium</div>
-                                    </li>
-                                    <li class="challenge-item">
-                                        <div>Video Streaming</div>
-                                        <div class="difficulty hard">Hard</div>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="game-main">
-                                <div class="game-tabs">
-                                    <div class="game-tab">Requirements</div>
-                                    <div class="game-tab active">Design</div>
-                                    <div class="game-tab">Metrics</div>
-                                    <div class="game-tab">Code</div>
-                                </div>
-                                
-                                <div class="component-palette">
-                                    <div class="palette-item">Load Balancer</div>
-                                    <div class="palette-item">API Server</div>
-                                    <div class="palette-item">Database</div>
-                                    <div class="palette-item">Cache</div>
-                                    <div class="palette-item">CDN</div>
-                                </div>
-                                
-                                <div class="design-canvas">
-                                    <div class="component api">API Server</div>
-                                    <div class="component database">Database</div>
-                                    <div class="component cache">Cache</div>
-                                    <div class="connection-line line1"></div>
-                                    <div class="connection-line line2"></div>
-                                </div>
-                                
-                                <div class="metrics-panel">
-                                    <div class="metric-box">
-                                        <div class="metric-value">1,250</div>
-                                        <div class="metric-label">Requests/sec</div>
-                                    </div>
-                                    <div class="metric-box">
-                                        <div class="metric-value">45ms</div>
-                                        <div class="metric-label">Latency</div>
-                                    </div>
-                                    <div class="metric-box">
-                                        <div class="metric-value">99.2%</div>
-                                        <div class="metric-label">Availability</div>
-                                    </div>
-                                </div>
-                                
-                                <div class="game-controls">
-                                    <div class="game-button">Reset</div>
-                                    <div class="game-button">Test Load</div>
-                                    <div class="game-button primary">Submit</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <ul class="feature-list">
-                    <li class="feature-item">
-                        <div class="feature-icon">🎯</div>
-                        <div class="feature-text">
-                            <h4>Interactive Browser Experience</h4>
-                            <p>Drag-and-drop components to build your system architecture. No installation required - works in any modern browser.</p>
-                        </div>
-                    </li>
-                    <li class="feature-item">
-                        <div class="feature-icon">⚡</div>
-                        <div class="feature-text">
-                            <h4>Real-Time Feedback</h4>
-                            <p>See how your design performs under load. Get instant metrics on throughput, latency, and availability.</p>
-                        </div>
-                    </li>
-                    <li class="feature-item">
-                        <div class="feature-icon">🏆</div>
-                        <div class="feature-text">
-                            <h4>Progressive Difficulty</h4>
-                            <p>Start with simple systems, work up to complex distributed architectures. Master one concept at a time.</p>
-                        </div>
-                    </li>
-                    <li class="feature-item">
-                        <div class="feature-icon">🤝</div>
-                        <div class="feature-text">
-                            <h4>Learn With Others</h4>
-                            <p>Compare your solutions with different approaches. Discuss trade-offs and learn from the community.</p>
-                        </div>
-                    </li>
+        @media (max-width: 400px) {
+            .hero {
+                padding-top: 120px;
+            } 
+        }
+        </style>
+    </head>
+    <body>
+        <header>
+            <nav class="container">
+                <div class="logo">System Design Game</div>
+                <ul class="nav-links">
+                    <li><a href="#problem">Problem</a></li>
+                    <li><a href="#solution">Solution</a></li>
+                    <li><a href="#how">How It Works</a></li>
+                    <li><a href="#faq">FAQ</a></li>
                 </ul>
-            </div>
-        </div>
-    </section>
+                <div class="beta-badge">COMING SOON</div>
+            </nav>
+        </header>
 
-    <section class="how-it-works" id="how">
-        <div class="container">
-            <h2>How It Works</h2>
-            <div class="steps">
-                <div class="step">
-                    <div class="step-number">1</div>
-                    <div class="step-icon">📋</div>
-                    <h3>Choose a Challenge</h3>
-                    <p>Select from various system design scenarios like URL shorteners, chat systems, or video streaming platforms.</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <div class="step-icon">🔍</div>
-                    <h3>Analyze Requirements</h3>
-                    <p>Review functional and non-functional requirements to understand the problem constraints.</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <div class="step-icon">🎨</div>
-                    <h3>Design Your Solution</h3>
-                    <p>Drag and drop components to build your architecture. Connect services and define relationships.</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">4</div>
-                    <div class="step-icon">🧪</div>
-                    <h3>Test Under Load</h3>
-                    <p>Simulate real-world traffic and see how your system performs. Identify bottlenecks and failure points.</p>
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <h1>Master System Design Through Interactive Challenges</h1>
+                        <p class="subtitle">Stop memorizing. Start building. Learn system design by solving real-world problems in your browser.</p>
+                        <p class="description">Level up your architecture skills through our interactive, browser-based system design platform. No installation required - just open your browser and start designing.</p>
+                    </div>
+
+                    <div class="cta-form">
+                        <h3>🚀 Get Early Access</h3>
+                        <form class="final-cta-form" id="finalBetaForm" action="https://gmail.us7.list-manage.com/subscribe/post?u=913ad95101d97bff0b1873301&amp;id=77dabc87db&amp;f_id=0070c9e4f0" method="post" target="_blank" novalidate>
+                            <input type="email" name="EMAIL" id="mce-EMAIL" placeholder="Enter your email" required>
+                            <div style="position: absolute; left: -5000px;" aria-hidden="true">
+                                <input type="text" name="b_913ad95101d97bff0b1873301_77dabc87db" tabindex="-1" value="">
+                            </div>
+                            <button type="submit">Join Waitlist</button>
+                        </form>
+                        <div class="success-message" id="successMessage">
+                            ✅ You're in! We'll notify you when beta access is available.
+                        </div>
+                        <p class="beta-info">🔥 Be the first to know when we launch</p>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="faq" id="faq">
-        <div class="container">
-            <h2>Frequently Asked Questions</h2>
-            <div class="faq-list">
-                <div class="faq-item">
-                    <div class="faq-question">When will the beta be available?</div>
-                    <div class="faq-answer">We're currently in development and aiming to launch the beta in the coming months. Sign up for the waitlist to be notified as soon as it's ready.</div>
-                </div>
-                <div class="faq-item">
-                    <div class="faq-question">Do I need to install anything to use the System Design Game?</div>
-                    <div class="faq-answer">No! The entire game runs in your browser. As long as you have a modern web browser (Chrome, Firefox, Safari, Edge), you're good to go.</div>
-                </div>
-                <div class="faq-item">
-                    <div class="faq-question">What kind of system design challenges will be available?</div>
-                    <div class="faq-answer">We're planning a wide range of challenges from URL shorteners and chat systems to social networks and video streaming platforms. We'll start with fundamental challenges and add more complex scenarios over time.</div>
-                </div>
-                <div class="faq-item">
-                    <div class="faq-question">Is this suitable for beginners?</div>
-                    <div class="faq-answer">Yes! We're designing the game with progressive difficulty levels. Beginners can start with simpler challenges that introduce core concepts, while experienced engineers can tackle more complex distributed systems.</div>
-                </div>
-                <div class="faq-item">
-                    <div class="faq-question">Will there be a cost to use the platform?</div>
-                    <div class="faq-answer">Not right now. The platform will remain free for people to learn from.</div>
+        <section class="problem" id="problem">
+            <div class="container">
+                <h2>The Problem Every Engineer Faces</h2>
+                <div class="problem-grid">
+                    <div class="problem-card">
+                        <div class="problem-icon">😵</div>
+                        <h3>System Design Interviews Are Brutal</h3>
+                        <p>You can code, but when asked to design Instagram or Netflix, you freeze. Theory doesn't prepare you for the real thing.</p>
+                    </div>
+                    <div class="problem-card">
+                        <div class="problem-icon">📚</div>
+                        <h3>Learning Resources Suck</h3>
+                        <p>Books are boring. Videos are passive. You need hands-on practice with real constraints and trade-offs.</p>
+                    </div>
+                    <div class="problem-card">
+                        <div class="problem-icon">⏰</div>
+                        <h3>No Time for Side Projects</h3>
+                        <p>Building distributed systems takes months. You need a way to practice system design without the overhead.</p>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="final-cta">
-        <div class="container">
-            <h2>Ready to Level Up Your System Design Skills?</h2>
-            <p>Join the waitlist and be the first to know when our interactive browser-based platform launches.</p>
-            <form class="final-cta-form" id="finalBetaForm" action="https://gmail.us7.list-manage.com/subscribe/post?u=913ad95101d97bff0b1873301&amp;id=77dabc87db&amp;f_id=0070c9e4f0" method="post" target="_blank" novalidate>
-                <input type="email" name="EMAIL" id="mce-EMAIL" placeholder="Enter your email" required>
-                <div style="position: absolute; left: -5000px;" aria-hidden="true">
-                    <input type="text" name="b_913ad95101d97bff0b1873301_77dabc87db" tabindex="-1" value="">
+        <section class="solution" id="solution">
+            <div class="container">
+                <h2>Learn System Design The Right Way</h2>
+                <div class="solution-content">
+                    <div class="browser-demo">
+                        <div class="browser-header">
+                            <div class="browser-dots">
+                                <div class="browser-dot dot-red"></div>
+                                <div class="browser-dot dot-yellow"></div>
+                                <div class="browser-dot dot-green"></div>
+                            </div>
+                            <div class="browser-address">https://www.systemdesigngame.dev</div>
+                        </div>
+                        <div class="browser-content">
+                            <div class="coming-soon">PREVIEW</div>
+                            <div class="game-interface">
+                                <div class="game-sidebar">
+                                    <div class="sidebar-title">Challenges</div>
+                                    <ul class="challenge-list">
+                                        <li class="challenge-item active">
+                                            <div>URL Shortener</div>
+                                            <div class="difficulty easy">Easy</div>
+                                        </li>
+                                        <li class="challenge-item">
+                                            <div>Chat System</div>
+                                            <div class="difficulty medium">Medium</div>
+                                        </li>
+                                        <li class="challenge-item">
+                                            <div>Video Streaming</div>
+                                            <div class="difficulty hard">Hard</div>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="game-main">
+                                    <div class="game-tabs">
+                                        <div class="game-tab">Requirements</div>
+                                        <div class="game-tab active">Design</div>
+                                        <div class="game-tab">Metrics</div>
+                                        <div class="game-tab">Code</div>
+                                    </div>
+
+                                    <div class="component-palette">
+                                        <div class="palette-item">Load Balancer</div>
+                                        <div class="palette-item">API Server</div>
+                                        <div class="palette-item">Database</div>
+                                        <div class="palette-item">Cache</div>
+                                        <div class="palette-item">CDN</div>
+                                    </div>
+
+                                    <div class="design-canvas">
+                                        <div class="component api">API Server</div>
+                                        <div class="component database">Database</div>
+                                        <div class="component cache">Cache</div>
+                                        <div class="connection-line line1"></div>
+                                        <div class="connection-line line2"></div>
+                                    </div>
+
+                                    <div class="metrics-panel">
+                                        <div class="metric-box">
+                                            <div class="metric-value">1,250</div>
+                                            <div class="metric-label">Requests/sec</div>
+                                        </div>
+                                        <div class="metric-box">
+                                            <div class="metric-value">45ms</div>
+                                            <div class="metric-label">Latency</div>
+                                        </div>
+                                        <div class="metric-box">
+                                            <div class="metric-value">99.2%</div>
+                                            <div class="metric-label">Availability</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="game-controls">
+                                        <div class="game-button">Reset</div>
+                                        <div class="game-button">Test Load</div>
+                                        <div class="game-button primary">Submit</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <ul class="feature-list">
+                        <li class="feature-item">
+                            <div class="feature-icon">🎯</div>
+                            <div class="feature-text">
+                                <h4>Interactive Browser Experience</h4>
+                                <p>Drag-and-drop components to build your system architecture. No installation required - works in any modern browser.</p>
+                            </div>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon">⚡</div>
+                            <div class="feature-text">
+                                <h4>Real-Time Feedback</h4>
+                                <p>See how your design performs under load. Get instant metrics on throughput, latency, and availability.</p>
+                            </div>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon">🏆</div>
+                            <div class="feature-text">
+                                <h4>Progressive Difficulty</h4>
+                                <p>Start with simple systems, work up to complex distributed architectures. Master one concept at a time.</p>
+                            </div>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon">🤝</div>
+                            <div class="feature-text">
+                                <h4>Learn With Others</h4>
+                                <p>Compare your solutions with different approaches. Discuss trade-offs and learn from the community.</p>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
-                <button type="submit">Join Waitlist</button>
-            </form>
-        </div>
-    </section>
-
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <p>&copy; 2025 System Design Game. Built by an engineer, for engineers.</p>
-                <p style="margin-top: 10px; font-size: 0.9rem;">Works in all modern browsers. No installation required.</p>
             </div>
-        </div>
-    </footer>
+        </section>
 
-    <script>
+        <section class="how-it-works" id="how">
+            <div class="container">
+                <h2>How It Works</h2>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-icon">📋</div>
+                        <h3>Choose a Challenge</h3>
+                        <p>Select from various system design scenarios like URL shorteners, chat systems, or video streaming platforms.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-icon">🔍</div>
+                        <h3>Analyze Requirements</h3>
+                        <p>Review functional and non-functional requirements to understand the problem constraints.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-icon">🎨</div>
+                        <h3>Design Your Solution</h3>
+                        <p>Drag and drop components to build your architecture. Connect services and define relationships.</p>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-icon">🧪</div>
+                        <h3>Test Under Load</h3>
+                        <p>Simulate real-world traffic and see how your system performs. Identify bottlenecks and failure points.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="faq" id="faq">
+            <div class="container">
+                <h2>Frequently Asked Questions</h2>
+                <div class="faq-list">
+                    <div class="faq-item">
+                        <div class="faq-question">When will the beta be available?</div>
+                        <div class="faq-answer">We're currently in development and aiming to launch the beta in the coming months. Sign up for the waitlist to be notified as soon as it's ready.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">Do I need to install anything to use the System Design Game?</div>
+                        <div class="faq-answer">No! The entire game runs in your browser. As long as you have a modern web browser (Chrome, Firefox, Safari, Edge), you're good to go.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">What kind of system design challenges will be available?</div>
+                        <div class="faq-answer">We're planning a wide range of challenges from URL shorteners and chat systems to social networks and video streaming platforms. We'll start with fundamental challenges and add more complex scenarios over time.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">Is this suitable for beginners?</div>
+                        <div class="faq-answer">Yes! We're designing the game with progressive difficulty levels. Beginners can start with simpler challenges that introduce core concepts, while experienced engineers can tackle more complex distributed systems.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-question">Will there be a cost to use the platform?</div>
+                        <div class="faq-answer">Not right now. The platform will remain free for people to learn from.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="final-cta">
+            <div class="container">
+                <h2>Ready to Level Up Your System Design Skills?</h2>
+                <p>Join the waitlist and be the first to know when our interactive browser-based platform launches.</p>
+                <form class="final-cta-form" id="finalBetaForm" action="https://gmail.us7.list-manage.com/subscribe/post?u=913ad95101d97bff0b1873301&amp;id=77dabc87db&amp;f_id=0070c9e4f0" method="post" target="_blank" novalidate>
+                    <input type="email" name="EMAIL" id="mce-EMAIL" placeholder="Enter your email" required>
+                    <div style="position: absolute; left: -5000px;" aria-hidden="true">
+                        <input type="text" name="b_913ad95101d97bff0b1873301_77dabc87db" tabindex="-1" value="">
+                    </div>
+                    <button type="submit">Join Waitlist</button>
+                </form>
+            </div>
+        </section>
+
+        <footer>
+            <div class="container">
+                <div class="footer-content">
+                    <p>&copy; 2025 System Design Game. Built by an engineer, for engineers.</p>
+                    <p style="margin-top: 10px; font-size: 0.9rem;">Works in all modern browsers. No installation required.</p>
+                </div>
+            </div>
+        </footer>
+
+        <script>
         // Form handling
         document.getElementById('betaForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const email = this.querySelector('input[type="email"]').value;
-            
+
             // Simulate API call
             setTimeout(() => {
                 document.getElementById('successMessage').style.display = 'block';
                 this.style.display = 'none';
-                
+
                 // Track conversion (in real app, send to analytics)
                 console.log('Beta signup:', email);
             }, 500);
         });
 
-                // Smooth scrolling
+        // Smooth scrolling
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -1042,6 +1048,6 @@
                 }
             });
         });
-    </script>
-</body>
+        </script>
+    </body>
 </html>
