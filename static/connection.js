@@ -1,11 +1,12 @@
 import { generateNodeId, createSVGElement } from './utils.js';
 
 export class Connection {
-    constructor(startNode, endNode, label, app) {
+    constructor(startNode, endNode, label, protocol, app) {
         this.start = startNode;
         this.end = endNode;
         this.app = app;
         this.label = label;
+        this.protocol = protocol;
         this.direction = "forward";
         this.line = createSVGElement('line', {
             stroke: '#ccc', 'stroke-width': 2, 'marker-end': 'url(#arrowhead)'
@@ -20,8 +21,15 @@ export class Connection {
             'text-anchor': 'middle', 'font-size': 12, fill: '#ccc'
         });
         this.text.textContent = label;
+        this.protocolText = createSVGElement('text', {
+            'text-ancor': 'middle',
+            'font-size': 10,
+            fill: '#888'
+        });
+        this.protocolText.textContent = this.protocol || '';
         app.canvas.appendChild(this.line);
         app.canvas.appendChild(this.text);
+        app.canvas.appendChild(this.protocolText)
         this.updatePosition();
 
         this.selected = false;
@@ -79,6 +87,9 @@ export class Connection {
 
         this.hitbox.setAttribute('cx', hbX);
         this.hitbox.setAttribute('cy', hbY);
+
+        this.protocolText.setAttribute('x', midX);
+        this.protocolText.setAttribute('y', midY + 12);
     }
 
     toggleDirection() {

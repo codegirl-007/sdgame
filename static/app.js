@@ -150,8 +150,11 @@ export class CanvasApp {
         } else {
             const defaultLabel = 'Read traffic';
             const label = prompt('Enter connection label:', defaultLabel);
-            if (label) {
-                const conn = new Connection(this.connectionStart, nodeObj, label, this);
+            const protocol = prompt('Protocol (e.g. HTTP, gRPC, Kafka:', 'HTTP')
+            if (label && protocol) {
+                const conn = new Connection(this.connectionStart, nodeObj, label, protocol, this);
+                conn.protocol = protocol;
+                conn.protocolText.textContent = protocol;
                 this.connections.push(conn);
             }
             this.connectionStart.group.classList.remove('selected');
@@ -234,7 +237,8 @@ export class CanvasApp {
             source: c.start.id,
             target: c.end.id,
             label: c.label || '',
-            direction: c.direction
+            direction: c.direction,
+            protocol: c.protocol || ''
         }));
 
         return { nodes, connections };
