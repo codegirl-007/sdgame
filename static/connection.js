@@ -1,22 +1,25 @@
 import { generateNodeId, createSVGElement } from './utils.js';
 
 export class Connection {
-    constructor(startNode, endNode, label, protocol, app) {
+    static _activeConnection = null;
+    static modalSetupDone = false;
+
+    constructor(startNode, endNode, label, protocol, app, tls) {
         this.start = startNode;
         this.end = endNode;
         this.app = app;
         this.label = label;
         this.protocol = protocol;
         this.direction = "forward";
+        this.tls = tls;
         this.line = createSVGElement('line', {
-            stroke: '#ccc', 'stroke-width': 2, 'marker-end': 'url(#arrowhead)'
+            stroke: '#ccc', 'stroke-width': 2, 'marker-end': 'url(#arrowhead-end)'
         });
         this.hitbox = createSVGElement('circle', {
             r: 12,
             fill: 'transparent',
             cursor: 'pointer',
         });
-        this.app.canvas.appendChild(this.hitbox);
         this.text = createSVGElement('text', {
             'text-anchor': 'middle', 'font-size': 12, fill: '#ccc'
         });
@@ -30,6 +33,8 @@ export class Connection {
         app.canvas.appendChild(this.line);
         app.canvas.appendChild(this.text);
         app.canvas.appendChild(this.protocolText)
+        app.canvas.appendChild(this.hitbox);
+
         this.updatePosition();
 
         this.selected = false;
@@ -42,7 +47,17 @@ export class Connection {
         this.line.addEventListener('dblclick', (e) => {
             e.stopPropagation();
             this.toggleDirection();
-        })
+        });
+
+        this.text.addEventListener('dblclick', (e) => {
+            e.stopPropagation();
+            this.openEditModal()
+        });
+
+        this.protocolText.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.openEditModal();
+        });
     }
 
     updatePosition() {
@@ -114,7 +129,63 @@ export class Connection {
         this.line.setAttribute('stroke-width', 2);
     }
 
+    static setupModal(app) {
+        if (Connection.modalSetupDone) return;
+        Connection.modalSetupDone = true;
+
+        Connection.modal = document.getElementById('connection-modal');
+        Connection.labelInput = document.getElementById('connection-label');
+        Connection.tlsCheckbox = document.getElementById('connection-tls');
+        Connection.protocolInput = document.getElementById('connection-protocol');
+        Connection.saveBtn = document.getElementById('connection-save');
+        Connection.cancelBtn = document.getElementById('connection-cancel');
+
+        Connection.saveBtn.addEventListener('click', () => {
+            const label = Connection.labelInput.value.trim();
+            const protocol = Connection.protocolInput.value.trim();
+            const tls = Connection.tlsCheckbox.checked;
+            if (!label || !protocol) return;
+
+            if (Connection._activeConnection) {
+                // Editing an existing connection
+                const conn = Connection._activeConnection;
+                conn.label = label;
+                conn.protocol = protocol;
+                conn.text.textContent = label;
+                conn.tls = tls;
+                conn.protocolText.textContent = protocol;
+                conn.updatePosition();
+            } else if (app.pendingConnection) {
+                // Creating a new connection
+                const { start, end } = app.pendingConnection;
+                const conn = new Connection(start, end, label, protocol, app, tls);
+                app.connections.push(conn);
+            }
+
+            Connection.modal.style.display = 'none';
+            app.pendingConnection = null;
+            Connection._activeConnection = null;
+
+            if (app.connectionStart) {
+                app.connectionStart.group.classList.remove('selected');
+                app.connectionStart = null;
+            }
+        });
+
+        Connection.cancelBtn.addEventListener('click', () => {
+            Connection.modal.style.display = 'none';
+            app.pendingConnection = null;
+
+            if (app.connectionStart) {
+                app.connectionStart.group.classList.remove('selected');
+                app.connectionStart = null;
+            }
+        });
+    }
+
     static handleClick(nodeObj, app) {
+        Connection.setupModal(app);
+
         if (!app.connectionStart) {
             app.connectionStart = nodeObj;
             nodeObj.group.classList.add('selected');
@@ -122,15 +193,22 @@ export class Connection {
             app.connectionStart.group.classList.remove('selected');
             app.connectionStart = null;
         } else {
-            const defaultLabel = 'Read traffic';
-            const label = prompt('Enter connection label:', defaultLabel);
-            const protocol = prompt('Protocol (e.g. HTTP, gRPC, Kafka):', 'HTTP');
-            if (label && protocol) {
-                const conn = new Connection(app.connectionStart, nodeObj, label, protocol, app);
-                app.connections.push(conn);
-            }
-            app.connectionStart.group.classList.remove('selected');
-            app.connectionStart = null;
+            app.pendingConnection = { start: app.connectionStart, end: nodeObj };
+            Connection.labelInput.value = 'Read traffic';
+            Connection.protocolInput.value = 'HTTP';
+            Connection.tlsCheckbox.checked = false;
+            Connection.modal.style.display = 'block';
         }
     }
+
+    openEditModal() {
+        Connection.setupModal(this.app);
+        Connection._activeConnection = this;
+
+        Connection.labelInput.value = this.label;
+        Connection.protocolInput.value = this.protocol;
+        Connection.tlsCheckbox.checked = this.tls;
+        Connection.modal.style.display = 'block';
+    }
+
 }

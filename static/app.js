@@ -9,6 +9,7 @@ export class CanvasApp {
         this.componentSize = { width: 120, height: 40 };
         this.arrowMode = false;
         this.connectionStart = null;
+        this.pendingConnection = null;
         this.activeNode = null;
         this.selectedConnection = null;
 
@@ -216,7 +217,8 @@ export class CanvasApp {
             target: c.end.id,
             label: c.label || '',
             direction: c.direction,
-            protocol: c.protocol || ''
+            protocol: c.protocol || '',
+            tls: !!c.tls
         }));
 
         return { nodes, connections };

@@ -483,6 +483,46 @@
       position: absolute;
       left: 0;
     }
+
+    .modal {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -30%);
+      background: #121212;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #444;
+      z-index: 999;
+      color: #ccc;
+    }
+    .modal-content label {
+      display: block;
+      margin: 10px 0;
+    }
+    .modal-actions {
+      margin-top: 10px;
+      text-align: right;
+    }
+    .modal input {
+      width: 100%;
+      padding: 6px;
+      margin-top: 4px;
+      background: #222;
+      border: 1px solid #444;
+      color: #fff;
+      border-radius: 4px;
+    }
+
+    .modal select {
+      width: 100%;
+      padding: 6px;
+      margin-top: 4px;
+      background: #222;
+      border: 1px solid #444;
+      color: #fff;
+      border-radius: 4px;
+    }
     </style>
   </head>
   <body>
@@ -613,6 +653,40 @@
               </div>
 
               <div id="canvas-container">
+                <div id="connection-modal" style="display: none;" class="modal">
+                  <div class="modal-content">
+                    <h3>Create Connection</h3>
+                    <label>
+                      Label:
+                      <input type="text" id="connection-label" value="Read traffic">
+                    </label>
+                    <label>
+                      Protocol:
+                      <select id="connection-protocol">
+                        <option>HTTP</option>
+                        <option>HTTPS</option>
+                        <option>gRPC</option>
+                        <option>WebSocket</option>
+                        <option>GraphQL</option>
+                        <option>Kafka</option>
+                        <option>AMQP</option>
+                        <option>MQTT</option>
+                        <option>SQL</option>
+                        <option>NoSQL</option>
+                        <option>Redis</option>
+                        <option>TLS</option>
+                      </select>
+                    </label>
+                    <label style="margin-top: 10px;">
+                      <input type="checkbox" id="connection-tls">
+                      Enable TLS (encryption)
+                    </label>
+                    <div class="modal-actions">
+                      <button id="connection-save">Save</button>
+                      <button id="connection-cancel">Cancel</button>
+                    </div>
+                  </div>
+                </div>
                 <div id="canvas-toolbar">
                   <button id="arrow-tool-btn" class="toolbar-btn">Arrow Tool</button>
                 </div>
