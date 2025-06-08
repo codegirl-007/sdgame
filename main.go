@@ -9,12 +9,13 @@ import (
 	"time"
 )
 
-var tmpl = template.Must(template.ParseFiles("static/index.html"))
+var tmpl = template.Must(template.ParseGlob("static/*.html"))
 
 func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	mux.HandleFunc("/", index)
+	mux.HandleFunc("/game", game)
 	srv := &http.Server{
 		Addr:    ":8080",
 		Handler: mux,
@@ -43,5 +44,15 @@ func index(w http.ResponseWriter, r *http.Request) {
 		Title: "Title",
 	}
 
-	tmpl.Execute(w, data)
+	tmpl.ExecuteTemplate(w, "index.html", data)
+}
+
+func game(w http.ResponseWriter, r *http.Request) {
+	data := struct {
+		Title string
+	}{
+		Title: "Title",
+	}
+
+	tmpl.ExecuteTemplate(w, "game.html", data)
 }
