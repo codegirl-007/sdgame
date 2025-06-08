@@ -74,11 +74,10 @@ export class ComponentNode {
 
             this.group.setAttribute('transform', `translate(${newX}, ${newY})`);
 
-            this.app.connections.forEach(conn => {
-                if (conn.start === this || conn.end === this) {
-                    conn.updatePosition();
-                }
-            });
+            this.x = newX;
+            this.y = newY;
+
+            this.app.updateConnectionFor(this);
         };
 
         const onMouseUp = () => {

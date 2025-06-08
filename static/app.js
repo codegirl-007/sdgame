@@ -74,7 +74,10 @@ export class CanvasApp {
             const svgP = pt.matrixTransform(this.canvas.getScreenCTM().inverse());
             const x = svgP.x - this.componentSize.width / 2;
             const y = svgP.y - this.componentSize.height / 2;
-            new ComponentNode(type, x, y, this);
+            const node = new ComponentNode(type, x, y, this);
+            node.x = x;
+            node.y = y;
+            this.placedComponents.push(node)
             if (this.placeholderText) {
                 this.placeholderText.remove();
                 this.placeholderText = null;
@@ -220,9 +223,11 @@ export class CanvasApp {
         const nodes = this.placedComponents.map(n => ({
             id: n.id,
             type: n.type,
-            x: n.x,
-            y: n.y,
-            props: n.props
+            props: n.props,
+            position: {
+                x: n.x,
+                y: n.y
+            }
         }));
 
         const connections = this.connections.map(c => ({

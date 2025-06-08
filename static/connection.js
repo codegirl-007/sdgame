@@ -11,7 +11,7 @@ export class Connection {
             stroke: '#ccc', 'stroke-width': 2, 'marker-end': 'url(#arrowhead)'
         });
         this.hitbox = createSVGElement('circle', {
-            r: 8,
+            r: 12,
             fill: 'transparent',
             cursor: 'pointer',
         });
@@ -82,7 +82,6 @@ export class Connection {
     }
 
     toggleDirection() {
-        console.log('toggle direction')
         const order = ['forward', 'backward', 'bidirectional'];
         const currentIndex = order.indexOf(this.direction);
         const nextIndex = (currentIndex + 1) % order.length;
