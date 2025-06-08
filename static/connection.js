@@ -4,7 +4,7 @@ export class Connection {
     static _activeConnection = null;
     static modalSetupDone = false;
 
-    constructor(startNode, endNode, label, protocol, app, tls) {
+    constructor(startNode, endNode, label, protocol, app, tls, capacity = 1000) {
         this.start = startNode;
         this.end = endNode;
         this.app = app;
@@ -12,6 +12,7 @@ export class Connection {
         this.protocol = protocol;
         this.direction = "forward";
         this.tls = tls;
+        this.capacity = capacity;
         this.line = createSVGElement('line', {
             stroke: '#ccc', 'stroke-width': 2, 'marker-end': 'url(#arrowhead-end)'
         });
@@ -137,6 +138,7 @@ export class Connection {
         Connection.labelInput = document.getElementById('connection-label');
         Connection.tlsCheckbox = document.getElementById('connection-tls');
         Connection.protocolInput = document.getElementById('connection-protocol');
+        Connection.capacityInput = document.getElementById('connection-capacity');
         Connection.saveBtn = document.getElementById('connection-save');
         Connection.cancelBtn = document.getElementById('connection-cancel');
 
@@ -144,6 +146,7 @@ export class Connection {
             const label = Connection.labelInput.value.trim();
             const protocol = Connection.protocolInput.value.trim();
             const tls = Connection.tlsCheckbox.checked;
+            const capacity = parseInt(Connection.capacityInput.value.trim(), 10) || 1000;
             if (!label || !protocol) return;
 
             if (Connection._activeConnection) {
@@ -153,12 +156,13 @@ export class Connection {
                 conn.protocol = protocol;
                 conn.text.textContent = label;
                 conn.tls = tls;
+                conn.capacity = capacity;
                 conn.protocolText.textContent = protocol;
                 conn.updatePosition();
             } else if (app.pendingConnection) {
                 // Creating a new connection
                 const { start, end } = app.pendingConnection;
-                const conn = new Connection(start, end, label, protocol, app, tls);
+                const conn = new Connection(start, end, label, protocol, app, tls, capacity);
                 app.connections.push(conn);
             }
 
@@ -197,6 +201,7 @@ export class Connection {
             Connection.labelInput.value = 'Read traffic';
             Connection.protocolInput.value = 'HTTP';
             Connection.tlsCheckbox.checked = false;
+            Connection.capacityInput.value = '1000';
             Connection.modal.style.display = 'block';
         }
     }
@@ -208,6 +213,7 @@ export class Connection {
         Connection.labelInput.value = this.label;
         Connection.protocolInput.value = this.protocol;
         Connection.tlsCheckbox.checked = this.tls;
+        Connection.capacityInput.value = this.capacity || 1000;
         Connection.modal.style.display = 'block';
     }
 

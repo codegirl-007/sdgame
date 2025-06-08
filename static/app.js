@@ -78,7 +78,6 @@ export class CanvasApp {
             const node = new ComponentNode(type, x, y, this);
             node.x = x;
             node.y = y;
-            this.placedComponents.push(node)
             if (this.placeholderText) {
                 this.placeholderText.remove();
                 this.placeholderText = null;
@@ -87,7 +86,7 @@ export class CanvasApp {
 
         this.runButton.addEventListener('click', () => {
             const designData = this.exportDesign();
-            alert(JSON.stringify(designData));
+            console.log(JSON.stringify(designData));
         });
 
         this.canvas.addEventListener('click', () => {
@@ -218,7 +217,8 @@ export class CanvasApp {
             label: c.label || '',
             direction: c.direction,
             protocol: c.protocol || '',
-            tls: !!c.tls
+            tls: !!c.tls,
+            capacity: c.capacity || 1000
         }));
 
         return { nodes, connections };

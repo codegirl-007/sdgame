@@ -4,8 +4,9 @@ let nodeIdCounter = 1;
  * Generates a unique node ID like "node-1", "node-2", etc.
  * @returns {string}
  */
+let idCounter = 0;
 export function generateNodeId() {
-    return `node-${nodeIdCounter++}`;
+    return `node-${idCounter++}`;
 }
 
 /**

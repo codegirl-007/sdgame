@@ -61,7 +61,6 @@ export class ComponentNode {
     }
 
     initDrag() {
-        this.id = generateNodeId();
         let offsetX, offsetY;
 
         const onMouseMove = (e) => {
