@@ -22,7 +22,7 @@ export class Connection {
         });
         this.text.textContent = label;
         this.protocolText = createSVGElement('text', {
-            'text-ancor': 'middle',
+            'text-anchor': 'middle',
             'font-size': 10,
             fill: '#888'
         });
@@ -112,5 +112,25 @@ export class Connection {
         this.selected = false;
         this.line.setAttribute('stroke', '#333');
         this.line.setAttribute('stroke-width', 2);
+    }
+
+    static handleClick(nodeObj, app) {
+        if (!app.connectionStart) {
+            app.connectionStart = nodeObj;
+            nodeObj.group.classList.add('selected');
+        } else if (app.connectionStart === nodeObj) {
+            app.connectionStart.group.classList.remove('selected');
+            app.connectionStart = null;
+        } else {
+            const defaultLabel = 'Read traffic';
+            const label = prompt('Enter connection label:', defaultLabel);
+            const protocol = prompt('Protocol (e.g. HTTP, gRPC, Kafka):', 'HTTP');
+            if (label && protocol) {
+                const conn = new Connection(app.connectionStart, nodeObj, label, protocol, app);
+                app.connections.push(conn);
+            }
+            app.connectionStart.group.classList.remove('selected');
+            app.connectionStart = null;
+        }
     }
 }

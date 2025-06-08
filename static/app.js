@@ -140,28 +140,6 @@ export class CanvasApp {
         });
     }
 
-    handleConnectionClick(nodeObj) {
-        if (!this.connectionStart) {
-            this.connectionStart = nodeObj;
-            nodeObj.group.classList.add('selected');
-        } else if (this.connectionStart === nodeObj) {
-            this.connectionStart.group.classList.remove('selected');
-            this.connectionStart = null;
-        } else {
-            const defaultLabel = 'Read traffic';
-            const label = prompt('Enter connection label:', defaultLabel);
-            const protocol = prompt('Protocol (e.g. HTTP, gRPC, Kafka:', 'HTTP')
-            if (label && protocol) {
-                const conn = new Connection(this.connectionStart, nodeObj, label, protocol, this);
-                conn.protocol = protocol;
-                conn.protocolText.textContent = protocol;
-                this.connections.push(conn);
-            }
-            this.connectionStart.group.classList.remove('selected');
-            this.connectionStart = null;
-        }
-    }
-
     showPropsPanel(nodeObj) {
         this.activeNode = nodeObj;
         const panel = this.nodePropsPanel;

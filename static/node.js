@@ -1,3 +1,4 @@
+import { Connection } from './connection.js';
 import { generateNodeId, createSVGElement } from './utils.js';
 
 export class ComponentNode {
@@ -42,7 +43,7 @@ export class ComponentNode {
         this.group.addEventListener('click', (e) => {
             e.stopPropagation();
             if (app.arrowMode) {
-                app.handleConnectionClick(this);
+                Connection.handleClick(this, app);
             } else {
                 app.clearSelection();
                 this.select();
