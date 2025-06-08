@@ -77,7 +77,7 @@ export class ComponentNode {
             this.x = newX;
             this.y = newY;
 
-            this.app.updateConnectionFor(this);
+            this.app.updateConnectionsFor(this);
         };
 
         const onMouseUp = () => {
