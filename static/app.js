@@ -1,6 +1,5 @@
-import { generateNodeId, createSVGElement } from './utils.js';
 import { ComponentNode } from './node.js'
-import { Connection } from './connection.js'
+import { generateNodeId, createSVGElement } from './utils.js';
 
 export class CanvasApp {
     constructor() {
@@ -24,6 +23,9 @@ export class CanvasApp {
         this.dbGroup = document.getElementById('db-group');
         this.cacheGroup = document.getElementById('cache-group');
         this.selectedNode = null;
+        this.computeTypes = ['webserver', 'microservice'];
+        this.computeGroup = document.getElementById('compute-group');
+
 
         this.placeholderText = createSVGElement('text', {
             x: '50%',
@@ -110,6 +112,9 @@ export class CanvasApp {
             if (nodeObj.type === 'CacheStandard' || nodeObj.type === 'CacheLarge') {
                 nodeObj.props.cacheTTL = parseInt(panel.querySelector("input[name='cacheTTL']").value, 10);
             }
+            if (this.computeTypes.includes(nodeObj.type)) {
+                nodeObj.props.instanceSize = panel.querySelector("select[name='instanceSize']").value;
+            }
             this.hidePropsPanel();
         });
 
@@ -171,6 +176,15 @@ export class CanvasApp {
 
         this.propsSaveBtn.disabled = false;
         panel.style.display = 'block';
+
+        const isCompute = this.computeTypes.includes(nodeObj.type);
+        console.log(isCompute)
+        console.log(nodeObj)
+        this.computeGroup.style.display = isCompute ? 'block' : 'none';
+
+        if (isCompute) {
+            panel.querySelector("select[name='instanceSize']").value = nodeObj.props.instanceSize || 'medium';
+        }
     }
 
     hidePropsPanel() {
@@ -201,15 +215,35 @@ export class CanvasApp {
     }
 
     exportDesign() {
-        const nodes = this.placedComponents.map(n => ({
-            id: n.id,
-            type: n.type,
-            props: n.props,
-            position: {
-                x: n.x,
-                y: n.y
+        const nodes = this.placedComponents.map(n => {
+            const baseProps = { label: n.props.label };
+
+            // Add only if it's a database
+            if (n.type === 'Database') {
+                baseProps.replication = n.props.replication;
             }
-        }));
+
+            // Add only if it's a cache
+            if (n.type === 'CacheStandard' || n.type === 'CacheLarge') {
+                baseProps.cacheTTL = n.props.cacheTTL;
+            }
+
+            // Add only if it's a compute node
+            const computeTypes = ['WebServer', 'Microservice'];
+            if (computeTypes.includes(n.type)) {
+                baseProps.instanceSize = n.props.instanceSize;
+            }
+
+            return {
+                id: n.id,
+                type: n.type,
+                props: baseProps,
+                position: {
+                    x: n.x,
+                    y: n.y
+                }
+            };
+        });
 
         const connections = this.connections.map(c => ({
             source: c.start.id,

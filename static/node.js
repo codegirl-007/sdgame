@@ -9,7 +9,8 @@ export class ComponentNode {
         this.props = {
             label: type,
             replication: 1,
-            cacheTTL: 0
+            cacheTTL: 0,
+            instanceSize: 'medium'
         };
         this.group = createSVGElement('g', { class: 'dropped', 'data-type': type });
         const rect = createSVGElement('rect', {

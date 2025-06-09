@@ -523,6 +523,22 @@
       color: #fff;
       border-radius: 4px;
     }
+
+    #node-props-panel .form-group {
+  margin-bottom: 10px;
+}
+
+#node-props-panel label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+#node-props-panel select {
+  width: 100%;
+  padding: 4px;
+  font-size: 14px;
+}
     </style>
   </head>
   <body>
@@ -596,29 +612,17 @@
                   <span class="tooltip">cost: $5/mo<br>distributes traffic evenly<br>latency: 5 ms</span>
                 </div>
 
-                <div class="component-icon" draggable="true" data-type="webserver (small)">
-                  web server (small)
-                  <span class="tooltip">cost: $10/mo<br>capacity: 100 rps<br>base latency: 50 ms</span>
+                <div class="component-icon" draggable="true" data-type="webserver">
+                  webserver
+                  <span class="tooltip">cost: varies<br>capacity and latency depends on instance size</span>
                 </div>
-
-                <div class="component-icon" draggable="true" data-type="webserver (medium)">
-                  web server (medium)
-                  <span class="tooltip">cost: $20/mo<br>capacity: 200 rps<br>base latency: 40 ms</span>
-                </div>
-
                 <div class="component-icon" draggable="true" data-type="database">
                   database
                   <span class="tooltip">cost: $20/mo<br>read capacity: 150 rps<br>base latency: 80 ms<br>supports replication</span>
                 </div>
 
-                <div class="component-icon" draggable="true" data-type="cache (standard)">
-                  cache (standard)
-                  <span class="tooltip">cost: $10/mo<br>capacity: 100 rps<br>latency: 5 ms<br>80% hit rate with 1hr ttl</span>
-                </div>
-
-                <div class="component-icon" draggable="true" data-type="cache (large)">
-                  cache (large)
-                  <span class="tooltip">cost: $20/mo<br>capacity: 200 rps<br>latency: 5 ms<br>higher hit rate for large datasets</span>
+                <div class="component-icon" draggable="true" data-type="cache">
+                  cache
                 </div>
 
                 <div class="component-icon" draggable="true" data-type="messagequeue">
@@ -733,6 +737,15 @@
                   <div id="cache-group" class="prop-group">
                     <label>cache ttl (secs):<input type="number" name="cachettl" min="0" step="60" /></label>
                   </div>
+                  <div id="compute-group">
+                    <label>Instance Size:</label>
+                    <select name="instanceSize">
+                      <option value="small">Small</option>
+                      <option value="medium" selected>Medium</option>
+                      <option value="large">Large</option>
+                    </select>
+                  </div>
+
                   <button id="node-props-save" disabled>save</button>
                 </div>
                 <div id="bottom-panel">
