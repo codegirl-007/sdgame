@@ -525,20 +525,20 @@
     }
 
     #node-props-panel .form-group {
-  margin-bottom: 10px;
-}
+      margin-bottom: 10px;
+    }
 
-#node-props-panel label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 4px;
-}
+    #node-props-panel label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
 
-#node-props-panel select {
-  width: 100%;
-  padding: 4px;
-  font-size: 14px;
-}
+    #node-props-panel select {
+      width: 100%;
+      padding: 4px;
+      font-size: 14px;
+    }
     </style>
   </head>
   <body>
@@ -735,7 +735,15 @@
                     <label>replication factor:<input type="number" name="replication" min="1" step="1" /></label>
                   </div>
                   <div id="cache-group" class="prop-group">
-                    <label>cache ttl (secs):<input type="number" name="cachettl" min="0" step="60" /></label>
+                    <label>cache ttl (secs):<input type="number" name="cacheTTL" min="0" step="60" /></label>
+                    <label>Max Entries: <input name="maxEntries" type="number" /></label>
+                    <label>Eviction Policy:
+                      <select name="evictionPolicy">
+                        <option value="LRU">LRU</option>
+                        <option value="LFU">LFU</option>
+                        <option value="Random">Random</option>
+                      </select>
+                    </label>
                   </div>
                   <div id="compute-group">
                     <label>Instance Size:</label>

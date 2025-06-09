@@ -109,8 +109,10 @@ export class CanvasApp {
             if (nodeObj.type === 'Database') {
                 nodeObj.props.replication = parseInt(panel.querySelector("input[name='replication']").value, 10);
             }
-            if (nodeObj.type === 'CacheStandard' || nodeObj.type === 'CacheLarge') {
+            if (nodeObj.type === 'cache') {
                 nodeObj.props.cacheTTL = parseInt(panel.querySelector("input[name='cacheTTL']").value, 10);
+                nodeObj.props.maxEntries = parseInt(panel.querySelector("input[name='maxEntries']").value, 10);
+                nodeObj.props.evictionPolicy = panel.querySelector("select[name='evictionPolicy']").value;
             }
             if (this.computeTypes.includes(nodeObj.type)) {
                 nodeObj.props.instanceSize = panel.querySelector("select[name='instanceSize']").value;
@@ -149,6 +151,11 @@ export class CanvasApp {
         this.activeNode = nodeObj;
         const panel = this.nodePropsPanel;
 
+        if (nodeObj.type === 'user') {
+            this.hidePropsPanel();
+            return;
+        }
+
         // Position the panel (optional, or you can use fixed top/right)
         const bbox = nodeObj.group.getBBox();
         const ctm = nodeObj.group.getCTM();
@@ -168,10 +175,13 @@ export class CanvasApp {
         }
 
         // Show cache fields if it's a cache
-        const isCache = nodeObj.type === 'CacheStandard' || nodeObj.type === 'CacheLarge';
+        const isCache = nodeObj.type === 'cache';
         this.cacheGroup.style.display = isCache ? 'block' : 'none';
         if (isCache) {
-            this.cacheGroup.querySelector("input[name='cacheTTL']").value = nodeObj.props.cacheTTL;
+            this.cacheGroup.querySelector("input[name='cacheTTL']").value = nodeObj.props.cacheTTL ?? 0;
+            panel.querySelector('input[name="cacheTTL"]').value = nodeObj.props.cacheTTL;
+            panel.querySelector("input[name='maxEntries']").value = nodeObj.props.maxEntries || 100000;
+            panel.querySelector("select[name='evictionPolicy']").value = nodeObj.props.evictionPolicy || 'LRU';
         }
 
         this.propsSaveBtn.disabled = false;
@@ -215,35 +225,39 @@ export class CanvasApp {
     }
 
     exportDesign() {
-        const nodes = this.placedComponents.map(n => {
-            const baseProps = { label: n.props.label };
+        const nodes = this.placedComponents
+            .filter(n => n.type !== 'user')
+            .map(n => {
+                const baseProps = { label: n.props.label };
 
-            // Add only if it's a database
-            if (n.type === 'Database') {
-                baseProps.replication = n.props.replication;
-            }
-
-            // Add only if it's a cache
-            if (n.type === 'CacheStandard' || n.type === 'CacheLarge') {
-                baseProps.cacheTTL = n.props.cacheTTL;
-            }
-
-            // Add only if it's a compute node
-            const computeTypes = ['WebServer', 'Microservice'];
-            if (computeTypes.includes(n.type)) {
-                baseProps.instanceSize = n.props.instanceSize;
-            }
-
-            return {
-                id: n.id,
-                type: n.type,
-                props: baseProps,
-                position: {
-                    x: n.x,
-                    y: n.y
+                // Add only if it's a database
+                if (n.type === 'Database') {
+                    baseProps.replication = n.props.replication;
                 }
-            };
-        });
+
+                // Add only if it's a cache
+                if (n.type === 'cache') {
+                    baseProps.cacheTTL = n.props.cacheTTL;
+                    baseProps.maxEntries = n.props.maxEntries;
+                    baseProps.evictionPolicy = n.props.evictionPolicy;
+                }
+
+                // Add only if it's a compute node
+                const computeTypes = ['WebServer', 'Microservice'];
+                if (computeTypes.includes(n.type)) {
+                    baseProps.instanceSize = n.props.instanceSize;
+                }
+
+                return {
+                    id: n.id,
+                    type: n.type,
+                    props: baseProps,
+                    position: {
+                        x: n.x,
+                        y: n.y
+                    }
+                };
+            });
 
         const connections = this.connections.map(c => ({
             source: c.start.id,
