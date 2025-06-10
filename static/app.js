@@ -8,6 +8,9 @@ import './plugins/database.js';
 import './plugins/messageQueue.js';
 import './plugins/cdn.js';
 import './plugins/microservice.js';
+import './plugins/datapipeline.js';
+import './plugins/monitorAlerting.js';
+import './plugins/thirdPartyService.js';
 import { PluginRegistry } from './pluginRegistry.js';
 
 export class CanvasApp {

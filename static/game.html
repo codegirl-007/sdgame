@@ -810,19 +810,59 @@
                     <label>API Version</label>
                     <input type="text" name="apiVersion" />
                   </div>
+                  <div id="datapipeline-group" data-group="pipeline-group" class="prop-group">
+                    <label>Batch Size</label>
+                    <input type="number" name="batchSize" min="1" />
+
+                    <label>Schedule</label>
+                    <select name="schedule">
+                      <option value="realtime">Real-time</option>
+                      <option value="hourly">Hourly</option>
+                      <option value="daily">Daily</option>
+                      <option value="weekly">Weekly</option>
+                    </select>
+
+                    <label>Transformations</label>
+                    <select name="transformations">
+                      <option value="normalize">Normalize</option>
+                      <option value="dedupe">Dedupe</option>
+                      <option value="filter">Filter</option>
+                      <option value="enrich">Enrich</option>
+                      <option value="aggregate">Aggregate</option>
+                    </select>
+
+                    <label>Destination</label>
+                    <input type="text" name="destination" placeholder="e.g. data warehouse" />
+                  </div>
+                  <div id="monitor-group" data-group="monitor-group" class="prop-group">
+  <label>Monitoring Tool</label>
+  <select name="tool">
+    <option value="Prometheus">Prometheus</option>
+    <option value="Datadog">Datadog</option>
+    <option value="New Relic">New Relic</option>
+    <option value="Grafana Cloud">Grafana Cloud</option>
+  </select>
+
+  <label>Alert Threshold (%)</label>
+  <input type="number" name="alertThreshold" min="0" max="100" />
+</div>
+                  <div id="third-party-group" data-group="third-party-group" class="prop-group">
+  <label>Provider</label>
+  <input type="text" name="provider" />
+
+  <label>Latency (ms)</label>
+  <input type="number" name="latency" min="0" />
+</div>
+
 
                   <!-- PUT NEW COMPONENTS BEFORE THIS BUTTON -->
                   <button id="node-props-save" disabled>save</button>
                 </div>
                 <div id="bottom-panel">
                   <button id="run-button" disabled>Test Design</button>
-
                 </div>
-
               </div>
-
             </div>
-
             <!-- Metrics-->
             <div id="content3" class="tab-content">This is Tab 3 content.</div>
           </div>
