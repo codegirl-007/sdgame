@@ -758,6 +758,60 @@
                     <label>Retention Time (sec)</label>
                     <input type="number" name="retentionSeconds" min="1" />
                   </div>
+                  <div id="cdn-group" data-group="cdn-group" class="prop-group">
+                    <label>TTL (seconds)</label>
+                    <input type="number" name="ttl" min="1" />
+
+                    <label>Geo Replication</label>
+                    <select name="geoReplication">
+                      <option value="global">Global</option>
+                      <option value="regional">Regional</option>
+                      <option value="custom">Custom</option>
+                    </select>
+
+                    <label>Caching Strategy</label>
+                    <select name="cachingStrategy">
+                      <option value="cache-first">Cache First</option>
+                      <option value="network-first">Network First</option>
+                      <option value="stale-while-revalidate">Stale While Revalidate</option>
+                    </select>
+
+                    <label>Compression</label>
+                    <select name="compression">
+                      <option value="brotli">Brotli</option>
+                      <option value="gzip">Gzip</option>
+                      <option value="none">None</option>
+                    </select>
+
+                    <label>HTTP/2 Support</label>
+                    <select name="http2">
+                      <option value="enabled">Enabled</option>
+                      <option value="disabled">Disabled</option>
+                    </select>
+                  </div>
+                  <div id="microservice-group" data-group="microservice-group" class="prop-group">
+                    <label>Instance Count</label>
+                    <input type="number" name="instanceCount" min="1" />
+
+                    <label>Instance Size</label>
+                    <select name="instanceSize">
+                      <option value="small">Small</option>
+                      <option value="medium">Medium</option>
+                      <option value="large">Large</option>
+                    </select>
+
+                    <label>Scaling Strategy</label>
+                    <select name="scalingStrategy">
+                      <option value="manual">Manual</option>
+                      <option value="auto">Auto</option>
+                      <option value="scheduled">Scheduled</option>
+                    </select>
+
+                    <label>API Version</label>
+                    <input type="text" name="apiVersion" />
+                  </div>
+
+                  <!-- PUT NEW COMPONENTS BEFORE THIS BUTTON -->
                   <button id="node-props-save" disabled>save</button>
                 </div>
                 <div id="bottom-panel">

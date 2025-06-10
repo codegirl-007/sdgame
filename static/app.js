@@ -6,6 +6,8 @@ import './plugins/cache.js';
 import './plugins/loadbalancer.js';
 import './plugins/database.js';
 import './plugins/messageQueue.js';
+import './plugins/cdn.js';
+import './plugins/microservice.js';
 import { PluginRegistry } from './pluginRegistry.js';
 
 export class CanvasApp {
