@@ -22,3 +22,11 @@ export function createSVGElement(tag, attrs) {
     }
     return elem;
 }
+
+export function generateDefaultProps(plugin) {
+    const defaults = {};
+    plugin.props?.forEach(p => {
+        defaults[p.name] = p.default;
+    });
+    return defaults;
+}

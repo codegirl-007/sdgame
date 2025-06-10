@@ -604,55 +604,45 @@
               <div id="sidebar">
                 <div class="component-icon" draggable="true" data-type="user">
                   user
-                  <span class="tooltip">simulates user traffic</span>
                 </div>
 
-                <div class="component-icon" draggable="true" data-type="load balancer">
+                <div class="component-icon" draggable="true" data-type="loadBalancer">
                   load balancer
-                  <span class="tooltip">cost: $5/mo<br>distributes traffic evenly<br>latency: 5 ms</span>
                 </div>
 
                 <div class="component-icon" draggable="true" data-type="webserver">
                   webserver
-                  <span class="tooltip">cost: varies<br>capacity and latency depends on instance size</span>
                 </div>
                 <div class="component-icon" draggable="true" data-type="database">
                   database
-                  <span class="tooltip">cost: $20/mo<br>read capacity: 150 rps<br>base latency: 80 ms<br>supports replication</span>
                 </div>
 
                 <div class="component-icon" draggable="true" data-type="cache">
                   cache
                 </div>
 
-                <div class="component-icon" draggable="true" data-type="messagequeue">
+                <div class="component-icon" draggable="true" data-type="messageQueue">
                   message queue
-                  <span class="tooltip">cost: $15/mo<br>decouples components<br>useful for batching writes</span>
                 </div>
 
                 <div class="component-icon" draggable="true" data-type="cdn">
                   CDN
-                  <span class="tooltip">cost: $0.03/gb<br>improves global latency<br>caches static content</span>
                 </div>
 
                 <div class="component-icon" draggable="true" data-type="microservice">
                   microservice node
-                  <span class="tooltip">cost: $10/mo<br>stateless container<br>use for modular logic</span>
                 </div>
 
                 <div class="component-icon" draggable="true" data-type="data pipeline">
                   data pipeline
-                  <span class="tooltip">cost: $25/mo<br>stream or batch processing<br>used for analytics / etl</span>
                 </div>
 
                 <div class="component-icon" draggable="true" data-type="monitoring/alerting">
                   monitoring/alerting
-                  <span class="tooltip">cost: $5/mo<br>health checks + logs<br>alerts on failures</span>
                 </div>
 
                 <div class="component-icon" draggable="true" data-type="third party service">
                   third-party service
-                  <span class="tooltip">external apis<br>latency + cost vary<br>examples: payment, email, search</span>
                 </div>
               </div>
 
@@ -728,13 +718,14 @@
                 </svg>
                 <div id="node-props-panel">
                   <h3>node properties</h3>
-                  <div id="label-group">
-                    <label>label:<input type="text" name="label" /></label>
+                  <div id="label-group" data-group="label-group">
+                    <label>label:</label>
+                    <input type="text" name="label" />
                   </div>
-                  <div id="db-group" class="prop-group">
+                  <div id="db-group" class="prop-group" data-group="db-group">
                     <label>replication factor:<input type="number" name="replication" min="1" step="1" /></label>
                   </div>
-                  <div id="cache-group" class="prop-group">
+                  <div id="cache-group" class="prop-group" data-group="cache-group">
                     <label>cache ttl (secs):<input type="number" name="cacheTTL" min="0" step="60" /></label>
                     <label>Max Entries: <input name="maxEntries" type="number" /></label>
                     <label>Eviction Policy:
@@ -745,7 +736,7 @@
                       </select>
                     </label>
                   </div>
-                  <div id="compute-group">
+                  <div id="compute-group" data-group="compute-group" class="prop-group">
                     <label>Instance Size:</label>
                     <select name="instanceSize">
                       <option value="small">Small</option>
@@ -753,7 +744,20 @@
                       <option value="large">Large</option>
                     </select>
                   </div>
+                  <div id="lb-group" data-group="lb-group" class="prop-group">
+                    <label>Algorithm</label>
+                    <select name="algorithm">
+                      <option value="round-robin">Round Robin</option>
+                      <option value="least-connections">Least Connections</option>
+                    </select>
+                  </div>
+                  <div id="mq-group" data-group="mq-group" class="prop-group">
+                    <label>Max Size</label>
+                    <input type="number" name="maxSize" min="1" />
 
+                    <label>Retention Time (sec)</label>
+                    <input type="number" name="retentionSeconds" min="1" />
+                  </div>
                   <button id="node-props-save" disabled>save</button>
                 </div>
                 <div id="bottom-panel">

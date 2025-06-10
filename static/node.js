@@ -2,7 +2,7 @@ import { Connection } from './connection.js';
 import { generateNodeId, createSVGElement } from './utils.js';
 
 export class ComponentNode {
-    constructor(type, x, y, app) {
+    constructor(type, x, y, app, props = {}) {
         this.id = generateNodeId();
         this.type = type;
         this.app = app;
@@ -10,19 +10,24 @@ export class ComponentNode {
             label: type,
             replication: 1,
             cacheTTL: 0,
-            instanceSize: 'medium'
+            instanceSize: 'medium',
+            ...props
         };
+
         this.group = createSVGElement('g', { class: 'dropped', 'data-type': type });
+
         const rect = createSVGElement('rect', {
-            x, y,
-            width: 0,
+            x,
+            y,
+            width: 0, // will be updated after measuring text
             height: app.componentSize.height,
             fill: '#121212',
             stroke: '#00ff88',
             'stroke-width': 1,
-            rx: 4, ry: 4
+            rx: 4,
+            ry: 4
         });
-        this.group.appendChild(rect);
+
         this.text = createSVGElement('text', {
             x: x + app.componentSize.width / 2,
             y: y + app.componentSize.height / 2 + 5,
@@ -30,17 +35,28 @@ export class ComponentNode {
             'font-size': 16,
             fill: '#ccc'
         });
+
         this.text.textContent = this.props.label;
-        this.app.canvas.appendChild(this.text); // temporarily append to measure
+
+        // Temporarily add text to canvas to measure its width
+        app.canvas.appendChild(this.text);
         const textWidth = this.text.getBBox().width;
         const padding = 20;
         const finalWidth = textWidth + padding;
 
+        // Update rect width and center text
         rect.setAttribute('width', finalWidth);
         this.text.setAttribute('x', x + finalWidth / 2);
+
+        // Clean up temporary text
+        app.canvas.removeChild(this.text);
+
+        this.group.appendChild(rect);
         this.group.appendChild(this.text);
         this.group.__nodeObj = this;
+
         this.initDrag();
+
         this.group.addEventListener('click', (e) => {
             e.stopPropagation();
             if (app.arrowMode) {
@@ -50,15 +66,20 @@ export class ComponentNode {
                 this.select();
             }
         });
+
         this.group.addEventListener('dblclick', (e) => {
             e.stopPropagation();
             if (!app.arrowMode) {
                 app.showPropsPanel(this);
             }
         });
-        app.canvas.appendChild(this.group);
+
+        app.canvas.appendChild(this.group); // ✅ now correctly adding full group
         app.placedComponents.push(this);
         app.runButton.disabled = false;
+
+        this.x = x;
+        this.y = y;
     }
 
     initDrag() {
