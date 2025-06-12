@@ -56,15 +56,6 @@ type ComponentSpec struct {
 	DbReadReplica   DbReadReplica
 }
 
-type Design struct {
-	NumWebServerSmall     int
-	NumWebServerMedium    int
-	CacheType             CacheType // Enum (see below)
-	CacheTTL              string
-	NumDbReplicas         int
-	PromotionDelaySeconds int
-}
-
 type FailureEvent struct {
 	Type string
 	Time int
