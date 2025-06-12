@@ -1,4 +1,4 @@
-import { generateNodeId, createSVGElement } from './utils.js';
+import { createSVGElement } from './utils.js';
 
 export class Connection {
     static _activeConnection = null;
