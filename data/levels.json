@@ -10,7 +10,22 @@
         "maxP95LatencyMs": 200,
         "requiredAvailabilityPct": 99.0,
         "mustInclude": ["database"],
-        "hints": ["Start with a basic backend and persistent storage."]
+        "hints": ["Start with a basic backend and persistent storage."],
+        "interviewerRequirements": [
+            "Users should be able to shorten a URL via a basic web interface or API.",
+            "Each shortened URL should redirect to the original URL.",
+            "Data should be persisted so links remain valid after a restart."
+        ],
+        "functionalRequirements": [
+            "Must include a database to persist mappings"
+        ],
+        "nonFunctionalRequirements": [
+            "Target RPS: 100",
+            "Max P95 latency: 200ms",
+            "Required availability: 99.0%",
+            "Max monthly cost: $100",
+            "Simulation duration: 60 seconds"
+        ]
     },
     {
         "id": "url-shortener-medium",
@@ -24,7 +39,23 @@
         "requiredAvailabilityPct": 99.9,
         "mustInclude": ["database", "loadBalancer"],
         "encouragedComponents": ["cache"],
-        "hints": ["Consider caching and horizontal scaling."]
+        "hints": ["Consider caching and horizontal scaling."],
+        "interviewerRequirements": [
+            "The service should handle traffic spikes gracefully.",
+            "Shortened links should resolve quickly under moderate load.",
+            "Ensure no single point of failure in the redirect path."
+        ],
+        "functionalRequirements": [
+            "Must include a database and a load balancer",
+            "Encouraged to add a cache in front of the database"
+        ],
+        "nonFunctionalRequirements": [
+            "Target RPS: 1000",
+            "Max P95 latency: 150ms",
+            "Required availability: 99.9%",
+            "Max monthly cost: $300",
+            "Simulation duration: 180 seconds"
+        ]
     },
     {
         "id": "url-shortener-hard",
@@ -38,7 +69,24 @@
         "requiredAvailabilityPct": 99.99,
         "mustInclude": ["cdn", "database"],
         "encouragedComponents": ["cache", "messageQueue"],
-        "hints": ["Think about write-path consistency and global replication."]
+        "hints": ["Think about write-path consistency and global replication."],
+        "interviewerRequirements": [
+            "The service must support globally distributed traffic with low latency.",
+            "Users across the world should get fast redirects via local CDN edge nodes.",
+            "Writes (shorten requests) should be consistent and durable."
+        ],
+        "functionalRequirements": [
+            "Must include a CDN and a database",
+            "Encouraged to include a cache and a message queue",
+            "Writes should pass through a queue before hitting storage (eventual consistency)"
+        ],
+        "nonFunctionalRequirements": [
+            "Target RPS: 10000",
+            "Max P95 latency: 100ms",
+            "Required availability: 99.99%",
+            "Max monthly cost: $1000",
+            "Simulation duration: 300 seconds"
+        ]
     },
 
     {
@@ -52,7 +100,22 @@
         "maxP95LatencyMs": 300,
         "requiredAvailabilityPct": 99.0,
         "mustInclude": ["webserver", "database"],
-        "hints": ["You don’t need to persist every message yet."]
+        "hints": ["You don’t need to persist every message yet."],
+        "interviewerRequirements": [
+            "Users should be able to send and receive messages in real-time.",
+            "Messages should be stored to support reloading the page without data loss.",
+            "A basic frontend should connect to a backend service."
+        ],
+        "functionalRequirements": [
+            "Must include a webserver and a database"
+        ],
+        "nonFunctionalRequirements": [
+            "Target RPS: 50",
+            "Max P95 latency: 300ms",
+            "Required availability: 99.0%",
+            "Max monthly cost: $150",
+            "Simulation duration: 120 seconds"
+        ]
     },
     {
         "id": "chat-app-medium",
@@ -66,7 +129,23 @@
         "requiredAvailabilityPct": 99.9,
         "mustInclude": ["webserver", "database", "messageQueue"],
         "encouragedComponents": ["cache"],
-        "hints": ["Ensure you decouple frontend from persistence."]
+        "hints": ["Ensure you decouple frontend from persistence."],
+        "interviewerRequirements": [
+            "Messages must be delivered in order and reliably across multiple clients.",
+            "Frontend and backend should be decoupled via an asynchronous system.",
+            "Messages should be persisted with low latency under load."
+        ],
+        "functionalRequirements": [
+            "Must include a webserver, message queue, and database",
+            "Encouraged to use a cache to reduce database read pressure"
+        ],
+        "nonFunctionalRequirements": [
+            "Target RPS: 500",
+            "Max P95 latency: 200ms",
+            "Required availability: 99.9%",
+            "Max monthly cost: $500",
+            "Simulation duration: 300 seconds"
+        ]
     },
     {
         "id": "chat-app-hard",
@@ -80,7 +159,24 @@
         "requiredAvailabilityPct": 99.99,
         "mustInclude": ["messageQueue", "database"],
         "discouragedComponents": ["single-instance webserver"],
-        "hints": ["Think about pub/sub, retries, and ordering guarantees."]
+        "hints": ["Think about pub/sub, retries, and ordering guarantees."],
+        "interviewerRequirements": [
+            "Messages must support delivery guarantees and deduplication.",
+            "Users must receive typing indicators and read receipts in near-real-time.",
+            "System must scale horizontally and tolerate node failures."
+        ],
+        "functionalRequirements": [
+            "Must include a message queue and database",
+            "Discouraged from using a single-instance webserver",
+            "Encouraged to use a publish/subscribe system for fan-out"
+        ],
+        "nonFunctionalRequirements": [
+            "Target RPS: 5000",
+            "Max P95 latency: 100ms",
+            "Required availability: 99.99%",
+            "Max monthly cost: $1500",
+            "Simulation duration: 600 seconds"
+        ]
     },
 
     {
@@ -94,7 +190,22 @@
         "maxP95LatencyMs": 500,
         "requiredAvailabilityPct": 99.0,
         "mustInclude": ["cdn"],
-        "hints": ["You don’t need full-blown adaptive streaming yet."]
+        "hints": ["You don’t need full-blown adaptive streaming yet."],
+        "interviewerRequirements": [
+            "Users should be able to request and stream a video file.",
+            "Content should be served via a CDN to reduce latency and bandwidth cost.",
+            "Playback does not require adaptive streaming."
+        ],
+        "functionalRequirements": [
+            "Must include a CDN to serve static video content"
+        ],
+        "nonFunctionalRequirements": [
+            "Target RPS: 200",
+            "Max P95 latency: 500ms",
+            "Required availability: 99.0%",
+            "Max monthly cost: $500",
+            "Simulation duration: 300 seconds"
+        ]
     },
     {
         "id": "netflix-medium",
@@ -108,7 +219,23 @@
         "requiredAvailabilityPct": 99.9,
         "mustInclude": ["cdn", "data pipeline", "cache"],
         "encouragedComponents": ["monitoring/alerting"],
-        "hints": ["Think about asynchronous jobs and caching strategy."]
+        "hints": ["Think about asynchronous jobs and caching strategy."],
+        "interviewerRequirements": [
+            "Videos should be transcoded into multiple bitrates for adaptive playback.",
+            "Popular content should be cached to improve performance.",
+            "Users should receive basic recommendations based on view history."
+        ],
+        "functionalRequirements": [
+            "Must include a CDN, cache, and data pipeline (e.g. for processing viewing logs)",
+            "Encouraged to include monitoring/alerting for system health"
+        ],
+        "nonFunctionalRequirements": [
+            "Target RPS: 1000",
+            "Max P95 latency: 300ms",
+            "Required availability: 99.9%",
+            "Max monthly cost: $2000",
+            "Simulation duration: 600 seconds"
+        ]
     },
     {
         "id": "netflix-hard",
@@ -122,7 +249,24 @@
         "requiredAvailabilityPct": 99.999,
         "mustInclude": ["cdn", "data pipeline", "monitoring/alerting"],
         "encouragedComponents": ["messageQueue", "cache", "third party service"],
-        "hints": ["You’ll need intelligent routing and fallback mechanisms."]
+        "hints": ["You’ll need intelligent routing and fallback mechanisms."],
+        "interviewerRequirements": [
+            "Users worldwide should stream with minimal latency through regional CDN edge nodes.",
+            "The system must support failover between regions.",
+            "Real-time metrics and alerting must be integrated for proactive issue detection."
+        ],
+        "functionalRequirements": [
+            "Must include a CDN, data pipeline, and monitoring/alerting",
+            "Encouraged to use cache and queue for async video processing",
+            "Encouraged to simulate third-party service integrations (e.g. payment, licensing)"
+        ],
+        "nonFunctionalRequirements": [
+            "Target RPS: 10000",
+            "Max P95 latency: 200ms",
+            "Required availability: 99.999%",
+            "Max monthly cost: $10000",
+            "Simulation duration: 900 seconds"
+        ]
     },
     {
         "id": "rate-limiter-easy",
@@ -135,7 +279,23 @@
         "maxP95LatencyMs": 100,
         "requiredAvailabilityPct": 99.0,
         "mustInclude": ["webserver"],
-        "hints": ["Use an in-memory store and sliding window or token bucket."]
+        "hints": ["Use an in-memory store and sliding window or token bucket."],
+        "interviewerRequirements": [
+            "Each client should be limited to N requests per minute.",
+            "Rate limits should be enforced in memory.",
+            "Only one instance is required—no cross-node coordination."
+        ],
+        "functionalRequirements": [
+            "Must include a webserver that can reject requests over the configured RPS",
+            "Rate limiting must be enforced locally (no coordination with other nodes)"
+        ],
+        "nonFunctionalRequirements": [
+            "Target RPS: 200",
+            "Max P95 latency: 100ms",
+            "Required availability: 99.0%",
+            "Max monthly cost: $50",
+            "Simulation duration: 60 seconds"
+        ]
     },
     {
         "id": "rate-limiter-medium",
@@ -149,7 +309,24 @@
         "requiredAvailabilityPct": 99.9,
         "mustInclude": ["webserver", "cache"],
         "encouragedComponents": ["messageQueue"],
-        "hints": ["Consider Redis or distributed token buckets. Account for clock drift."]
+        "hints": ["Consider Redis or distributed token buckets. Account for clock drift."],
+        "interviewerRequirements": [
+            "Rate limits must be enforced across multiple service instances.",
+            "State should be centralized or synchronized (e.g., using Redis).",
+            "System should recover cleanly from cache failures."
+        ],
+        "functionalRequirements": [
+            "Must include a shared cache (e.g., Redis) for rate limiting state",
+            "Must include a webserver that respects global rate limits",
+            "Encouraged to queue burst traffic using message queues"
+        ],
+        "nonFunctionalRequirements": [
+            "Target RPS: 1000",
+            "Max P95 latency: 50ms",
+            "Required availability: 99.9%",
+            "Max monthly cost: $300",
+            "Simulation duration: 180 seconds"
+        ]
     },
     {
         "id": "rate-limiter-hard",
@@ -163,7 +340,24 @@
         "requiredAvailabilityPct": 99.99,
         "mustInclude": ["cache"],
         "encouragedComponents": ["cdn", "data pipeline", "monitoring/alerting"],
-        "hints": ["Ensure low latency despite distributed state. Avoid single points of failure."]
+        "hints": ["Ensure low latency despite distributed state. Avoid single points of failure."],
+        "interviewerRequirements": [
+            "Each user must be rate-limited independently and consistently across regions.",
+            "The system should avoid global bottlenecks while maintaining quota correctness.",
+            "Should include real-time metrics and alerting on quota violations or system degradation."
+        ],
+        "functionalRequirements": [
+            "Must include a cache that replicates or partitions rate-limit state regionally",
+            "Rate limiting should be enforced with user-scoped and region-scoped policies",
+            "Must simulate availability zones with failover and latency variance"
+        ],
+        "nonFunctionalRequirements": [
+            "Target RPS: 5000",
+            "Max P95 latency: 30ms",
+            "Required availability: 99.99%",
+            "Max monthly cost: $1000",
+            "Simulation duration: 300 seconds"
+        ]
     },
     {
         "id": "metrics-system-easy",
@@ -176,7 +370,23 @@
         "maxP95LatencyMs": 200,
         "requiredAvailabilityPct": 99.0,
         "mustInclude": ["webserver", "database"],
-        "hints": ["Start by storing metrics as timestamped values in a simple DB."]
+        "hints": ["Start by storing metrics as timestamped values in a simple DB."],
+        "interviewerRequirements": [
+            "Metrics should be received via HTTP and stored locally.",
+            "No external systems needed—simple write and read support.",
+            "Support querying metrics over a time range."
+        ],
+        "functionalRequirements": [
+            "Must include a webserver to receive metric data",
+            "Must include a database to persist metrics with timestamps"
+        ],
+        "nonFunctionalRequirements": [
+            "Target RPS: 100",
+            "Max P95 latency: 200ms",
+            "Required availability: 99.0%",
+            "Max monthly cost: $100",
+            "Simulation duration: 120 seconds"
+        ]
     },
     {
         "id": "metrics-system-medium",
@@ -190,7 +400,24 @@
         "requiredAvailabilityPct": 99.9,
         "mustInclude": ["data pipeline", "monitoring/alerting"],
         "encouragedComponents": ["cache"],
-        "hints": ["Consider time-series indexing and label-based queries."]
+        "hints": ["Consider time-series indexing and label-based queries."],
+        "interviewerRequirements": [
+            "The system should pull metrics from external sources at regular intervals.",
+            "Collected metrics should be queryable using labels and timestamps.",
+            "Alert on metric thresholds (e.g., error rates > 5%)."
+        ],
+        "functionalRequirements": [
+            "Must include a data pipeline for ingesting scraped metrics",
+            "Must include a monitoring/alerting component that triggers alerts based on thresholds",
+            "Encouraged to cache recently queried results for performance"
+        ],
+        "nonFunctionalRequirements": [
+            "Target RPS: 1000",
+            "Max P95 latency: 100ms",
+            "Required availability: 99.9%",
+            "Max monthly cost: $500",
+            "Simulation duration: 300 seconds"
+        ]
     },
     {
         "id": "metrics-system-hard",
@@ -204,6 +431,23 @@
         "requiredAvailabilityPct": 99.99,
         "mustInclude": ["monitoring/alerting", "data pipeline"],
         "encouragedComponents": ["messageQueue", "cache", "third party service"],
-        "hints": ["Think about downsampling, alert thresholds, and dashboard queries."]
+        "hints": ["Think about downsampling, alert thresholds, and dashboard queries."],
+        "interviewerRequirements": [
+            "Support multi-tenant metrics isolation and quota enforcement.",
+            "Enable real-time alerting with low-latency threshold evaluation.",
+            "Expose APIs for dashboards and custom queries."
+        ],
+        "functionalRequirements": [
+            "Must include a data pipeline that can scale with RPS and tenants",
+            "Must include monitoring/alerting logic for low-latency threshold detection",
+            "Encouraged to buffer high-volume ingestion via message queues"
+        ],
+        "nonFunctionalRequirements": [
+            "Target RPS: 5000",
+            "Max P95 latency: 50ms",
+            "Required availability: 99.99%",
+            "Max monthly cost: $1500",
+            "Simulation duration: 600 seconds"
+        ]
     }
 ]
