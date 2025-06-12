@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 )
 
 type Level struct {
@@ -29,7 +30,10 @@ type Level struct {
 	FailureEvents  []FailureEvent     `json:"failureEvents,omitempty"`
 	ScoringWeights map[string]float64 `json:"scoringWeights,omitempty"`
 
-	Hints []string `json:"hints,omitempty"`
+	Hints                     []string `json:"hints,omitempty"`
+	InterviewerRequirements   []string `json:"interviewerRequirements,omitempty"`
+	FunctionalRequirements    []string `json:"functionalRequirements,omitempty"`
+	NonFunctionalRequirements []string `json:"nonFunctionalRequirements,omitempty"`
 }
 
 type Difficulty string
@@ -66,15 +70,17 @@ func InitRegistry(levels []Level) {
 	Registry = make(map[string]map[string]Level)
 	for _, lvl := range levels {
 		// check if level already exists here
-		if _, ok := Registry[lvl.Name]; !ok {
-			Registry[lvl.Name] = make(map[string]Level)
+		normalized := strings.ToLower(lvl.Name)
+		if _, ok := Registry[normalized]; !ok {
+			Registry[normalized] = make(map[string]Level)
 		}
 		// populate it
-		Registry[lvl.Name][string(lvl.Difficulty)] = lvl
+		Registry[normalized][string(lvl.Difficulty)] = lvl
 	}
 }
 
 func GetLevel(name string, difficulty Difficulty) (*Level, error) {
+	name = strings.ToLower(name)
 	diffMap, ok := Registry[name]
 	if !ok {
 		return nil, fmt.Errorf("level name %s not found", name)
@@ -100,4 +106,14 @@ func (d *Difficulty) UnmarshalJSON(b []byte) error {
 	default:
 		return fmt.Errorf("invalid difficulty: %q", s)
 	}
+}
+
+func AllLevels() []Level {
+	var levels []Level
+	for _, diffMap := range Registry {
+		for _, lvl := range diffMap {
+			levels = append(levels, lvl)
+		}
+	}
+	return levels
 }
