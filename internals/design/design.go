@@ -25,8 +25,8 @@ type Connection struct {
 }
 
 type Design struct {
-	Nodes       []Node `json:"nodes"`
-	Connections []Connection
+	Nodes       []Node       `json:"nodes"`
+	Connections []Connection `json:"connections"`
 }
 
 type Cache struct {
