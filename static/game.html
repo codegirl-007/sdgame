@@ -550,7 +550,7 @@
 
           <ul class="challenge-list">
             {{range .Levels}}
-             <li class="challenge-item">
+            <li class="challenge-item {{if and (eq .Name $.Level.Name) (eq .Difficulty $.Level.Difficulty)}}active{{end}}">
               <div class="challenge-name">{{.Name}}</div>
               <div class="challenge-difficulty {{.Difficulty}}">{{.Difficulty}}</div>
               </li>
@@ -571,22 +571,38 @@
 
             <!-- Requirements -->
             <div id="content1" class="tab-content">
-              <div class="requirements-section">
-                <h3>Functional Requirements</h3>
-                <ul class="requirements-list">
-                  <li class="requirement-item">Something</li>
-                  <li class="requirement-item">Something else</li>
-                </ul>
-              </div>
+              {{ if .Level.InterviewerRequirements }}
+                <div class="requirements-section">
+                  <h3>Interviewer Requirements</h3>
+                  <ul class="requirements-list">
+                    {{ range .Level.InterviewerRequirements }}
+                      <li class="requirement-item">{{ . }}</li>
+                    {{ end }}
+                  </ul>
+                </div>
+              {{ end }}
 
-              <div class="requirements-section">
-                <h3>Non-Functional Requirements</h3>
-                <ul class="requirements-list">
-                  <li class="requirement-item">Something</li>
-                  <li class="requirement-item">Something else</li>
-                </ul>
-              </div>
+              {{ if .Level.FunctionalRequirements }}
+                <div class="requirements-section">
+                  <h3>Functional Requirements</h3>
+                  <ul class="requirements-list">
+                    {{ range .Level.FunctionalRequirements }}
+                      <li class="requirement-item">{{ . }}</li>
+                    {{ end }}
+                  </ul>
+                </div>
+              {{ end }}
 
+              {{ if .Level.NonFunctionalRequirements }}
+                <div class="requirements-section">
+                  <h3>Non-Functional Requirements</h3>
+                  <ul class="requirements-list">
+                    {{ range .Level.NonFunctionalRequirements }}
+                      <li class="requirement-item">{{ . }}</li>
+                    {{ end }}
+                  </ul>
+                </div>
+              {{ end }}
             </div>
 
             <!-- Design-->

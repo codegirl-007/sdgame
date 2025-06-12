@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"html/template"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
+	"strings"
 	"systemdesigngame/internals/level"
 	"time"
 )
@@ -17,10 +20,17 @@ func main() {
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	mux.HandleFunc("/", index)
 	mux.HandleFunc("/game", game)
+	mux.HandleFunc("/play/", play)
 	srv := &http.Server{
 		Addr:    ":8080",
 		Handler: mux,
 	}
+
+	levels, err := level.LoadLevels("data/levels.json")
+	if err != nil {
+		panic("failed to load levels: " + err.Error())
+	}
+	level.InitRegistry(levels)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
@@ -60,5 +70,30 @@ func game(w http.ResponseWriter, r *http.Request) {
 	}{
 		Levels: levels,
 	}
+	tmpl.ExecuteTemplate(w, "game.html", data)
+}
+
+func play(w http.ResponseWriter, r *http.Request) {
+	levelName := r.URL.Path[len("/play/"):]
+	levelName, err := url.PathUnescape(levelName)
+	if err != nil {
+		http.Error(w, "Invalid level name", http.StatusBadRequest)
+		return
+	}
+
+	lvl, err := level.GetLevel(strings.ToLower(levelName), level.DifficultyEasy)
+	if err != nil {
+		http.Error(w, "Level not found"+err.Error(), http.StatusNotFound)
+		return
+	}
+	allLevels := level.AllLevels()
+	data := struct {
+		Levels []level.Level
+		Level  *level.Level
+	}{
+		Levels: allLevels,
+		Level:  lvl,
+	}
+
 	tmpl.ExecuteTemplate(w, "game.html", data)
 }
