@@ -549,22 +549,12 @@
           <h2 class="sidebar-title">Challenges</h2>
 
           <ul class="challenge-list">
-            <li class="challenge-item active">
-              <div class="challenge-name">Url Shortener</div>
-              <div class="challenge-difficulty easy">Easy</div>
-            </li>
-            <li class="challenge-item">
-              <div class="challenge-name">Url Shortener</div>
-              <div class="challenge-difficulty easy">Easy</div>
-            </li>
-            <li class="challenge-item">
-              <div class="challenge-name">Url Shortener</div>
-              <div class="challenge-difficulty medium">Medium</div>
-            </li>
-            <li class="challenge-item">
-              <div class="challenge-name">Something hard</div>
-              <div class="challenge-difficulty hard">Hard</div>
-            </li>
+            {{range .Levels}}
+             <li class="challenge-item">
+              <div class="challenge-name">{{.Name}}</div>
+              <div class="challenge-difficulty {{.Difficulty}}">{{.Difficulty}}</div>
+              </li>
+            {{end}}
           </ul>
         </div>
         <div id="canvas-wrapper">

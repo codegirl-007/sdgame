@@ -5,7 +5,7 @@ import "encoding/json"
 type Node struct {
 	ID       string                 `json:"id"`
 	Type     string                 `json:"type"`
-	Position Position               `josn:"position"`
+	Position Position               `json:"position"`
 	Props    map[string]interface{} `json:"props"`
 }
 
@@ -20,7 +20,7 @@ type Connection struct {
 	Label     string `json:"label,omitempty"`
 	Direction string `json:"direction,omitempty"`
 	Protocol  string `json:"protocol,omitempty"`
-	TLS       bool   `json:"tls,omitemity"`
+	TLS       bool   `json:"tls,omitempty"`
 	Capacity  int    `json:"capacity,omitempty"`
 }
 

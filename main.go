@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"systemdesigngame/internals/level"
 	"time"
 )
 
@@ -48,11 +49,16 @@ func index(w http.ResponseWriter, r *http.Request) {
 }
 
 func game(w http.ResponseWriter, r *http.Request) {
-	data := struct {
-		Title string
-	}{
-		Title: "Title",
+	var err error
+	levels, err := level.LoadLevels("data/levels.json")
+	if err != nil {
+		panic("failed to load levels: " + err.Error())
 	}
 
+	data := struct {
+		Levels []level.Level
+	}{
+		Levels: levels,
+	}
 	tmpl.ExecuteTemplate(w, "game.html", data)
 }

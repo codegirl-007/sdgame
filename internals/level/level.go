@@ -49,16 +49,14 @@ type FailureEvent struct {
 }
 
 func LoadLevels(path string) ([]Level, error) {
-	file, err := os.Open(path)
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("Error opening levels.json: %w", err)
 	}
-	defer file.Close()
 
 	var levels []Level
-	err = json.NewDecoder(file).Decode(&levels)
-	if err != nil {
-		return nil, fmt.Errorf("Error decoding levels.json: %w", err)
+	if err := json.Unmarshal(data, &levels); err != nil {
+		return nil, fmt.Errorf("Error parsing levels.json: %w", err)
 	}
 
 	return levels, nil
