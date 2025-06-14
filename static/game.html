@@ -17,23 +17,18 @@
       --color-bg-hover: #2a2a2a;
       --color-bg-accent: #005f87;
       --color-bg-tab-active: #1a3d2a;
-
       --color-border: #444;
       --color-border-accent: #00ff88;
       --color-border-panel: #30363d;
-
       --color-text-primary: #ccc;
       --color-text-muted: #888;
       --color-text-accent: #00ff88;
       --color-text-white: #fff;
       --color-text-dark: #333;
-
       --color-button: #238636;
       --color-button-disabled: #555;
-
       --color-connection: #333;
       --color-connection-selected: #007bff;
-
       --color-tooltip-bg: #333;
       --color-tooltip-text: #fff;
 
@@ -41,15 +36,13 @@
       --radius-small: 4px;
       --radius-medium: 6px;
       --radius-large: 8px;
-
       --font-family-mono: 'JetBrains Mono', monospace;
       --font-family-code: 'Fira Code', monospace;
-
       --component-padding: 8px;
       --component-gap: 12px;
     }
 
-    /* === RESET === */
+    /* === RESET & BASE STYLES === */
     * {
       box-sizing: border-box;
     }
@@ -75,10 +68,17 @@
       width: 100%;
       background: none;
       padding: 12px 24px;
-      font-size: 24px;
       font-weight: bold;
       color: var(--color-text-accent);
       border-bottom: 1px solid var(--color-text-dark);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-text {
+      font-size: 24px;
+      margin: 0;
     }
 
     #main-content {
@@ -97,6 +97,17 @@
       flex-wrap: wrap;
       flex-direction: row;
       gap: var(--component-gap);
+    }
+
+    .sidebar-title {
+      color: #8b949e;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 15px;
+      padding-bottom: 8px;
+      padding-left: 8px;
+      border-bottom: 1px solid #303638;
     }
 
     /* === COMPONENT ICONS === */
@@ -199,6 +210,7 @@
       stroke-width: 2;
     }
 
+    /* === TOOLBAR === */
     #canvas-toolbar {
       position: absolute;
       top: 12px;
@@ -234,6 +246,7 @@
       color: var(--color-text-white);
       border-color: var(--color-button);
     }
+
     /* === PANELS === */
     #info-panel {
       position: absolute;
@@ -270,14 +283,19 @@
       color: var(--color-text-primary);
     }
 
-    #node-props-save {
-      margin-top: 8px;
-      padding: 10px;
-      background-color: var(--color-button);
-      color: var(--color-text-white);
-      border: none;
-      border-radius: var(--radius-small);
-      cursor: pointer;
+    #node-props-panel .form-group {
+      margin-bottom: 10px;
+    }
+
+    #node-props-panel label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    #node-props-panel select {
+      width: 100%;
+      padding: 4px;
       font-size: 14px;
     }
 
@@ -294,6 +312,24 @@
       font-size: 13px;
     }
 
+    .panel-title {
+      font-weight: bold;
+      color: var(--color-text-white);
+      font-size: 15px;
+      margin-bottom: 0.5rem;
+    }
+
+    .panel-metric {
+      margin-bottom: 0.4rem;
+    }
+
+    .panel-metric .label {
+      display: inline-block;
+      width: 140px;
+      color: var(--color-text-muted);
+    }
+
+    /* === INPUTS & BUTTONS === */
     input[type="text"],
     input[type="number"] {
       padding: 6px;
@@ -304,9 +340,9 @@
       font-family: var(--font-family-code);
     }
 
-    /* === BUTTONS === */
+    #node-props-save,
     #run-button {
-      margin-top: auto;
+      margin-top: 8px;
       padding: 10px;
       background-color: var(--color-button);
       color: var(--color-text-white);
@@ -320,6 +356,32 @@
     #node-props-panel button:disabled {
       background-color: var(--color-button-disabled);
       cursor: not-allowed;
+    }
+
+    #github-login-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background-color: #fff;
+      color: #000000;
+      text-decoration: none;
+      border-radius: var(--radius-medium);
+      font-weight: 500;
+      font-family: var(--font-family-mono);
+      font-size: 12px;
+      border: 1px solid #2ea043;
+      transition: background-color 0.2s ease;
+      float: right;
+    }
+
+    #github-login-btn:hover {
+      background-color: #ccc;
+    }
+
+    #github-login-btn img {
+      width: 18px;
+      height: 18px;
     }
 
     /* === TABS === */
@@ -387,20 +449,29 @@
       padding: 0;
     }
 
-    .challenge-name {
-      font-weight: 500;
-      margin-bottom: 5px;
-    }
-
     .challenge-item {
       padding: 10px;
-      margin: 5px  0;
+      margin: 5px 0;
       background: #21262d;
       border-radius: 6px;
       cursor: pointer;
       transition: all 0.2s ease;
       border-left: 3px solid transparent;
       list-style: none;
+    }
+
+    .challenge-item:hover {
+      background: #30363d;
+    }
+
+    .challenge-item.active {
+      background: #1a3d2a;
+      border-left-color: #00ff88;
+    }
+
+    .challenge-name {
+      font-weight: 500;
+      margin-bottom: 5px;
     }
 
     .challenge-difficulty {
@@ -417,46 +488,10 @@
     }
 
     .challenge-difficulty.hard {
-      color: #f85149
+      color: #f85149;
     }
 
-    .challenge-item:hover {
-      background: #30363d;
-    }
-    .challenge-item.active {
-      background: #1a3d2a;
-      border-left-color: #00ff88;
-    }
-
-    /* === PANEL METRICS === */
-    .panel-title {
-      font-weight: bold;
-      color: var(--color-text-white);
-      font-size: 15px;
-      margin-bottom: 0.5rem;
-    }
-
-    .panel-metric {
-      margin-bottom: 0.4rem;
-    }
-
-    .panel-metric .label {
-      display: inline-block;
-      width: 140px;
-      color: var(--color-text-muted);
-    }
-
-    .sidebar-title {
-      color: #8b949e;
-      font-size: 14px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 15px;
-      padding-bottom: 8px;
-      padding-left: 8px;
-      border-bottom: 1px solid #303638;
-    }
-
+    /* === REQUIREMENTS === */
     .requirements-section {
       background: #161b22;
       border: 1px solid #30363d;
@@ -475,8 +510,9 @@
       position: relative;
       padding: 8px 0 8px 25px;
       margin: 0;
-      border-bottom: 1px solid #30363d;;
+      border-bottom: 1px solid #30363d;
     }
+
     .requirement-item:before {
       content: "✓";
       color: #00ff88;
@@ -484,6 +520,7 @@
       left: 0;
     }
 
+    /* === MODAL === */
     .modal {
       position: absolute;
       top: 30%;
@@ -496,24 +533,18 @@
       z-index: 999;
       color: #ccc;
     }
+
     .modal-content label {
       display: block;
       margin: 10px 0;
     }
+
     .modal-actions {
       margin-top: 10px;
       text-align: right;
     }
-    .modal input {
-      width: 100%;
-      padding: 6px;
-      margin-top: 4px;
-      background: #222;
-      border: 1px solid #444;
-      color: #fff;
-      border-radius: 4px;
-    }
 
+    .modal input,
     .modal select {
       width: 100%;
       padding: 6px;
@@ -524,26 +555,40 @@
       border-radius: 4px;
     }
 
-    #node-props-panel .form-group {
-      margin-bottom: 10px;
+    /* === MISC === */
+    #score-panel {
+      margin-top: 16px;
     }
-
-    #node-props-panel label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 4px;
+    
+    .userbox {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
-
-    #node-props-panel select {
-      width: 100%;
-      padding: 4px;
-      font-size: 14px;
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 12px;
     }
     </style>
   </head>
   <body>
     <div id="page-container">
-      <div id="sd-header">System Design Game</div>
+      <div id="sd-header">
+        <h1 class="header-text">System Design Game</h1>
+        {{ if and .Username .Avatar }}
+        <div class="userbox">
+          <img src="{{ .Avatar }}" class="avatar" />
+          <span class="username">{{ .Username }}</span> 
+        </div>
+        {{ else }}
+          <a href="/login" id="github-login-btn">
+            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub Logo">
+            Login with GitHub
+          </a>
+        {{ end }}
+
+      </div>
       <div id="main-content">
         <div id="challenge-container">
           <h2 class="sidebar-title">Challenges</h2>
@@ -553,7 +598,7 @@
             <li class="challenge-item {{if and (eq .Name $.Level.Name) (eq .Difficulty $.Level.Difficulty)}}active{{end}}">
               <div class="challenge-name">{{.Name}}</div>
               <div class="challenge-difficulty {{.Difficulty}}">{{.Difficulty}}</div>
-              </li>
+            </li>
             {{end}}
           </ul>
         </div>
@@ -572,36 +617,36 @@
             <!-- Requirements -->
             <div id="content1" class="tab-content">
               {{ if .Level.InterviewerRequirements }}
-                <div class="requirements-section">
-                  <h3>Interviewer Requirements</h3>
-                  <ul class="requirements-list">
-                    {{ range .Level.InterviewerRequirements }}
-                      <li class="requirement-item">{{ . }}</li>
-                    {{ end }}
-                  </ul>
-                </div>
+              <div class="requirements-section">
+                <h3>Interviewer Requirements</h3>
+                <ul class="requirements-list">
+                  {{ range .Level.InterviewerRequirements }}
+                  <li class="requirement-item">{{ . }}</li>
+                  {{ end }}
+                </ul>
+              </div>
               {{ end }}
 
               {{ if .Level.FunctionalRequirements }}
-                <div class="requirements-section">
-                  <h3>Functional Requirements</h3>
-                  <ul class="requirements-list">
-                    {{ range .Level.FunctionalRequirements }}
-                      <li class="requirement-item">{{ . }}</li>
-                    {{ end }}
-                  </ul>
-                </div>
+              <div class="requirements-section">
+                <h3>Functional Requirements</h3>
+                <ul class="requirements-list">
+                  {{ range .Level.FunctionalRequirements }}
+                  <li class="requirement-item">{{ . }}</li>
+                  {{ end }}
+                </ul>
+              </div>
               {{ end }}
 
               {{ if .Level.NonFunctionalRequirements }}
-                <div class="requirements-section">
-                  <h3>Non-Functional Requirements</h3>
-                  <ul class="requirements-list">
-                    {{ range .Level.NonFunctionalRequirements }}
-                      <li class="requirement-item">{{ . }}</li>
-                    {{ end }}
-                  </ul>
-                </div>
+              <div class="requirements-section">
+                <h3>Non-Functional Requirements</h3>
+                <ul class="requirements-list">
+                  {{ range .Level.NonFunctionalRequirements }}
+                  <li class="requirement-item">{{ . }}</li>
+                  {{ end }}
+                </ul>
+              </div>
               {{ end }}
             </div>
 
@@ -695,18 +740,10 @@
                 <div id="info-panel">
                   <div id="constraints-panel">
                     <div class="panel-title">level constraints</div>
-                    <div class="panel-metric"><span class="label">🎯 target rps:</span> <span id="constraint-rps">–</span></div>
-                    <div class="panel-metric"><span class="label">⏱️ max p95 latency:</span> <span id="constraint-latency">–</span></div>
-                    <div class="panel-metric"><span class="label">💸 max cost:</span> <span id="constraint-cost">–</span></div>
-                    <div class="panel-metric"><span class="label">🔒 availability:</span> <span id="constraint-availability">–</span></div>
-                  </div>
-
-                  <div id="score-panel">
-                    <div class="panel-title">simulation results</div>
-                    <div class="panel-metric"><span class="label">✅ cost:</span> <span id="score-cost">–</span></div>
-                    <div class="panel-metric"><span class="label">⚡ p95 latency:</span> <span id="score-p95">–</span></div>
-                    <div class="panel-metric"><span class="label">📈 achieved rps:</span> <span id="score-rps">–</span></div>
-                    <div class="panel-metric"><span class="label">🛡️ availability:</span> <span id="score-availability">–</span></div>
+                    <div class="panel-metric"><span class="label">🎯 target rps:</span> <span id="constraint-rps">{{.Level.TargetRPS}}</span></div>
+                    <div class="panel-metric"><span class="label">⏱️ max p95 latency:</span> <span id="constraint-latency">{{.Level.MaxP95LatencyMs}}ms</span></div>
+                    <div class="panel-metric"><span class="label">💸 max cost:</span> <span id="constraint-cost">${{.Level.MaxMonthlyUSD}}</span></div>
+                    <div class="panel-metric"><span class="label">🔒 availability:</span> <span id="constraint-availability">{{printf "%.2f" .Level.RequiredAvailabilityPct}}%</span></div>
                   </div>
                 </div>
 
