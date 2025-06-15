@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"systemdesigngame/internals/auth"
-	"systemdesigngame/internals/level"
+	"systemdesigngame/internal/auth"
+	"systemdesigngame/internal/level"
 )
 
 type PlayHandler struct {

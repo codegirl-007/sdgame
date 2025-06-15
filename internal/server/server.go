@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"systemdesigngame/internals/auth"
-	"systemdesigngame/internals/level"
+	"systemdesigngame/internal/auth"
+	"systemdesigngame/internal/level"
 	"time"
 
 	"github.com/joho/godotenv"

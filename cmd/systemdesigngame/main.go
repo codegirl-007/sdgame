@@ -5,9 +5,9 @@ import (
 	"html/template"
 	"net/http"
 	"os"
-	"systemdesigngame/internals/auth"
-	"systemdesigngame/internals/router"
-	"systemdesigngame/internals/server"
+	"systemdesigngame/internal/auth"
+	"systemdesigngame/internal/server"
+	"systemdesigngame/router"
 )
 
 func main() {
