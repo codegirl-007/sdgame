@@ -1,126 +1,33 @@
-package main
+package auth
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"net/http"
 	"net/url"
 	"os"
-	"os/signal"
 	"strings"
-	"systemdesigngame/internals/level"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/joho/godotenv"
 )
 
-var jwtSecret []byte
+var JwtSecret []byte
 
-var tmpl = template.Must(template.ParseGlob("static/*.html"))
+const (
+	UserIDKey     = contextKey("userID")
+	UserLoginKey  = contextKey("userLogin")
+	UserAvatarKey = contextKey("userAvatar")
+)
 
 type contextKey string
 
-const (
-	userIDKey     = contextKey("userID")
-	userLoginKey  = contextKey("userLogin")
-	userAvatarKey = contextKey("userAvatar")
-)
-
-func main() {
-	err := godotenv.Load()
-	if err != nil {
-		panic("failed to load .env")
-	}
-
-	jwtSecret = []byte(os.Getenv("JWT_SECRET"))
-
-	mux := http.NewServeMux()
-	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	mux.HandleFunc("/", index)
-	mux.HandleFunc("/play/", requireAuth(play))
-	mux.HandleFunc("/login", loginHandler)
-	mux.HandleFunc("/callback", callbackHandler)
-
-	srv := &http.Server{
-		Addr:    ":8080",
-		Handler: mux,
-	}
-
-	levels, err := level.LoadLevels("data/levels.json")
-	if err != nil {
-		panic("failed to load levels: " + err.Error())
-	}
-	level.InitRegistry(levels)
-
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
-	defer stop()
-
-	go func() {
-		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			fmt.Println("Server failed: " + err.Error())
-		}
-	}()
-
-	<-ctx.Done()
-	stop()
-
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	srv.Shutdown(shutdownCtx)
-}
-
-func index(w http.ResponseWriter, r *http.Request) {
-	data := struct {
-		Title string
-	}{
-		Title: "Title",
-	}
-
-	if err := tmpl.ExecuteTemplate(w, "index.html", data); err != nil {
-		http.Error(w, "Template Error", http.StatusInternalServerError)
-	}
-}
-
-func play(w http.ResponseWriter, r *http.Request) {
-	levelName := r.URL.Path[len("/play/"):]
-	levelName, err := url.PathUnescape(levelName)
-	avatar := r.Context().Value(userAvatarKey).(string)
-	username := r.Context().Value(userLoginKey).(string)
-	if err != nil {
-		http.Error(w, "Invalid level name", http.StatusBadRequest)
-		return
-	}
-
-	lvl, err := level.GetLevel(strings.ToLower(levelName), level.DifficultyEasy)
-	if err != nil {
-		http.Error(w, "Level not found"+err.Error(), http.StatusNotFound)
-		return
-	}
-	allLevels := level.AllLevels()
-	data := struct {
-		Levels   []level.Level
-		Level    *level.Level
-		Avatar   string
-		Username string
-	}{
-		Levels:   allLevels,
-		Level:    lvl,
-		Avatar:   avatar,
-		Username: username,
-	}
-
-	tmpl.ExecuteTemplate(w, "game.html", data)
-}
-
-func loginHandler(w http.ResponseWriter, r *http.Request) {
+func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("auth_token")
 	if err == nil {
 		token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
-			return jwtSecret, nil
+			return JwtSecret, nil
 		})
 
 		if err != nil && token.Valid {
@@ -140,7 +47,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, url, http.StatusFound)
 }
 
-func callbackHandler(w http.ResponseWriter, r *http.Request) {
+func CallbackHandler(w http.ResponseWriter, r *http.Request) {
 	code := r.URL.Query().Get("code")
 	if code == "" {
 		http.Error(w, "No code in query", http.StatusBadRequest)
@@ -200,7 +107,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Generate JWT
 	fmt.Printf("generating jwt: %s, %s, %s\n", fmt.Sprintf("%d", userInfo.ID), userInfo.Login, userInfo.AvatarUrl)
-	jwtToken, err := generateJWT(fmt.Sprintf("%d", userInfo.ID), userInfo.Login, userInfo.AvatarUrl)
+	jwtToken, err := GenerateJWT(fmt.Sprintf("%d", userInfo.ID), userInfo.Login, userInfo.AvatarUrl)
 	if err != nil {
 		http.Error(w, "Failed to generate token", http.StatusInternalServerError)
 		return
@@ -218,7 +125,7 @@ func callbackHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/play", http.StatusFound)
 }
 
-func generateJWT(userID string, login string, avatarUrl string) (string, error) {
+func GenerateJWT(userID string, login string, avatarUrl string) (string, error) {
 	claims := jwt.MapClaims{
 		"sub":    userID,
 		"login":  login,
@@ -227,11 +134,11 @@ func generateJWT(userID string, login string, avatarUrl string) (string, error) 
 		"iat":    time.Now().Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtSecret)
+	return token.SignedString(JwtSecret)
 }
 
-func requireAuth(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func RequireAuth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("auth_token")
 		if err != nil {
 			http.Redirect(w, r, "/login", http.StatusFound)
@@ -239,7 +146,7 @@ func requireAuth(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 		token, err := jwt.Parse(cookie.Value, func(token *jwt.Token) (interface{}, error) {
-			return jwtSecret, nil
+			return JwtSecret, nil
 		})
 
 		if err != nil || !token.Valid {
@@ -261,9 +168,9 @@ func requireAuth(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), userIDKey, userID)
-		ctx = context.WithValue(ctx, userLoginKey, login)
-		ctx = context.WithValue(ctx, userAvatarKey, avatar)
-		next(w, r.WithContext(ctx))
-	}
+		ctx := context.WithValue(r.Context(), UserIDKey, userID)
+		ctx = context.WithValue(ctx, UserLoginKey, login)
+		ctx = context.WithValue(ctx, UserAvatarKey, avatar)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }
