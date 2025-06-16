@@ -38,6 +38,15 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	clientId := os.Getenv("GITHUB_CLIENT_ID")
 	redirectURI := os.Getenv("GITHUB_CALLBACK")
+
+	if os.Getenv("GITHUB_CLIENT_ID") == "" {
+		panic("GITHUB_CLIENT_ID is not set")
+	}
+
+	if os.Getenv("GITHUB_CALLBACK") == "" {
+		panic("GITHUB_CALLBACK is not set")
+	}
+
 	scope := "read:user user:email"
 	url := fmt.Sprintf(
 		"https://github.com/login/oauth/authorize?client_id=%s&redirect_uri=%s&scope=%s",

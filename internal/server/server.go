@@ -10,15 +10,9 @@ import (
 	"systemdesigngame/internal/auth"
 	"systemdesigngame/internal/level"
 	"time"
-
-	"github.com/joho/godotenv"
 )
 
 func InitApp() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("failed to load .env")
-	}
-
 	auth.JwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
 	levels, err := level.LoadLevels("data/levels.json")
