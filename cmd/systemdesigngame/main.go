@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"github.com/joho/godotenv"
 	"html/template"
 	"net/http"
@@ -11,9 +12,14 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		panic("failed to load .env")
+	devMode := flag.Bool("dev", false, "load .env (local dev)")
+	flag.Parse()
+
+	if *devMode {
+		if err := godotenv.Load(); err != nil {
+			panic("failed to load .env")
+		}
+
 	}
 
 	// set up JWT secret used for authentication
