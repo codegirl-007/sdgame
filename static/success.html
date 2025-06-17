@@ -580,11 +580,6 @@ input[name="tab"] {
   <div id="page-container">
     <div id="sd-header">
       <h1 class="header-text">System Design Game</h1>
-      <div class="userbox">
-        <div class="status-indicator" style="color: var(--color-text-accent); font-weight: bold;">
-          ✅ SYSTEM SUCCESS
-        </div>
-      </div>
     </div>
 
     <div id="main-content" style="justify-content: center; align-items: center; flex: 1; padding: 40px;">
@@ -622,35 +617,14 @@ input[name="tab"] {
 
         <div class="action-buttons" style="display: flex; justify-content: center; gap: 16px; margin-top: 32px;">
           <button onclick="retryLevel()" id="retry-button" style="padding: 12px 24px; background: var(--color-button); color: var(--color-text-white); border: none; border-radius: var(--radius-medium); font-size: 14px; cursor: pointer;">
-            🔁 Replay Level
+            Replay Level
           </button>
           <a href="/game-modes" style="padding: 12px 24px; background: transparent; border: 1px solid var(--color-border); color: var(--color-text-accent); border-radius: var(--radius-medium); font-size: 14px; text-decoration: none; display: inline-block;">
-            🏠 Main Menu
+            Main Menu
           </a>
         </div>
       </div>
     </div>
-
-    <script>
-      function retryLevel() {
-        const btn = document.getElementById('retry-button');
-        btn.textContent = '⏳ Reloading...';
-        btn.disabled = true;
-        setTimeout(() => {
-          window.location.href = '/game?retry=true';
-        }, 1500);
-      }
-
-      document.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-          retryLevel();
-        } else if (e.key === 'Escape') {
-          window.location.href = '/game-modes';
-        }
-      });
-
-      console.log("✅ SYSTEM SUCCESS SCREEN DISPLAYED");
-    </script>
   </div>
 </body>
 </html>

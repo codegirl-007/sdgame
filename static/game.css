@@ -200,210 +200,197 @@ body {
 }
 
 .dropped.selected rect {
-    stroke: #00bcd4;
+    stroke: var(--color-border-accent);
     stroke-width: 2;
 }
 
-/* === TOOLBAR === */
 #canvas-toolbar {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    z-index: 20;
     display: flex;
     gap: 8px;
-    background: var(--color-bg-component);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-small);
-    padding: 6px;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.4);
+    padding: 8px 0;
+    border-bottom: 1px solid var(--color-border-panel);
+    background: var(--color-bg-dark);
+    align-items: center;
+    justify-content: flex-start;
 }
 
 .toolbar-btn {
-    background: none;
+    padding: 6px 12px;
+    background: var(--color-bg-component);
     border: 1px solid var(--color-border);
-    color: var(--color-text-primary);
-    padding: 6px 10px;
     border-radius: var(--radius-small);
-    font-size: 14px;
+    color: var(--color-text-primary);
     cursor: pointer;
-    font-family: var(--font-family-mono);
+    font-size: 14px;
 }
 
 .toolbar-btn:hover {
-    background-color: var(--color-bg-hover);
+    background: var(--color-bg-hover);
     border-color: var(--color-border-accent);
 }
 
 .toolbar-btn.active {
-    background-color: var(--color-bg-accent);
+    background: var(--color-bg-accent);
     color: var(--color-text-white);
     border-color: var(--color-button);
 }
 
-/* === PANELS === */
 #info-panel {
     position: absolute;
-    top: 12px;
-    right: 12px;
-    background: var(--color-bg-dark);
-    color: var(--color-text-primary);
-    padding: 1rem;
-    border-radius: var(--radius-large);
-    font-family: monospace;
+    top: 8px;
+    right: 8px;
+    background: var(--color-bg-component);
+    border: 1px solid var(--color-border-panel);
+    border-radius: var(--radius-medium);
+    padding: 12px;
+    min-width: 200px;
     font-size: 14px;
-    min-width: 220px;
-    z-index: 10;
-    border: 1px solid var(--color-text-dark);
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+    color: var(--color-text-primary);
 }
 
 #node-props-panel {
     position: absolute;
-    width: 220px;
-    background-color: var(--color-bg-sidebar);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-small);
+    top: 8px;
+    left: 8px;
+    background: var(--color-bg-component);
+    border: 1px solid var(--color-border-panel);
+    border-radius: var(--radius-medium);
     padding: 12px;
-    color: var(--color-text-white);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+    min-width: 250px;
     display: none;
-    z-index: 10;
 }
 
 #node-props-panel h3 {
-    margin-top: 0;
-    font-size: 15px;
-    color: var(--color-text-primary);
+    margin: 0 0 12px 0;
+    color: var(--color-text-accent);
+    font-size: 16px;
 }
 
 #node-props-panel .form-group {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 #node-props-panel label {
     display: block;
-    font-weight: bold;
     margin-bottom: 4px;
+    color: var(--color-text-primary);
+    font-size: 14px;
 }
 
 #node-props-panel select {
     width: 100%;
-    padding: 4px;
-    font-size: 14px;
+    padding: 6px;
+    background: var(--color-bg-dark);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-small);
+    color: var(--color-text-primary);
 }
 
 .prop-group {
-    display: none;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
 }
 
 .prop-group label,
-.prop-group input {
+.prop-group input,
+.prop-group select {
     display: block;
     width: 100%;
-    margin-top: 6px;
-    font-size: 13px;
+    margin-bottom: 4px;
 }
 
 .panel-title {
+    font-size: 14px;
     font-weight: bold;
-    color: var(--color-text-white);
-    font-size: 15px;
-    margin-bottom: 0.5rem;
+    color: var(--color-text-accent);
+    margin-bottom: 8px;
+    text-transform: uppercase;
 }
 
 .panel-metric {
-    margin-bottom: 0.4rem;
+    margin-bottom: 6px;
+    font-size: 13px;
 }
 
 .panel-metric .label {
-    display: inline-block;
-    width: 140px;
     color: var(--color-text-muted);
+    margin-right: 8px;
 }
 
-/* === INPUTS & BUTTONS === */
 input[type="text"],
-input[type="number"] {
-    padding: 6px;
-    background-color: #222;
+input[type="number"],
+select {
+    background: var(--color-bg-dark);
     border: 1px solid var(--color-border);
-    color: var(--color-text-white);
+    color: var(--color-text-primary);
+    padding: 6px 8px;
     border-radius: var(--radius-small);
-    font-family: var(--font-family-code);
 }
 
 #node-props-save,
 #run-button {
-    margin-top: 8px;
-    padding: 10px;
-    background-color: var(--color-button);
+    background: var(--color-button);
     color: var(--color-text-white);
     border: none;
+    padding: 8px 16px;
     border-radius: var(--radius-small);
     cursor: pointer;
     font-size: 14px;
 }
 
 #run-button:disabled,
-#node-props-panel button:disabled {
-    background-color: var(--color-button-disabled);
+#node-props-save:disabled {
+    background: var(--color-button-disabled);
     cursor: not-allowed;
 }
 
 #github-login-btn {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 14px;
-    background-color: #fff;
-    color: #000000;
+    padding: 8px 16px;
+    background: #238636;
+    color: white;
     text-decoration: none;
-    border-radius: var(--radius-medium);
+    border-radius: 6px;
     font-weight: 500;
-    font-family: var(--font-family-mono);
-    font-size: 12px;
+    transition: background-color 0.2s;
     border: 1px solid #2ea043;
-    transition: background-color 0.2s ease;
-    float: right;
 }
 
 #github-login-btn:hover {
-    background-color: #ccc;
+    background: #2ea043;
 }
 
 #github-login-btn img {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
+    filter: invert(1);
 }
 
-/* === TABS === */
 .tabs {
     display: flex;
     flex-direction: column;
     height: 100%;
-    overflow: hidden;
 }
 
 .tab-labels {
     display: flex;
-    cursor: pointer;
+    border-bottom: 1px solid var(--color-border-panel);
 }
 
 .tab-labels label {
-    padding: 10px 20px;
-    background: var(--color-bg-body);
-    margin-right: 4px;
-    margin-bottom: 20px;
-    border-radius: var(--radius-small);
+    padding: 12px 24px;
+    cursor: pointer;
+    background: var(--color-bg-component);
+    border: 1px solid var(--color-border-panel);
+    margin-right: 2px;
+    color: var(--color-text-muted);
 }
 
 .tab-content {
-    border-top: 1px solid var(--color-border-panel);
-    padding: 20px 0 0;
+    padding: 16px;
+    flex: 1;
     display: none;
-    height: 100%;
 }
 
 input[name="tab"] {
@@ -414,63 +401,59 @@ input[name="tab"] {
 #tab2:checked ~ .tabs .tab-labels label[for="tab2"],
 #tab3:checked ~ .tabs .tab-labels label[for="tab3"] {
     background: var(--color-bg-tab-active);
-    font-weight: bold;
     color: var(--color-text-accent);
+    border-color: var(--color-border-accent);
 }
 
 #tab1:checked ~ .tabs #content1,
 #tab2:checked ~ .tabs #content2,
 #tab3:checked ~ .tabs #content3 {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: hidden;
+    display: block;
 }
 
-/* === CHALLENGE PANEL === */
 #challenge-container {
-    width: 15%;
-    background: var(--color-bg-dark);
-    margin: 12px 12px;
-    border: 2px solid var(--color-border-panel);
-    border-radius: var(--radius-large);
-    padding: 0 12px;
+    width: 280px;
+    background: var(--color-bg-component);
+    border-right: 1px solid var(--color-border-panel);
+    padding: 16px;
+    overflow-y: auto;
+    flex-shrink: 0;
 }
 
 .challenge-list {
     list-style: none;
-    margin: 0;
     padding: 0;
+    margin: 0;
 }
 
 .challenge-item {
-    padding: 10px;
-    margin: 5px 0;
-    background: #21262d;
-    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 8px;
+    background: var(--color-bg-dark);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-medium);
     cursor: pointer;
     transition: all 0.2s ease;
-    border-left: 3px solid transparent;
-    list-style: none;
 }
 
 .challenge-item:hover {
-    background: #30363d;
+    border-color: var(--color-border-accent);
 }
 
 .challenge-item.active {
-    background: #1a3d2a;
-    border-left-color: #00ff88;
+    background: var(--color-bg-tab-active);
+    border-color: var(--color-border-accent);
 }
 
 .challenge-name {
     font-weight: 500;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
 }
 
 .challenge-difficulty {
-    font-size: 0.8rem;
-    color: #0b949e;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .challenge-difficulty.easy {
@@ -485,71 +468,78 @@ input[name="tab"] {
     color: #f85149;
 }
 
-/* === REQUIREMENTS === */
 .requirements-section {
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
+    background: var(--color-bg-component);
+    border: 1px solid var(--color-border-panel);
+    border-radius: var(--radius-medium);
+    padding: 16px;
+    margin-bottom: 16px;
 }
 
 .requirements-list {
-    margin: 0;
-    padding: 0;
     list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
 .requirement-item {
-    position: relative;
-    padding: 8px 0 8px 25px;
-    margin: 0;
-    border-bottom: 1px solid #30363d;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+    line-height: 1.5;
 }
 
 .requirement-item:before {
-    content: "✓";
-    color: #00ff88;
-    position: absolute;
-    left: 0;
+    content: "▶ ";
+    color: var(--color-text-accent);
+    font-size: 12px;
+    margin-right: 8px;
 }
 
-/* === MODAL === */
 .modal {
-    position: absolute;
-    top: 30%;
-    left: 50%;
-    transform: translate(-50%, -30%);
-    background: #121212;
-    padding: 20px;
-    border-radius: 8px;
-    border: 1px solid #444;
-    z-index: 999;
-    color: #ccc;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: var(--color-bg-component);
+    padding: 24px;
+    border-radius: var(--radius-medium);
+    min-width: 300px;
+    border: 1px solid var(--color-border-panel);
 }
 
 .modal-content label {
     display: block;
-    margin: 10px 0;
+    margin: 8px 0;
+    color: var(--color-text-primary);
 }
 
 .modal-actions {
-    margin-top: 10px;
-    text-align: right;
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
 }
 
 .modal input,
 .modal select {
     width: 100%;
-    padding: 6px;
+    padding: 8px;
     margin-top: 4px;
-    background: #222;
-    border: 1px solid #444;
-    color: #fff;
-    border-radius: 4px;
+    background: var(--color-bg-dark);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-small);
+    color: var(--color-text-primary);
 }
 
-/* === MISC === */
 #score-panel {
     margin-top: 16px;
 }
@@ -557,11 +547,11 @@ input[name="tab"] {
 .userbox {
     display: flex;
     align-items: center;
-    gap: 12px;
-}
-.avatar {
-    width: 24px;
-    height: 24px;
-    border-radius: 12px;
+    gap: 8px;
 }
 
+.avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+} 
