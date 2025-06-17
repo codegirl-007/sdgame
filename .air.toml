@@ -1,10 +1,11 @@
-# .air.toml
+root = "."
+
 [build]
   cmd = "go build -o ./tmp/main ./cmd/systemdesigngame"
-  bin = "tmp/main"
-  full_bin = "tmp/main"
+  bin = "tmp/main --dev"
+  working_dir = "."
   include_ext = ["go", "tpl", "tmpl", "html", "js"]
-  exclude_dir = ["tmp", "vendor", "node_modules"]
+  exclude_dir = ["vendor", "node_modules"]
 
 [log]
   time = true
