@@ -99,6 +99,21 @@ type WebServer struct {
 	MonthlyCostUsd int `json:"monthlyCostUsd"`
 }
 
+type Request struct {
+	ID        string
+	Timestamp int
+	LatencyMS int
+	Origin    string
+	Type      string
+	Path      []string
+}
+
+type TickSnapshot struct {
+	TickMs     int
+	QueueSizes map[string]int
+	NodeHealth map[string]string
+}
+
 func (n *Node) UnmarshalJSON(data []byte) error {
 	type Alias Node // avoid infinite recursion
 	aux := &struct {
