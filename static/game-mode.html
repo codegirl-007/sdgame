@@ -4,7 +4,448 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System Design Game - Choose Your Path</title>
-    <link rel="stylesheet" href="game-mode.css">
+    <style>
+        /* Reusing the existing CSS from the game */
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap');
+
+        /* === CSS VARIABLES === */
+        :root {
+            /* Colors */
+            --color-bg-body: #161b22;
+            --color-bg-dark: #121212;
+            --color-bg-sidebar: #111;
+            --color-bg-component: #1e1e1e;
+            --color-bg-hover: #2a2a2a;
+            --color-bg-accent: #005f87;
+            --color-bg-tab-active: #1a3d2a;
+            --color-border: #444;
+            --color-border-accent: #00ff88;
+            --color-border-panel: #30363d;
+            --color-text-primary: #ccc;
+            --color-text-muted: #888;
+            --color-text-accent: #00ff88;
+            --color-text-white: #fff;
+            --color-text-dark: #333;
+            --color-button: #238636;
+            --color-button-disabled: #555;
+            --color-connection: #333;
+            --color-connection-selected: #007bff;
+            --color-tooltip-bg: #333;
+            --color-tooltip-text: #fff;
+
+            /* Sizes */
+            --radius-small: 4px;
+            --radius-medium: 6px;
+            --radius-large: 8px;
+            --font-family-mono: 'JetBrains Mono', monospace;
+            --font-family-code: 'Fira Code', monospace;
+            --component-padding: 8px;
+            --component-gap: 12px;
+        }
+
+        /* === RESET & BASE STYLES === */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-family-mono);
+            background-color: var(--color-bg-body);
+            color: var(--color-text-primary);
+            min-height: 100vh;
+        }
+
+        /* === LAYOUT === */
+        #page-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        #sd-header {
+            width: 100%;
+            background: none;
+            padding: 12px 24px;
+            font-weight: bold;
+            color: var(--color-text-accent);
+            border-bottom: 1px solid var(--color-text-dark);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-text {
+            font-size: 24px;
+            margin: 0;
+        }
+
+        #main-content {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            padding: 60px 24px;
+            align-items: center;
+            background: radial-gradient(circle at 30% 50%, rgba(0, 255, 136, 0.1), transparent 50%),
+                radial-gradient(circle at 70% 80%, rgba(255, 107, 53, 0.1), transparent 50%);
+        }
+
+        /* === REUSED EXISTING CLASSES === */
+        .requirements-section {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .requirements-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .requirement-item {
+            position: relative;
+            padding: 8px 0 8px 25px;
+            margin: 0;
+            border-bottom: 1px solid #30363d;
+        }
+
+        .requirement-item:before {
+            content: "✓";
+            color: #00ff88;
+            position: absolute;
+            left: 0;
+        }
+
+        .panel-title {
+            font-weight: bold;
+            color: var(--color-text-white);
+            font-size: 15px;
+            margin-bottom: 0.5rem;
+        }
+
+        .panel-metric {
+            margin-bottom: 0.4rem;
+        }
+
+        .panel-metric .label {
+            display: inline-block;
+            width: 140px;
+            color: var(--color-text-muted);
+        }
+
+        #github-login-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background-color: #fff;
+            color: #000000;
+            text-decoration: none;
+            border-radius: var(--radius-medium);
+            font-weight: 500;
+            font-family: var(--font-family-mono);
+            font-size: 12px;
+            border: 1px solid #2ea043;
+            transition: background-color 0.2s ease;
+        }
+
+        #github-login-btn:hover {
+            background-color: #ccc;
+        }
+
+        /* === CUSTOM STYLES FOR GAME MODE SELECTION === */
+        .hero-section {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .hero-section h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin: 0 0 20px 0;
+            background: linear-gradient(135deg, var(--color-text-accent), var(--color-connection-selected));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-section p {
+            font-size: 18px;
+            color: var(--color-text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .game-mode-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+            max-width: 1000px;
+            width: 100%;
+            margin-bottom: 60px;
+        }
+
+        .game-mode-card {
+            background: var(--color-bg-component);
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-large);
+            padding: 30px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-mode-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.05));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .game-mode-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            background-color: var(--color-bg-hover);
+        }
+
+        .game-mode-card:hover::before {
+            opacity: 1;
+        }
+
+        .game-mode-card.campaign {
+            border-color: var(--color-border-accent);
+        }
+
+        .game-mode-card.campaign:hover {
+            border-color: var(--color-border-accent);
+            box-shadow: 0 10px 30px rgba(0, 255, 136, 0.3);
+        }
+
+        .game-mode-card.practice {
+            border-color: #ff6b35;
+        }
+
+        .game-mode-card.practice:hover {
+            border-color: #ff6b35;
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+        }
+
+        .mode-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .mode-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: var(--radius-medium);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            background: var(--color-bg-dark);
+            border: 1px solid var(--color-border-panel);
+        }
+
+        .game-mode-card.campaign .mode-icon {
+            color: var(--color-text-accent);
+            border-color: var(--color-border-accent);
+        }
+
+        .game-mode-card.practice .mode-icon {
+            color: #ff6b35;
+            border-color: #ff6b35;
+        }
+
+        .mode-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 5px 0;
+            color: var(--color-text-white);
+        }
+
+        .mode-subtitle {
+            font-size: 16px;
+            color: var(--color-text-muted);
+            margin: 0;
+        }
+
+        .mode-features {
+            margin-bottom: 25px;
+        }
+
+        .mode-features .requirements-list .requirement-item {
+            border-bottom: 1px solid var(--color-border-panel);
+        }
+
+        .game-mode-card.campaign .mode-features .requirement-item:before {
+            color: var(--color-text-accent);
+        }
+
+        .game-mode-card.practice .mode-features .requirement-item:before {
+            color: #ff6b35;
+        }
+
+        .mode-progress {
+            background: var(--color-bg-dark);
+            border: 1px solid var(--color-border-panel);
+            border-radius: var(--radius-medium);
+            padding: 16px;
+            margin-bottom: 25px;
+        }
+
+        .progress-bar {
+            background: var(--color-border);
+            height: 8px;
+            border-radius: var(--radius-small);
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-text-accent), var(--color-connection-selected));
+            width: 33%;
+            border-radius: var(--radius-small);
+        }
+
+        .recent-activity {
+            font-size: 14px;
+        }
+
+        .recent-activity .activity-item {
+            margin-bottom: 4px;
+        }
+
+        .recent-activity .activity-item.active {
+            color: #ff6b35;
+        }
+
+        .recent-activity .activity-item.inactive {
+            color: var(--color-text-muted);
+        }
+
+        .mode-button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: var(--radius-medium);
+            font-size: 16px;
+            font-weight: 600;
+            font-family: var(--font-family-mono);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .game-mode-card.campaign .mode-button {
+            background: linear-gradient(90deg, var(--color-text-accent), var(--color-connection-selected));
+            color: var(--color-bg-body);
+        }
+
+        .game-mode-card.practice .mode-button {
+            background: linear-gradient(90deg, #ff6b35, #f7931e);
+            color: var(--color-text-white);
+        }
+
+        .mode-button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        /* === STATS GRID === */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .stat-card {
+            background: var(--color-bg-component);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-large);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .stat-card:nth-child(1) .stat-value {
+            color: var(--color-text-accent);
+        }
+
+        .stat-card:nth-child(2) .stat-value {
+            color: var(--color-connection-selected);
+        }
+
+        .stat-card:nth-child(3) .stat-value {
+            color: #ff6b35;
+        }
+
+        .stat-card:nth-child(4) .stat-value {
+            color: #f7931e;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--color-text-muted);
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 1024px) {
+            .game-mode-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-section h1 {
+                font-size: 36px;
+            }
+
+            .game-mode-card {
+                padding: 20px;
+            }
+
+            #main-content {
+                padding: 40px 16px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
     <div id="page-container">
