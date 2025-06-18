@@ -1,5 +1,45 @@
 /* Reusing the existing CSS from the game */
-@import url('./base.css');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap');
+
+/* === CSS VARIABLES === */
+:root {
+    /* Colors */
+    --color-bg-body: #161b22;
+    --color-bg-dark: #121212;
+    --color-bg-sidebar: #111;
+    --color-bg-component: #1e1e1e;
+    --color-bg-hover: #2a2a2a;
+    --color-bg-accent: #005f87;
+    --color-bg-tab-active: #1a3d2a;
+    --color-border: #444;
+    --color-border-accent: #00ff88;
+    --color-border-panel: #30363d;
+    --color-text-primary: #ccc;
+    --color-text-muted: #888;
+    --color-text-accent: #00ff88;
+    --color-text-white: #fff;
+    --color-text-dark: #333;
+    --color-button: #238636;
+    --color-button-disabled: #555;
+    --color-connection: #333;
+    --color-connection-selected: #007bff;
+    --color-tooltip-bg: #333;
+    --color-tooltip-text: #fff;
+
+    /* Sizes */
+    --radius-small: 4px;
+    --radius-medium: 6px;
+    --radius-large: 8px;
+    --font-family-mono: 'JetBrains Mono', monospace;
+    --font-family-code: 'Fira Code', monospace;
+    --component-padding: 8px;
+    --component-gap: 12px;
+}
+
+/* === RESET & BASE STYLES === */
+* {
+    box-sizing: border-box;
+}
 
 body {
     margin: 0;
