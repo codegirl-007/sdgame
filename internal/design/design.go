@@ -1,4 +1,4 @@
-package simulation
+package design
 
 import "encoding/json"
 
