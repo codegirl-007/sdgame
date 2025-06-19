@@ -25,7 +25,7 @@ func (lb *LoadBalancerNode) Receive(req *Request) {
 	lb.Queue = append(lb.Queue)
 }
 
-func (lb *LoadBalancerNode) Tick(tick int) {
+func (lb *LoadBalancerNode) Tick(tick int, currentTimeMs int) {
 	lb.Processed = nil
 
 	for _, req := range lb.Queue {

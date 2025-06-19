@@ -9,8 +9,8 @@ type DatabaseNode struct {
 	Replicas         []*DatabaseNode
 	Alive            bool
 	Targets          []string
-	output           []*Request
-	replicationQueue []*Request
+	Output           []*Request
+	ReplicationQueue []*Request
 }
 
 func (n *DatabaseNode) GetID() string        { return n.ID }
@@ -18,7 +18,7 @@ func (n *DatabaseNode) Type() string         { return "database" }
 func (n *DatabaseNode) IsAlive() bool        { return n.Alive }
 func (n *DatabaseNode) GetQueue() []*Request { return n.Queue }
 
-func (n *DatabaseNode) Tick(tick int) {
+func (n *DatabaseNode) Tick(tick int, currentTimeMs int) {
 	if len(n.Queue) == 0 {
 		return
 	}
@@ -35,12 +35,11 @@ func (n *DatabaseNode) Tick(tick int) {
 		if req.Type == "READ" {
 			req.LatencyMS += 20
 			req.Path = append(req.Path, n.ID)
-			n.output = append(n.output, req)
+			n.Output = append(n.Output, req)
 		} else {
 			req.LatencyMS += 50
 			req.Path = append(req.Path, n.ID)
 
-			// Replicate to replicas
 			for _, replica := range n.Replicas {
 				replicationReq := &Request{
 					ID:        req.ID + "-repl",
@@ -50,14 +49,13 @@ func (n *DatabaseNode) Tick(tick int) {
 					Type:      "REPLICATION",
 					Path:      append(append([]string{}, req.Path...), "->"+replica.ID),
 				}
-				n.replicationQueue = append(n.replicationQueue, replicationReq)
+				n.ReplicationQueue = append(n.ReplicationQueue, replicationReq)
 			}
 
-			n.output = append(n.output, req)
+			n.Output = append(n.Output, req)
 		}
 	}
 
-	// Apply queuing penalty if overloaded
 	if len(n.Queue) > 10 {
 		for _, req := range n.Queue {
 			req.LatencyMS += 10
@@ -74,8 +72,8 @@ func (n *DatabaseNode) Receive(req *Request) {
 }
 
 func (n *DatabaseNode) Emit() []*Request {
-	out := append(n.output, n.replicationQueue...)
-	n.output = n.output[:0]
-	n.replicationQueue = n.replicationQueue[:0]
+	out := append(n.Output, n.ReplicationQueue...)
+	n.Output = n.Output[:0]
+	n.ReplicationQueue = n.ReplicationQueue[:0]
 	return out
 }

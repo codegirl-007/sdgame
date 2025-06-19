@@ -8,6 +8,7 @@ type WebServerNode struct {
 	PenaltyPerRPS float64
 	Processed     []*Request
 	Alive         bool
+	Targets       []string
 }
 
 func (ws *WebServerNode) GetID() string {
@@ -22,20 +23,20 @@ func (ws *WebServerNode) IsAlive() bool {
 	return ws.Alive
 }
 
-func (ws *WebServerNode) Tick(tick int) {
+func (ws *WebServerNode) Tick(tick int, currentTimeMs int) {
 	toProcess := min(ws.CapacityRPS, len(ws.Queue))
 	for i := 0; i < toProcess; i++ {
-		req := ws.Queue[0]
+		req := ws.Queue[i]
 		req.LatencyMS += ws.BaseLatencyMs
 		ws.Processed = append(ws.Processed, req)
-
-		ws.Queue[i] = nil
 	}
 
+	// Remove processed requests from the queue
 	ws.Queue = ws.Queue[toProcess:]
 
-	if len(ws.Queue) > ws.CapacityRPS {
-		overload := len(ws.Queue) - ws.CapacityRPS
+	// Apply penalty for overload
+	if len(ws.Queue) > 0 {
+		overload := len(ws.Queue)
 		for _, req := range ws.Queue {
 			req.LatencyMS += int(ws.PenaltyPerRPS * float64(overload))
 		}
@@ -52,9 +53,17 @@ func (ws *WebServerNode) Emit() []*Request {
 	return out
 }
 
+func (ws *WebServerNode) AddTarget(targetID string) {
+	ws.Targets = append(ws.Targets, targetID)
+}
+
 func min(a, b int) int {
 	if a < b {
 		return a
 	}
 	return b
+}
+
+func (ws *WebServerNode) GetQueue() []*Request {
+	return ws.Queue
 }

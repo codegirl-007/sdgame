@@ -12,14 +12,14 @@ type CDNNode struct {
 	CachingStrategy string
 	Compression     string
 	HTTP2           string
-	CacheHitRate    float64             // % of requests served from edge cache
-	CurrentLoad     int                 // optional: can track active queue length
-	Queue           []*Request          // incoming request queue
-	EdgeNodes       map[string]*CDNNode // future expansion: simulate geographic edge clusters
+	CacheHitRate    float64
+	CurrentLoad     int
+	Queue           []*Request
+	EdgeNodes       map[string]*CDNNode
 	Alive           bool
 	Targets         []string
-	output          []*Request // cache HIT responses
-	missQueue       []*Request // cache MISSes to forward
+	output          []*Request
+	missQueue       []*Request
 }
 
 func (n *CDNNode) GetID() string          { return n.ID }
@@ -27,7 +27,7 @@ func (n *CDNNode) Type() string           { return "cdn" }
 func (n *CDNNode) IsAlive() bool          { return n.Alive }
 func (n *CDNNode) QueueState() []*Request { return n.Queue }
 
-func (n *CDNNode) Tick(tick int) {
+func (n *CDNNode) Tick(tick int, currentTimeMs int) {
 	if len(n.Queue) == 0 {
 		return
 	}
@@ -35,17 +35,15 @@ func (n *CDNNode) Tick(tick int) {
 	maxProcessPerTick := 10
 	processCount := min(len(n.Queue), maxProcessPerTick)
 
-	// Avoid slice leak by reusing a cleared slice
 	queue := n.Queue
 	n.Queue = n.Queue[:0]
 
 	for i := 0; i < processCount; i++ {
 		req := queue[i]
 
-		// Simulate cache hit or miss
 		hitRate := n.CacheHitRate
 		if hitRate == 0 {
-			hitRate = 0.8 // default if unset
+			hitRate = 0.8
 		}
 
 		if rand.Float64() < hitRate {
@@ -61,9 +59,8 @@ func (n *CDNNode) Tick(tick int) {
 		}
 	}
 
-	// Optionally simulate cache expiration every 100 ticks
-	if tick%100 == 0 {
-		// e.g., simulate reduced hit rate or TTL expiration
+	if len(queue) > processCount {
+		n.Queue = append(n.Queue, queue[processCount:]...)
 	}
 }
 
@@ -81,7 +78,6 @@ func (n *CDNNode) Receive(req *Request) {
 func (n *CDNNode) Emit() []*Request {
 	out := append(n.output, n.missQueue...)
 
-	// Clear for next tick
 	n.output = n.output[:0]
 	n.missQueue = n.missQueue[:0]
 
