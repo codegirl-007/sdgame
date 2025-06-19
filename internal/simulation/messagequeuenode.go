@@ -91,3 +91,7 @@ func (n *MessageQueueNode) Emit() []*Request {
 
 	return allRequests
 }
+
+func (n *MessageQueueNode) GetTargets() []string {
+	return n.Targets
+}

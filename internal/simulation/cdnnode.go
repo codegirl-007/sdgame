@@ -83,3 +83,7 @@ func (n *CDNNode) Emit() []*Request {
 
 	return out
 }
+
+func (n *CDNNode) GetTargets() []string {
+	return n.Targets
+}

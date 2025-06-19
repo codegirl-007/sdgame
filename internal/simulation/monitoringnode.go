@@ -64,3 +64,6 @@ func (n *MonitoringNode) Tick(tick int, currentTimeMs int) {
 
 	n.Queue = nil
 }
+func (n *MonitoringNode) GetTargets() []string {
+	return n.Targets
+}

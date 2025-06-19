@@ -67,3 +67,7 @@ func min(a, b int) int {
 func (ws *WebServerNode) GetQueue() []*Request {
 	return ws.Queue
 }
+
+func (ws *WebServerNode) GetTargets() []string {
+	return ws.Targets
+}

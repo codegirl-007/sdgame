@@ -105,3 +105,7 @@ func (c *CacheNode) Emit() []*Request {
 func (c *CacheNode) AddTarget(targetID string) {
 	c.Targets = append(c.Targets, targetID)
 }
+
+func (c *CacheNode) GetTargets() []string {
+	return c.Targets
+}

@@ -69,6 +69,10 @@ func (n *ThirdPartyServiceNode) Tick(tick int, currentTimeMs int) {
 	}
 }
 
+func (n *ThirdPartyServiceNode) GetTargets() []string {
+	return n.Targets
+}
+
 // --- Helpers ---
 
 func simulateThirdPartySuccess(req *Request) bool {

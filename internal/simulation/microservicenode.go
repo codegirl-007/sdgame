@@ -33,6 +33,10 @@ func (n *MicroserviceNode) Emit() []*Request {
 	return out
 }
 
+func (n *MicroserviceNode) GetTargets() []string {
+	return n.Targets
+}
+
 func (n *MicroserviceNode) Tick(tick int, currentTimeMs int) {
 	if !n.Alive {
 		return

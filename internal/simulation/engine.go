@@ -20,6 +20,7 @@ type SimulationNode interface {
 	Receive(req *Request)
 	Emit() []*Request
 	IsAlive() bool
+	GetTargets() []string
 }
 
 type Engine struct {
@@ -32,7 +33,13 @@ type Engine struct {
 type TickSnapshot struct {
 	TickMs     int
 	QueueSizes map[string]int
-	NodeHealth map[string]string
+	NodeHealth map[string]NodeState
+	Emitted    map[string][]*Request
+}
+
+type NodeState struct {
+	QueueSize int
+	Alive     bool
 }
 
 func NewEngineFromDesign(design design.Design, duration int, tickMs int) *Engine {
@@ -123,8 +130,16 @@ func NewEngineFromDesign(design design.Design, duration int, tickMs int) *Engine
 				Alive:          true,
 			}
 		case "monitoring/alerting":
-			// Simulation not implemented yet; optionally skip
-			continue
+			simNode = &MonitoringNode{
+				ID:             n.ID,
+				Label:          n.Props["label"].(string),
+				Tool:           n.Props["tool"].(string),
+				AlertMetric:    n.Props["metric"].(string),
+				ThresholdValue: int(n.Props["threshold"].(float64)),
+				ThresholdUnit:  n.Props["unit"].(string),
+				Queue:          []*Request{},
+				Alive:          true,
+			}
 		default:
 			continue
 		}
@@ -147,5 +162,39 @@ func NewEngineFromDesign(design design.Design, duration int, tickMs int) *Engine
 		Nodes:    nodeMap,
 		Duration: duration,
 		TickMs:   tickMs,
+	}
+}
+
+func (e *Engine) Run() {
+	const tickMS = 100
+	currentTimeMs := 0
+
+	for tick := 0; tick < e.Duration; tick++ {
+		snapshot := TickSnapshot{
+			TickMs:     tick,
+			NodeHealth: make(map[string]NodeState),
+		}
+
+		for _, node := range e.Nodes {
+			node.Tick(tick, currentTimeMs)
+
+			snapshot.NodeHealth[node.GetID()] = NodeState{
+				QueueSize: len(node.Emit()),
+				Alive:     node.IsAlive(),
+			}
+		}
+
+		for _, node := range e.Nodes {
+			for _, req := range node.Emit() {
+				for _, targetID := range node.GetTargets() {
+					if target, ok := e.Nodes[targetID]; ok && target.IsAlive() {
+						target.Receive(req)
+					}
+				}
+			}
+		}
+
+		e.Timeline = append(e.Timeline, snapshot)
+		currentTimeMs += tickMS
 	}
 }

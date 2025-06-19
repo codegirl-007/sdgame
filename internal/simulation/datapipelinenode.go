@@ -105,3 +105,6 @@ func (n *DataPipelineNode) Emit() []*Request {
 
 func (n *DataPipelineNode) Type() string  { return "datapipeline" }
 func (n *DataPipelineNode) IsAlive() bool { return n.Alive }
+func (n *DataPipelineNode) GetTargets() []string {
+	return n.Targets
+}

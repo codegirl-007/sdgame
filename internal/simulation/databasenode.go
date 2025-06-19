@@ -77,3 +77,7 @@ func (n *DatabaseNode) Emit() []*Request {
 	n.ReplicationQueue = n.ReplicationQueue[:0]
 	return out
 }
+
+func (n *DatabaseNode) GetTargets() []string {
+	return n.Targets
+}
