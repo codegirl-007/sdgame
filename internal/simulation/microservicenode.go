@@ -38,58 +38,36 @@ func (n *MicroserviceNode) GetTargets() []string {
 }
 
 func (n *MicroserviceNode) Tick(tick int, currentTimeMs int) {
-	if !n.Alive {
-		return
-	}
+	n.CurrentLoad = 0
+	n.ErrorCount = 0
+	n.Output = nil
 
-	// Simulate circuit breaker state transitions
-	switch n.CircuitState {
-	case "open":
-		// Skip processing
-		return
-	case "half-open":
-		// Allow limited testing traffic
-		if len(n.Queue) == 0 {
-			return
-		}
-		req := n.Queue[0]
-		n.Queue = n.Queue[1:]
-		req.LatencyMS += 15
-		req.Path = append(req.Path, n.ID+"(half-open)")
-		success := simulateSuccess()
-		if success {
-			n.CircuitState = "closed"
-			n.ErrorCount = 0
-			n.Output = append(n.Output, req)
-		} else {
-			n.ErrorCount++
-			n.CircuitState = "open"
-		}
-		return
-	}
-
-	// "closed" circuit - normal processing
 	toProcess := min(len(n.Queue), n.RateLimit)
 	for i := 0; i < toProcess; i++ {
 		req := n.Queue[i]
-		req.LatencyMS += 10
-		req.Path = append(req.Path, n.ID)
 
-		if simulateFailure() {
+		if rand.Float64() < 0.02 {
 			n.ErrorCount++
-			if n.CircuitBreaker && n.ErrorCount > 5 {
+			if n.CircuitBreaker {
 				n.CircuitState = "open"
-				break
+				n.Alive = false
 			}
+
 			continue
 		}
 
+		req.LatencyMS += 10
+		req.Path = append(req.Path, n.ID)
 		n.Output = append(n.Output, req)
+		n.CurrentLoad++
 	}
-	n.Queue = n.Queue[toProcess:]
 
-	// Health check: simple example
-	n.Alive = n.CircuitState != "open"
+	if n.CircuitState == "open" && tick%10 == 0 {
+		n.CircuitState = "closed"
+		n.Alive = true
+	}
+
+	n.Queue = n.Queue[toProcess:]
 }
 
 func simulateFailure() bool {
