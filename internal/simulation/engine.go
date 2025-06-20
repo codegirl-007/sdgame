@@ -168,6 +168,8 @@ func NewEngineFromDesign(design design.Design, duration int, tickMs int) *Engine
 func (e *Engine) Run() {
 	const tickMS = 100
 	currentTimeMs := 0
+	// this probably isn't necessary but is here just in case
+	e.Timeline = e.Timeline[:0]
 
 	for tick := 0; tick < e.Duration; tick++ {
 		snapshot := TickSnapshot{
