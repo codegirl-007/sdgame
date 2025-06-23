@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"systemdesigngame/internal/design"
+	"systemdesigngame/internal/simulation"
 )
 
 type SimulationHandler struct{}
@@ -27,7 +28,8 @@ func (h *SimulationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// TODO: Run simulation engine here
+	engine := simulation.NewEngineFromDesign(design, 10000, 100)
+	engine.Run()
 
 	// For now, return a mock successful response but eventually, we want to go to the results page(s)
 	response := SimulationResponse{
