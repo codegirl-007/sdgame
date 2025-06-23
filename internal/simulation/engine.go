@@ -60,10 +60,10 @@ func NewEngineFromDesign(design design.Design, duration int, tickMs int) *Engine
 		case "cache":
 			simNode = &CacheNode{
 				ID:             n.ID,
-				Label:          n.Props["label"].(string),
-				CacheTTL:       int(n.Props["cacheTTL"].(float64)),
-				MaxEntries:     int(n.Props["maxEntries"].(float64)),
-				EvictionPolicy: n.Props["evictionPolicy"].(string),
+				Label:          asString(n.Props["label"]),
+				CacheTTL:       int(asFloat64(n.Props["cacheTTL"])),
+				MaxEntries:     int(asFloat64(n.Props["maxEntries"])),
+				EvictionPolicy: asString(n.Props["evictionPolicy"]),
 				CurrentLoad:    0,
 				Queue:          []*Request{},
 				Cache:          make(map[string]CacheEntry),
@@ -72,20 +72,20 @@ func NewEngineFromDesign(design design.Design, duration int, tickMs int) *Engine
 		case "database":
 			simNode = &DatabaseNode{
 				ID:          n.ID,
-				Label:       n.Props["label"].(string),
-				Replication: int(n.Props["replication"].(float64)),
+				Label:       asString(n.Props["label"]),
+				Replication: int(asFloat64(n.Props["replication"])),
 				Queue:       []*Request{},
 				Alive:       true,
 			}
 		case "cdn":
 			simNode = &CDNNode{
 				ID:              n.ID,
-				Label:           n.Props["label"].(string),
-				TTL:             int(n.Props["ttl"].(float64)),
-				GeoReplication:  n.Props["geoReplication"].(string),
-				CachingStrategy: n.Props["cachingStrategy"].(string),
-				Compression:     n.Props["compression"].(string),
-				HTTP2:           n.Props["http2"].(string),
+				Label:           asString(n.Props["label"]),
+				TTL:             int(asFloat64(n.Props["ttl"])),
+				GeoReplication:  asString(n.Props["geoReplication"]),
+				CachingStrategy: asString(n.Props["cachingStrategy"]),
+				Compression:     asString(n.Props["compression"]),
+				HTTP2:           asString(n.Props["http2"]),
 				Queue:           []*Request{},
 				Alive:           true,
 				output:          []*Request{},
@@ -94,9 +94,9 @@ func NewEngineFromDesign(design design.Design, duration int, tickMs int) *Engine
 		case "messageQueue":
 			simNode = &MessageQueueNode{
 				ID:         n.ID,
-				Label:      n.Props["label"].(string),
-				QueueSize:  int(n.Props["maxSize"].(float64)),
-				MessageTTL: int(n.Props["retentionSeconds"].(float64)),
+				Label:      asString(n.Props["label"]),
+				QueueSize:  int(asFloat64(n.Props["maxSize"])),
+				MessageTTL: int(asFloat64(n.Props["retentionSeconds"])),
 				DeadLetter: false,
 				Queue:      []*Request{},
 				Alive:      true,
@@ -104,9 +104,9 @@ func NewEngineFromDesign(design design.Design, duration int, tickMs int) *Engine
 		case "microservice":
 			simNode = &MicroserviceNode{
 				ID:             n.ID,
-				Label:          n.Props["label"].(string),
-				APIEndpoint:    n.Props["apiVersion"].(string),
-				RateLimit:      int(n.Props["rpsCapacity"].(float64)),
+				Label:          asString(n.Props["label"]),
+				APIEndpoint:    asString(n.Props["apiVersion"]),
+				RateLimit:      int(asFloat64(n.Props["rpsCapacity"])),
 				CircuitBreaker: true,
 				Queue:          []*Request{},
 				CircuitState:   "closed",
@@ -115,9 +115,9 @@ func NewEngineFromDesign(design design.Design, duration int, tickMs int) *Engine
 		case "third party service":
 			simNode = &ThirdPartyServiceNode{
 				ID:          n.ID,
-				Label:       n.Props["label"].(string),
-				APIEndpoint: n.Props["provider"].(string),
-				RateLimit:   int(n.Props["latency"].(float64)),
+				Label:       asString(n.Props["label"]),
+				APIEndpoint: asString(n.Props["provider"]),
+				RateLimit:   int(asFloat64(n.Props["latency"])),
 				RetryPolicy: "exponential",
 				Queue:       []*Request{},
 				Alive:       true,
@@ -125,20 +125,20 @@ func NewEngineFromDesign(design design.Design, duration int, tickMs int) *Engine
 		case "data pipeline":
 			simNode = &DataPipelineNode{
 				ID:             n.ID,
-				Label:          n.Props["label"].(string),
-				BatchSize:      int(n.Props["batchSize"].(float64)),
-				Transformation: n.Props["transformation"].(string),
+				Label:          asString(n.Props["label"]),
+				BatchSize:      int(asFloat64(n.Props["batchSize"])),
+				Transformation: asString(n.Props["transformation"]),
 				Queue:          []*Request{},
 				Alive:          true,
 			}
 		case "monitoring/alerting":
 			simNode = &MonitoringNode{
 				ID:             n.ID,
-				Label:          n.Props["label"].(string),
-				Tool:           n.Props["tool"].(string),
-				AlertMetric:    n.Props["metric"].(string),
-				ThresholdValue: int(n.Props["threshold"].(float64)),
-				ThresholdUnit:  n.Props["unit"].(string),
+				Label:          asString(n.Props["label"]),
+				Tool:           asString(n.Props["tool"]),
+				AlertMetric:    asString(n.Props["metric"]),
+				ThresholdValue: int(asFloat64(n.Props["threshold"])),
+				ThresholdUnit:  asString(n.Props["unit"]),
 				Queue:          []*Request{},
 				Alive:          true,
 			}
@@ -242,4 +242,21 @@ func shouldInject(tick int) bool {
 
 func generateRequestID(tick int) string {
 	return fmt.Sprintf("req-%d-%d", tick, rand.Intn(1000))
+}
+
+func asFloat64(v interface{}) float64 {
+	if v == nil {
+		return 0
+	}
+
+	return v.(float64)
+}
+
+func asString(v interface{}) string {
+	s, ok := v.(string)
+	if !ok {
+		return ""
+	}
+
+	return s
 }

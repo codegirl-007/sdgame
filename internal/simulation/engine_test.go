@@ -1,8 +1,11 @@
 package simulation
 
 import (
+	"os"
+	"path/filepath"
 	"testing"
 
+	"encoding/json"
 	"systemdesigngame/internal/design"
 )
 
@@ -50,6 +53,37 @@ func TestNewEngineFromDesign(t *testing.T) {
 
 	if engine.Nodes["web1"].GetTargets()[0] != "cache1" {
 		t.Fatalf("expected web1 target to be cache1")
+	}
+}
+
+func TestComplexSimulationRun(t *testing.T) {
+	filePath := filepath.Join("testdata", "complex_design.json")
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		t.Fatalf("Failed to read JSON file: %v", err)
+	}
+
+	var d design.Design
+	if err := json.Unmarshal([]byte(data), &d); err != nil {
+		t.Fatalf("Failed to unmarshal JSON: %v", err)
+	}
+
+	engine := NewEngineFromDesign(d, 10, 100)
+	if engine == nil {
+		t.Fatal("Engine should not be nil")
+	}
+
+	engine.Run()
+
+	if len(engine.Timeline) == 0 {
+		t.Fatal("Expected timeline snapshots after Run, got none")
+	}
+
+	// Optional: check that some nodes received or emitted requests
+	for id, node := range engine.Nodes {
+		if len(node.Emit()) > 0 {
+			t.Logf("Node %s has activity", id)
+		}
 	}
 }
 
