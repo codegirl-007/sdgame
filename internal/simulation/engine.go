@@ -1,6 +1,8 @@
 package simulation
 
 import (
+	"fmt"
+	"math/rand"
 	"systemdesigngame/internal/design"
 )
 
@@ -25,7 +27,7 @@ type SimulationNode interface {
 
 type Engine struct {
 	Nodes    map[string]SimulationNode
-	Timeline []TickSnapshot
+	Timeline []*TickSnapshot
 	Duration int
 	TickMs   int
 }
@@ -168,35 +170,76 @@ func NewEngineFromDesign(design design.Design, duration int, tickMs int) *Engine
 func (e *Engine) Run() {
 	const tickMS = 100
 	currentTimeMs := 0
-	// this probably isn't necessary but is here just in case
 	e.Timeline = e.Timeline[:0]
 
 	for tick := 0; tick < e.Duration; tick++ {
-		snapshot := TickSnapshot{
+		// inject new requests
+		for _, node := range e.findEntryPoints() {
+			if shouldInject(tick) {
+				req := &Request{
+					ID:        generateRequestID(tick),
+					Timestamp: currentTimeMs,
+					LatencyMS: 0,
+					Origin:    node.GetID(),
+					Type:      "GET",
+					Path:      []string{node.GetID()},
+				}
+				node.Receive(req)
+			}
+		}
+
+		// snapshot for this tick
+		snapshot := &TickSnapshot{
 			TickMs:     tick,
 			NodeHealth: make(map[string]NodeState),
 		}
 
-		for _, node := range e.Nodes {
+		for id, node := range e.Nodes {
+			// tick all nodes
 			node.Tick(tick, currentTimeMs)
+			emitted := node.Emit()
 
-			snapshot.NodeHealth[node.GetID()] = NodeState{
-				QueueSize: len(node.Emit()),
-				Alive:     node.IsAlive(),
-			}
-		}
-
-		for _, node := range e.Nodes {
-			for _, req := range node.Emit() {
+			// emit and forward requests to connected nodes
+			for _, req := range emitted {
 				for _, targetID := range node.GetTargets() {
 					if target, ok := e.Nodes[targetID]; ok && target.IsAlive() {
 						target.Receive(req)
 					}
 				}
 			}
+
+			snapshot.NodeHealth[id] = NodeState{
+				QueueSize: len(emitted),
+				Alive:     node.IsAlive(),
+			}
 		}
 
 		e.Timeline = append(e.Timeline, snapshot)
 		currentTimeMs += tickMS
 	}
+}
+
+func (e *Engine) findEntryPoints() []SimulationNode {
+	var entries []SimulationNode
+	for _, node := range e.Nodes {
+		if node.Type() == "loadBalancer" {
+			entries = append(entries, node)
+		}
+	}
+	return entries
+}
+
+func (e *Engine) injectRequests(entries []SimulationNode, requests []*Request) {
+	for i, req := range requests {
+		node := entries[i%len(entries)]
+		node.Receive(req)
+	}
+}
+
+func shouldInject(tick int) bool {
+	return tick%100 == 0
+}
+
+func generateRequestID(tick int) string {
+	return fmt.Sprintf("req-%d-%d", tick, rand.Intn(1000))
 }
