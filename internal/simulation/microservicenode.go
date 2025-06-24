@@ -70,16 +70,6 @@ func (n *MicroserviceNode) Tick(tick int, currentTimeMs int) {
 	n.Queue = n.Queue[toProcess:]
 }
 
-func simulateFailure() bool {
-	// Simulate 10% failure rate
-	return randInt(1, 100) <= 10
-}
-
-func simulateSuccess() bool {
-	// Simulate 90% success rate
-	return randInt(1, 100) <= 90
-}
-
-func randInt(min, max int) int {
-	return min + rand.Intn(max-min+1)
+func (n *MicroserviceNode) GetQueue() []*Request {
+	return n.Queue
 }

@@ -109,3 +109,7 @@ func (c *CacheNode) AddTarget(targetID string) {
 func (c *CacheNode) GetTargets() []string {
 	return c.Targets
 }
+
+func (n *CacheNode) GetQueue() []*Request {
+	return n.Queue
+}

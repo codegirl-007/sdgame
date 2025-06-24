@@ -108,3 +108,7 @@ func (n *DataPipelineNode) IsAlive() bool { return n.Alive }
 func (n *DataPipelineNode) GetTargets() []string {
 	return n.Targets
 }
+
+func (n *DataPipelineNode) GetQueue() []*Request {
+	return n.Queue
+}

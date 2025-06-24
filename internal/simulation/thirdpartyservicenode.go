@@ -1,5 +1,7 @@
 package simulation
 
+import "math/rand"
+
 type ThirdPartyServiceNode struct {
 	ID          string
 	Label       string
@@ -78,4 +80,8 @@ func (n *ThirdPartyServiceNode) GetTargets() []string {
 func simulateThirdPartySuccess(req *Request) bool {
 	// 90% success rate
 	return randInt(0, 100) < 90
+}
+
+func randInt(min, max int) int {
+	return min + int(rand.Float64()*float64(max-min))
 }

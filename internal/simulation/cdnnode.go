@@ -87,3 +87,7 @@ func (n *CDNNode) Emit() []*Request {
 func (n *CDNNode) GetTargets() []string {
 	return n.Targets
 }
+
+func (n *CDNNode) GetQueue() []*Request {
+	return n.Queue
+}

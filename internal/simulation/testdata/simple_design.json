@@ -1,0 +1,33 @@
+{
+  "nodes": [
+    {
+      "id": "node-1",
+      "type": "loadBalancer",
+      "position": { "x": 0, "y": 0 },
+      "props": {
+        "label": "LB",
+        "algorithm": "round-robin"
+      }
+    },
+    {
+      "id": "node-2",
+      "type": "webserver",
+      "position": { "x": 100, "y": 0 },
+      "props": {
+        "label": "Web Server",
+        "instanceSize": "medium"
+      }
+    }
+  ],
+  "connections": [
+    {
+      "source": "node-1",
+      "target": "node-2",
+      "label": "Traffic",
+      "direction": "forward",
+      "protocol": "HTTP",
+      "tls": false,
+      "capacity": 1000
+    }
+  ]
+}

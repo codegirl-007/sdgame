@@ -1,7 +1,14 @@
 package simulation
 
+import (
+	"fmt"
+	"math/rand"
+)
+
 type LoadBalancerNode struct {
 	ID        string
+	Label     string
+	Algorithm string
 	Queue     []*Request
 	Targets   []string
 	Counter   int
@@ -22,7 +29,7 @@ func (lb *LoadBalancerNode) IsAlive() bool {
 }
 
 func (lb *LoadBalancerNode) Receive(req *Request) {
-	lb.Queue = append(lb.Queue)
+	lb.Queue = append(lb.Queue, req)
 }
 
 func (lb *LoadBalancerNode) Tick(tick int, currentTimeMs int) {
@@ -33,8 +40,16 @@ func (lb *LoadBalancerNode) Tick(tick int, currentTimeMs int) {
 			continue
 		}
 
-		target := lb.Targets[lb.Counter%len(lb.Targets)]
-		lb.Counter++
+		var target string
+		switch lb.Algorithm {
+		case "random":
+			target = lb.Targets[rand.Intn(len(lb.Targets))]
+		case "round-robin":
+			fallthrough
+		default:
+			target = lb.Targets[lb.Counter%len(lb.Targets)]
+			lb.Counter++
+		}
 
 		req.Path = append([]string{target}, req.Path...)
 
@@ -50,4 +65,12 @@ func (lb *LoadBalancerNode) Emit() []*Request {
 	out := lb.Processed
 	lb.Processed = nil
 	return out
+}
+
+func (lb *LoadBalancerNode) GetTargets() []string {
+	return lb.Targets
+}
+
+func (lb *LoadBalancerNode) GetQueue() []*Request {
+	return lb.Queue
 }
