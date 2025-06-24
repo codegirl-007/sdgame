@@ -6,46 +6,65 @@ import (
 	"systemdesigngame/internal/design"
 )
 
+// a unit that flows through the system
 type Request struct {
-	ID        string
+	ID string
+	// when a request was created
 	Timestamp int
+	// total time spent on system
 	LatencyMS int
-	Origin    string
-	Type      string
-	Path      []string
+	// where the request originated from (node ID)
+	Origin string
+	// could be GET or POST
+	Type string
+	// records where it's been (used to prevent loops)
+	Path []string
 }
 
+// Every node implements this interface and is used by the engine to operate all nodes in a uniform way.
 type SimulationNode interface {
 	GetID() string
 	Type() string
-	Tick(tick int, currentTimeMs int)
-	Receive(req *Request)
+	Tick(tick int, currentTimeMs int) // Advance the node's state
+	Receive(req *Request)             // Accept new requests
 	Emit() []*Request
 	IsAlive() bool
-	GetTargets() []string
-	GetQueue() []*Request
+	GetTargets() []string // Connection to other nodes
+	GetQueue() []*Request // Requests currently pending
 }
 
 type Engine struct {
-	Nodes    map[string]SimulationNode
+	// Map of Node ID -> actual node, Represents all nodes in the graph
+	Nodes map[string]SimulationNode
+	// all tick snapshots
 	Timeline []*TickSnapshot
+	// how many ticks to run
 	Duration int
-	TickMs   int
+	// no used here but we could use it if we want it configurable
+	TickMs int
 }
 
+// what hte system looks like given a tick
 type TickSnapshot struct {
-	TickMs     int
+	TickMs int
+	// Queue size at each node
 	QueueSizes map[string]int
 	NodeHealth map[string]NodeState
-	Emitted    map[string][]*Request
+	// what each node output that tick before routing
+	Emitted map[string][]*Request
 }
 
+// used for tracking health/debugging each node at tick
 type NodeState struct {
 	QueueSize int
 	Alive     bool
 }
 
+// Takes a level design and produces a runnable engine from it.
 func NewEngineFromDesign(design design.Design, duration int, tickMs int) *Engine {
+
+	// Iterate over each nodes and then construct the simulation nodes
+	// Each constructed simulation node is then stored in the nodeMap
 	nodeMap := make(map[string]SimulationNode)
 
 	for _, n := range design.Nodes {
@@ -179,17 +198,21 @@ func NewEngineFromDesign(design design.Design, duration int, tickMs int) *Engine
 }
 
 func (e *Engine) Run() {
+	// clear and set defaults
 	const tickMS = 100
 	currentTimeMs := 0
 	e.Timeline = e.Timeline[:0]
 
+	// start ticking. This is really where the simulation begins
 	for tick := 0; tick < e.Duration; tick++ {
+
+		// find the entry points (where traffic enters) or else print a warning
 		entries := e.findEntryPoints()
 		if len(entries) == 0 {
 			fmt.Println("[ERROR] No entry points found! Simulation will not inject requests.")
 		}
 
-		// inject new requests
+		// inject new requests of each entry node every tick
 		for _, node := range entries {
 			if shouldInject(tick) {
 				req := &Request{
@@ -204,22 +227,26 @@ func (e *Engine) Run() {
 			}
 		}
 
-		// snapshot for this tick
+		// snapshot to record what happened this tick
 		snapshot := &TickSnapshot{
 			TickMs:     tick,
 			NodeHealth: make(map[string]NodeState),
 		}
 
 		for id, node := range e.Nodes {
+			// capture health data before processing
 			snapshot.NodeHealth[id] = NodeState{
 				QueueSize: len(node.GetQueue()),
 				Alive:     node.IsAlive(),
 			}
+
 			// tick all nodes
 			node.Tick(tick, currentTimeMs)
 
-			// emit and forward requests to connected nodes
+			// get all processed requets and fan it out to all connected targets
 			for _, req := range node.Emit() {
+				snapshot.Emitted[node.GetID()] = append(snapshot.Emitted[node.GetID()], req)
+
 				for _, targetID := range node.GetTargets() {
 					if target, ok := e.Nodes[targetID]; ok && target.IsAlive() && !hasVisited(req, targetID) {
 						// Deep copy request and update path
@@ -233,6 +260,7 @@ func (e *Engine) Run() {
 
 		}
 
+		// store the snapshot and advance time
 		e.Timeline = append(e.Timeline, snapshot)
 		currentTimeMs += tickMS
 	}
@@ -264,11 +292,18 @@ func generateRequestID(tick int) string {
 }
 
 func asFloat64(v interface{}) float64 {
-	if v == nil {
+	switch val := v.(type) {
+	case float64:
+		return val
+	case int:
+		return float64(val)
+	case int64:
+		return float64(val)
+	case float32:
+		return float64(val)
+	default:
 		return 0
 	}
-
-	return v.(float64)
 }
 
 func asString(v interface{}) string {
