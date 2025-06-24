@@ -1,6 +1,7 @@
 package simulation
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -87,3 +88,43 @@ func TestComplexSimulationRun(t *testing.T) {
 	}
 }
 
+func TestSimulationRunEndToEnd(t *testing.T) {
+	data, err := os.ReadFile("testdata/simple_design.json")
+	fmt.Print(data)
+	if err != nil {
+		t.Fatalf("Failed to read test data: %v", err)
+	}
+
+	var design design.Design
+	if err := json.Unmarshal(data, &design); err != nil {
+		t.Fatalf("Failed to unmarshal JSON: %v", err)
+	}
+
+	engine := NewEngineFromDesign(design, 20, 100) // 20 ticks, 100ms per tick
+	engine.Run()
+
+	if len(engine.Timeline) != 20 {
+		t.Errorf("Expected 20 timeline entries, got %d", len(engine.Timeline))
+	}
+
+	anyTraffic := false
+	for _, snapshot := range engine.Timeline {
+		for _, nodeState := range snapshot.NodeHealth {
+			if nodeState.QueueSize > 0 {
+				anyTraffic = true
+				break
+			}
+		}
+	}
+
+	if !anyTraffic {
+		t.Errorf("Expected at least one node to have non-zero queue size over time")
+	}
+
+	// Optional: check a few expected node IDs
+	for _, id := range []string{"node-1", "node-2"} {
+		if _, ok := engine.Nodes[id]; !ok {
+			t.Errorf("Expected node %s to be present in simulation", id)
+		}
+	}
+}

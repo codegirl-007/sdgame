@@ -184,8 +184,13 @@ func (e *Engine) Run() {
 	e.Timeline = e.Timeline[:0]
 
 	for tick := 0; tick < e.Duration; tick++ {
+		entries := e.findEntryPoints()
+		if len(entries) == 0 {
+			fmt.Println("[ERROR] No entry points found! Simulation will not inject requests.")
+		}
+
 		// inject new requests
-		for _, node := range e.findEntryPoints() {
+		for _, node := range entries {
 			if shouldInject(tick) {
 				req := &Request{
 					ID:        generateRequestID(tick),
@@ -206,23 +211,26 @@ func (e *Engine) Run() {
 		}
 
 		for id, node := range e.Nodes {
+			snapshot.NodeHealth[id] = NodeState{
+				QueueSize: len(node.GetQueue()),
+				Alive:     node.IsAlive(),
+			}
 			// tick all nodes
 			node.Tick(tick, currentTimeMs)
-			emitted := node.Emit()
 
 			// emit and forward requests to connected nodes
-			for _, req := range emitted {
+			for _, req := range node.Emit() {
 				for _, targetID := range node.GetTargets() {
-					if target, ok := e.Nodes[targetID]; ok && target.IsAlive() {
-						target.Receive(req)
+					if target, ok := e.Nodes[targetID]; ok && target.IsAlive() && !hasVisited(req, targetID) {
+						// Deep copy request and update path
+						newReq := *req
+						newReq.Path = append([]string{}, req.Path...)
+						newReq.Path = append(newReq.Path, targetID)
+						target.Receive(&newReq)
 					}
 				}
 			}
 
-			snapshot.NodeHealth[id] = NodeState{
-				QueueSize: len(emitted),
-				Alive:     node.IsAlive(),
-			}
 		}
 
 		e.Timeline = append(e.Timeline, snapshot)
@@ -270,4 +278,13 @@ func asString(v interface{}) string {
 	}
 
 	return s
+}
+
+func hasVisited(req *Request, nodeID string) bool {
+	for _, id := range req.Path {
+		if id == nodeID {
+			return true
+		}
+	}
+	return false
 }
