@@ -23,6 +23,7 @@ type SimulationNode interface {
 	Emit() []*Request
 	IsAlive() bool
 	GetTargets() []string
+	GetQueue() []*Request
 }
 
 type Engine struct {
@@ -56,6 +57,16 @@ func NewEngineFromDesign(design design.Design, duration int, tickMs int) *Engine
 				ID:    n.ID,
 				Alive: true,
 				Queue: []*Request{},
+			}
+		case "loadBalancer":
+			props := n.Props
+			simNode = &LoadBalancerNode{
+				ID:        n.ID,
+				Label:     asString(props["label"]),
+				Algorithm: asString(props["algorithm"]),
+				Queue:     []*Request{},
+				Alive:     true,
+				Targets:   []string{},
 			}
 		case "cache":
 			simNode = &CacheNode{
