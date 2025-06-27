@@ -2,9 +2,21 @@ package simulation
 
 import (
 	"fmt"
-	"math/rand"
 	"systemdesigngame/internal/design"
 )
+
+type NodeLogic interface {
+	Tick(props map[string]any, queue []*Request, tick int) ([]*Request, bool)
+}
+
+type NodeInstance struct {
+	ID    string
+	Type  string
+	Props map[string]any
+	Queue []*Request
+	Alive bool
+	Logic NodeLogic
+}
 
 // a unit that flows through the system
 type Request struct {
@@ -21,305 +33,149 @@ type Request struct {
 	Path []string
 }
 
-// Every node implements this interface and is used by the engine to operate all nodes in a uniform way.
-type SimulationNode interface {
-	GetID() string
-	Type() string
-	Tick(tick int, currentTimeMs int) // Advance the node's state
-	Receive(req *Request)             // Accept new requests
-	Emit() []*Request
-	IsAlive() bool
-	GetTargets() []string // Connection to other nodes
-	GetQueue() []*Request // Requests currently pending
-}
-
-type Engine struct {
-	// Map of Node ID -> actual node, Represents all nodes in the graph
-	Nodes map[string]SimulationNode
-	// all tick snapshots
-	Timeline []*TickSnapshot
-	// how many ticks to run
-	Duration int
-	// no used here but we could use it if we want it configurable
-	TickMs int
-}
-
 // what hte system looks like given a tick
 type TickSnapshot struct {
 	TickMs int
 	// Queue size at each node
 	QueueSizes map[string]int
-	NodeHealth map[string]NodeState
+	NodeHealth map[string]bool
 	// what each node output that tick before routing
 	Emitted map[string][]*Request
 }
 
-// used for tracking health/debugging each node at tick
-type NodeState struct {
-	QueueSize int
-	Alive     bool
+type SimulationEngine struct {
+	Nodes     map[string]*NodeInstance
+	Edges     map[string][]string
+	TickMS    int
+	EntryNode string // this should be the node ID where traffic should enter
+	RPS       int    // how many requests per second should be injected while running
 }
 
-// Takes a level design and produces a runnable engine from it.
-func NewEngineFromDesign(design design.Design, duration int, tickMs int) *Engine {
+func NewEngineFromDesign(d design.Design, tickMS int) *SimulationEngine {
+	nodes := make(map[string]*NodeInstance)
+	edges := make(map[string][]string)
 
-	// Iterate over each nodes and then construct the simulation nodes
-	// Each constructed simulation node is then stored in the nodeMap
-	nodeMap := make(map[string]SimulationNode)
+	for _, n := range d.Nodes {
+		logic := GetLogicForType(n.Type)
 
-	for _, n := range design.Nodes {
-		var simNode SimulationNode
-
-		switch n.Type {
-		case "webserver":
-			simNode = &WebServerNode{
-				ID:    n.ID,
-				Alive: true,
-				Queue: []*Request{},
-			}
-		case "loadBalancer":
-			props := n.Props
-			simNode = &LoadBalancerNode{
-				ID:        n.ID,
-				Label:     asString(props["label"]),
-				Algorithm: asString(props["algorithm"]),
-				Queue:     []*Request{},
-				Alive:     true,
-				Targets:   []string{},
-			}
-		case "cache":
-			simNode = &CacheNode{
-				ID:             n.ID,
-				Label:          asString(n.Props["label"]),
-				CacheTTL:       int(asFloat64(n.Props["cacheTTL"])),
-				MaxEntries:     int(asFloat64(n.Props["maxEntries"])),
-				EvictionPolicy: asString(n.Props["evictionPolicy"]),
-				CurrentLoad:    0,
-				Queue:          []*Request{},
-				Cache:          make(map[string]CacheEntry),
-				Alive:          true,
-			}
-		case "database":
-			simNode = &DatabaseNode{
-				ID:          n.ID,
-				Label:       asString(n.Props["label"]),
-				Replication: int(asFloat64(n.Props["replication"])),
-				Queue:       []*Request{},
-				Alive:       true,
-			}
-		case "cdn":
-			simNode = &CDNNode{
-				ID:              n.ID,
-				Label:           asString(n.Props["label"]),
-				TTL:             int(asFloat64(n.Props["ttl"])),
-				GeoReplication:  asString(n.Props["geoReplication"]),
-				CachingStrategy: asString(n.Props["cachingStrategy"]),
-				Compression:     asString(n.Props["compression"]),
-				HTTP2:           asString(n.Props["http2"]),
-				Queue:           []*Request{},
-				Alive:           true,
-				output:          []*Request{},
-				missQueue:       []*Request{},
-			}
-		case "messageQueue":
-			simNode = &MessageQueueNode{
-				ID:         n.ID,
-				Label:      asString(n.Props["label"]),
-				QueueSize:  int(asFloat64(n.Props["maxSize"])),
-				MessageTTL: int(asFloat64(n.Props["retentionSeconds"])),
-				DeadLetter: false,
-				Queue:      []*Request{},
-				Alive:      true,
-			}
-		case "microservice":
-			simNode = &MicroserviceNode{
-				ID:             n.ID,
-				Label:          asString(n.Props["label"]),
-				APIEndpoint:    asString(n.Props["apiVersion"]),
-				RateLimit:      int(asFloat64(n.Props["rpsCapacity"])),
-				CircuitBreaker: true,
-				Queue:          []*Request{},
-				CircuitState:   "closed",
-				Alive:          true,
-			}
-		case "third party service":
-			simNode = &ThirdPartyServiceNode{
-				ID:          n.ID,
-				Label:       asString(n.Props["label"]),
-				APIEndpoint: asString(n.Props["provider"]),
-				RateLimit:   int(asFloat64(n.Props["latency"])),
-				RetryPolicy: "exponential",
-				Queue:       []*Request{},
-				Alive:       true,
-			}
-		case "data pipeline":
-			simNode = &DataPipelineNode{
-				ID:             n.ID,
-				Label:          asString(n.Props["label"]),
-				BatchSize:      int(asFloat64(n.Props["batchSize"])),
-				Transformation: asString(n.Props["transformation"]),
-				Queue:          []*Request{},
-				Alive:          true,
-			}
-		case "monitoring/alerting":
-			simNode = &MonitoringNode{
-				ID:             n.ID,
-				Label:          asString(n.Props["label"]),
-				Tool:           asString(n.Props["tool"]),
-				AlertMetric:    asString(n.Props["metric"]),
-				ThresholdValue: int(asFloat64(n.Props["threshold"])),
-				ThresholdUnit:  asString(n.Props["unit"]),
-				Queue:          []*Request{},
-				Alive:          true,
-			}
-		default:
+		if logic == nil {
 			continue
 		}
 
-		if simNode != nil {
-			nodeMap[simNode.GetID()] = simNode
+		// create a NodeInstance using data from the json
+		nodes[n.ID] = &NodeInstance{
+			ID:    n.ID,
+			Type:  n.Type,
+			Props: n.Props,
+			Queue: []*Request{},
+			Alive: true,
+			Logic: logic,
 		}
 	}
 
-	// Wire up connections
-	for _, conn := range design.Connections {
-		if sourceNode, ok := nodeMap[conn.Source]; ok {
-			if targetSetter, ok := sourceNode.(interface{ AddTarget(string) }); ok {
-				targetSetter.AddTarget(conn.Target)
-			}
-		}
+	// build a map of the connections (edges)
+	for _, c := range d.Connections {
+		edges[c.Source] = append(edges[c.Source], c.Target)
 	}
 
-	return &Engine{
-		Nodes:    nodeMap,
-		Duration: duration,
-		TickMs:   tickMs,
+	return &SimulationEngine{
+		Nodes:     nodes,
+		Edges:     edges,
+		TickMS:    tickMS,
+		RPS:       0,  // ideally, this will come from the design (serialized json)
+		EntryNode: "", // default to empty, we check this later in the run method
 	}
 }
 
-func (e *Engine) Run() {
-	// clear and set defaults
-	const tickMS = 100
-	currentTimeMs := 0
-	e.Timeline = e.Timeline[:0]
+func (e *SimulationEngine) Run(duration int, tickMs int) []*TickSnapshot {
+	snapshots := []*TickSnapshot{}
+	currentTime := 0
 
-	// start ticking. This is really where the simulation begins
-	for tick := 0; tick < e.Duration; tick++ {
+	for tick := 0; tick < duration; tick++ {
+		if e.RPS > 0 && e.EntryNode != "" {
+			count := int(float64(e.RPS) * float64(e.TickMS) / 1000.0)
+			reqs := make([]*Request, count)
 
-		// find the entry points (where traffic enters) or else print a warning
-		entries := e.findEntryPoints()
-		if len(entries) == 0 {
-			fmt.Println("[ERROR] No entry points found! Simulation will not inject requests.")
-		}
-
-		// inject new requests of each entry node every tick
-		for _, node := range entries {
-			if shouldInject(tick) {
-				req := &Request{
-					ID:        generateRequestID(tick),
-					Timestamp: currentTimeMs,
-					LatencyMS: 0,
-					Origin:    node.GetID(),
+			for i := 0; i < count; i++ {
+				reqs[i] = &Request{
+					ID:        fmt.Sprintf("req-%d-%d", tick, i),
+					Origin:    e.EntryNode,
 					Type:      "GET",
-					Path:      []string{node.GetID()},
+					Timestamp: tick * e.TickMS,
+					Path:      []string{e.EntryNode},
 				}
-				node.Receive(req)
 			}
+
+			node := e.Nodes[e.EntryNode]
+			node.Queue = append(node.Queue, reqs...)
 		}
 
-		// snapshot to record what happened this tick
+		emitted := map[string][]*Request{}
 		snapshot := &TickSnapshot{
 			TickMs:     tick,
-			NodeHealth: make(map[string]NodeState),
+			QueueSizes: map[string]int{},
+			NodeHealth: map[string]bool{},
+			Emitted:    map[string][]*Request{},
 		}
 
 		for id, node := range e.Nodes {
-			// capture health data before processing
-			snapshot.NodeHealth[id] = NodeState{
-				QueueSize: len(node.GetQueue()),
-				Alive:     node.IsAlive(),
+			// if the node is not alive, don't even bother.
+			if !node.Alive {
+				continue
 			}
 
-			// tick all nodes
-			node.Tick(tick, currentTimeMs)
-
-			// get all processed requets and fan it out to all connected targets
-			for _, req := range node.Emit() {
-				snapshot.Emitted[node.GetID()] = append(snapshot.Emitted[node.GetID()], req)
-
-				for _, targetID := range node.GetTargets() {
-					if target, ok := e.Nodes[targetID]; ok && target.IsAlive() && !hasVisited(req, targetID) {
-						// Deep copy request and update path
-						newReq := *req
-						newReq.Path = append([]string{}, req.Path...)
-						newReq.Path = append(newReq.Path, targetID)
-						target.Receive(&newReq)
-					}
+			// this will preopulate some props so that we can use different load balancing algorithms
+			if node.Type == "loadbalancer" && node.Props["algorithm"] == "least-connection" {
+				queueSizes := make(map[string]interface{})
+				for _, targetID := range e.Edges[id] {
+					queueSizes[targetID] = len(e.Nodes[targetID].Queue)
 				}
+				node.Props["_queueSizes"] = queueSizes
 			}
 
+			// simulate the node. outputs is the emitted requests (request post-processing) and alive tells you if the node is healthy
+			outputs, alive := node.Logic.Tick(node.Props, node.Queue, tick)
+
+			// at this point, all nodes have ticked. record the emitted requests
+			emitted[id] = outputs
+
+			// clear the queue after processing. Queues should only contain requests for the next tick that need processing.
+			node.Queue = nil
+
+			// update if the node is still alive
+			node.Alive = alive
+
+			// populate snapshot
+			snapshot.QueueSizes[id] = len(node.Queue)
+			snapshot.NodeHealth[id] = node.Alive
+			snapshot.Emitted[id] = outputs
 		}
 
-		// store the snapshot and advance time
-		e.Timeline = append(e.Timeline, snapshot)
-		currentTimeMs += tickMS
-	}
-}
-
-func (e *Engine) findEntryPoints() []SimulationNode {
-	var entries []SimulationNode
-	for _, node := range e.Nodes {
-		if node.Type() == "loadBalancer" {
-			entries = append(entries, node)
+		// iterate over each emitted request
+		for from, reqs := range emitted {
+			// figure out where those requests should go to
+			for _, to := range e.Edges[from] {
+				// add those requests to the target node's input (queue)
+				e.Nodes[to].Queue = append(e.Nodes[to].Queue, reqs...)
+			}
 		}
+
+		snapshots = append(snapshots, snapshot)
+		currentTime += e.TickMS
 	}
-	return entries
+
+	return snapshots
 }
 
-func (e *Engine) injectRequests(entries []SimulationNode, requests []*Request) {
-	for i, req := range requests {
-		node := entries[i%len(entries)]
-		node.Receive(req)
-	}
-}
-
-func shouldInject(tick int) bool {
-	return tick%100 == 0
-}
-
-func generateRequestID(tick int) string {
-	return fmt.Sprintf("req-%d-%d", tick, rand.Intn(1000))
-}
-
-func asFloat64(v interface{}) float64 {
-	switch val := v.(type) {
-	case float64:
-		return val
-	case int:
-		return float64(val)
-	case int64:
-		return float64(val)
-	case float32:
-		return float64(val)
+func GetLogicForType(t string) NodeLogic {
+	switch t {
+	case "webserver":
+		return WebServerLogic{}
+	case "loadbalancer":
+		return LoadBalancerLogic{}
+	case "cdn":
+		return CDNLogic{}
 	default:
-		return 0
+		return nil
 	}
-}
-
-func asString(v interface{}) string {
-	s, ok := v.(string)
-	if !ok {
-		return ""
-	}
-
-	return s
-}
-
-func hasVisited(req *Request, nodeID string) bool {
-	for _, id := range req.Path {
-		if id == nodeID {
-			return true
-		}
-	}
-	return false
 }

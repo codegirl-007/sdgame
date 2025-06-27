@@ -1,18 +1,12 @@
 package level
 
 import (
-	"fmt"
-	"os"
 	"path/filepath"
 	"testing"
 )
 
 func TestLoadLevels(t *testing.T) {
 	path := filepath.Join("..", "..", "data", "levels.json")
-
-	cwd, _ := os.Getwd()
-	fmt.Println("Current working directory: ", cwd)
-	fmt.Println("loading path: ", path)
 
 	levels, err := LoadLevels(path)
 	if err != nil {

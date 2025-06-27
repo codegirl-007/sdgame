@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"systemdesigngame/internal/design"
-	"systemdesigngame/internal/simulation"
 )
 
 type SimulationHandler struct{}
@@ -27,9 +26,6 @@ func (h *SimulationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid design JSON: "+err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	engine := simulation.NewEngineFromDesign(design, 10000, 100)
-	engine.Run()
 
 	// For now, return a mock successful response but eventually, we want to go to the results page(s)
 	response := SimulationResponse{

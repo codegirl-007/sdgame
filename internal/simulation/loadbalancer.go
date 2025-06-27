@@ -1,91 +1,64 @@
 package simulation
 
 import (
-	"math/rand"
+	"fmt"
 )
 
-type LoadBalancerNode struct {
-	// unique identifier for the node
-	ID string
-	// human readable name
-	Label string
-	// load balancing strategy
-	Algorithm string
-	// list of incoming requests to be processed
-	Queue []*Request
-	// IDs of downstream nodes (e.g. webservers)
-	Targets []string
-	// use to track round-robin state (i.e. which target is next)
-	Counter int
-	// bool for health check
-	Alive bool
-	// requests that this node has handled (ready to be emitted)
-	Processed []*Request
-}
+type LoadBalancerLogic struct{}
 
-func (lb *LoadBalancerNode) GetID() string {
-	return lb.ID
-}
+func (l LoadBalancerLogic) Tick(props map[string]any, queue []*Request, tick int) ([]*Request, bool) {
+	// Extract the load balancing algorithm from the props.
+	algorithm := AsString(props["algorithm"])
+	// Number of downstream targets
+	targets := int(AsFloat64(props["_numTargets"]))
 
-func (lb *LoadBalancerNode) Type() string {
-	return "loadBalancer"
-}
-
-func (lb *LoadBalancerNode) IsAlive() bool {
-	return lb.Alive
-}
-
-// Acceps an incoming request by adding it to the Queue which will be processed on the next tick
-func (lb *LoadBalancerNode) Receive(req *Request) {
-	lb.Queue = append(lb.Queue, req)
-}
-
-func (lb *LoadBalancerNode) Tick(tick int, currentTimeMs int) {
-	// clear out the process so it starts fresh
-	lb.Processed = nil
-
-	// for each pending request...
-	for _, req := range lb.Queue {
-		// if there are no targets to forward to, skip processing
-		if len(lb.Targets) == 0 {
-			continue
-		}
-
-		// placeholder for algorithm-specific logic. TODO.
-		switch lb.Algorithm {
-		case "random":
-			fallthrough
-		case "round-robin":
-			fallthrough
-		default:
-			lb.Counter++
-		}
-
-		// Append the load balancer's ID to the request's path to record it's journey through the system
-		req.Path = append(req.Path, lb.ID)
-
-		// Simulate networking delay
-		req.LatencyMS += 10
-
-		// Mark the request as processed so it can be emitted to targets
-		lb.Processed = append(lb.Processed, req)
+	if len(queue) == 0 {
+		return nil, true
 	}
 
-	// clear the queue after processing. Ready for next tick.
-	lb.Queue = lb.Queue[:0]
-}
+	// Hold the processed requests to be emitted
+	output := []*Request{}
 
-// return the list of process requests and then clear the processed requests
-func (lb *LoadBalancerNode) Emit() []*Request {
-	out := lb.Processed
-	lb.Processed = nil
-	return out
-}
+	switch algorithm {
+	case "least-connection":
+		// extrat current queue sizes from downstream targets
+		queueSizesRaw, ok := props["_queueSizes"].(map[string]interface{})
+		if !ok {
+			return nil, true
+		}
 
-func (lb *LoadBalancerNode) GetTargets() []string {
-	return lb.Targets
-}
+		// find target with smallest queue
+		for _, req := range queue {
+			minTarget := "target-0"
+			minSize := int(AsFloat64(queueSizesRaw[minTarget]))
+			for i := 1; i < targets; i++ {
+				targetKey := fmt.Sprintf("target-%d", i)
+				size := int(AsFloat64(queueSizesRaw[targetKey]))
+				if size < minSize {
+					minTarget = targetKey
+					minSize = size
+				}
+			}
 
-func (lb *LoadBalancerNode) GetQueue() []*Request {
-	return lb.Queue
+			// Clone the request and append the selected target to its path
+			reqCopy := *req
+			reqCopy.Path = append(reqCopy.Path, minTarget)
+			output = append(output, &reqCopy)
+		}
+	default:
+		// Retrieve the last used index
+		next := int(AsFloat64(props["_rrIndex"]))
+		for _, req := range queue {
+			// Clone ther equest and append the selected target to its path
+			reqCopy := *req
+			reqCopy.Path = append(reqCopy.Path, fmt.Sprintf("target-%d", next))
+			output = append(output, &reqCopy)
+			// Advance to next target
+			next = (next + 1) % targets
+		}
+
+		props["_rrIndex"] = float64(next)
+	}
+
+	return output, true
 }
