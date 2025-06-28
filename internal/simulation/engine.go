@@ -94,6 +94,7 @@ func (e *SimulationEngine) Run(duration int, tickMs int) []*TickSnapshot {
 	for tick := 0; tick < duration; tick++ {
 		if e.RPS > 0 && e.EntryNode != "" {
 			count := int(float64(e.RPS) * float64(e.TickMS) / 1000.0)
+
 			reqs := make([]*Request, count)
 
 			for i := 0; i < count; i++ {
@@ -125,12 +126,19 @@ func (e *SimulationEngine) Run(duration int, tickMs int) []*TickSnapshot {
 			}
 
 			// this will preopulate some props so that we can use different load balancing algorithms
-			if node.Type == "loadbalancer" && node.Props["algorithm"] == "least-connection" {
-				queueSizes := make(map[string]interface{})
-				for _, targetID := range e.Edges[id] {
-					queueSizes[targetID] = len(e.Nodes[targetID].Queue)
+			if node.Type == "loadbalancer" {
+				targets := e.Edges[id]
+				node.Props["_numTargets"] = float64(len(targets))
+				node.Props["_targetIDs"] = targets
+
+				algo, ok := node.Props["algorithm"].(string)
+				if ok && algo == "least-connection" {
+					queueSizes := make(map[string]interface{})
+					for _, targetID := range e.Edges[id] {
+						queueSizes[targetID] = len(e.Nodes[targetID].Queue)
+					}
+					node.Props["_queueSizes"] = queueSizes
 				}
-				node.Props["_queueSizes"] = queueSizes
 			}
 
 			// simulate the node. outputs is the emitted requests (request post-processing) and alive tells you if the node is healthy
