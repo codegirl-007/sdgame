@@ -6,6 +6,7 @@ import (
 	"systemdesigngame/internal/design"
 )
 
+// TODO: Make this better
 func TestSimpleChainSimulation(t *testing.T) {
 	d := design.Design{
 		Nodes: []design.Node{

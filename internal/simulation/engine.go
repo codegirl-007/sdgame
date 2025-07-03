@@ -5,6 +5,8 @@ import (
 	"systemdesigngame/internal/design"
 )
 
+// TODO list
+type TODO interface{}
 type NodeLogic interface {
 	Tick(props map[string]any, queue []*Request, tick int) ([]*Request, bool)
 }

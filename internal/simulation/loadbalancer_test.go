@@ -58,4 +58,83 @@ func TestLoadBalancerAlgorithms(t *testing.T) {
 			t.Errorf("expected lb to emit 2 requests")
 		}
 	})
+
+	t.Run("random", func(t *testing.T) {
+		d := design.Design{
+			Nodes: []design.Node{
+				{ID: "lb", Type: "loadbalancer", Props: map[string]any{"algorithm": "random"}},
+				{ID: "a", Type: "webserver", Props: map[string]any{"capacityRPS": 10}},
+				{ID: "b", Type: "webserver", Props: map[string]any{"capacityRPS": 10}},
+			},
+			Connections: []design.Connection{
+				{Source: "lb", Target: "a"},
+				{Source: "lb", Target: "b"},
+			},
+		}
+
+		e := NewEngineFromDesign(d, 100)
+		e.EntryNode = "lb"
+		e.RPS = 10
+
+		snaps := e.Run(1, 100)
+		if len(snaps[0].Emitted["lb"]) != 1 {
+			t.Errorf("expected lb to emit 1 request")
+		}
+	})
+
+	t.Run("first", func(t *testing.T) {
+		d := design.Design{
+			Nodes: []design.Node{
+				{ID: "lb", Type: "loadbalancer", Props: map[string]any{"algorithm": "first"}},
+				{ID: "a", Type: "webserver", Props: map[string]any{"capacityRPS": 10}},
+				{ID: "b", Type: "webserver", Props: map[string]any{"capacityRPS": 10}},
+			},
+			Connections: []design.Connection{
+				{Source: "lb", Target: "a"},
+				{Source: "lb", Target: "b"},
+			},
+		}
+
+		e := NewEngineFromDesign(d, 100)
+		e.EntryNode = "lb"
+		e.RPS = 10
+
+		snaps := e.Run(1, 100)
+		if len(snaps[0].Emitted["lb"]) != 1 {
+			t.Errorf("expected lb to emit 1 request")
+		}
+
+		target := snaps[0].Emitted["lb"][0].Path[1]
+		if target != "a" {
+			t.Errorf("expected request to go to 'a', got %s", target)
+		}
+	})
+
+	t.Run("last", func(t *testing.T) {
+		d := design.Design{
+			Nodes: []design.Node{
+				{ID: "lb", Type: "loadbalancer", Props: map[string]any{"algorithm": "last"}},
+				{ID: "a", Type: "webserver", Props: map[string]any{"capacityRPS": 10}},
+				{ID: "b", Type: "webserver", Props: map[string]any{"capacityRPS": 10}},
+			},
+			Connections: []design.Connection{
+				{Source: "lb", Target: "a"},
+				{Source: "lb", Target: "b"},
+			},
+		}
+
+		e := NewEngineFromDesign(d, 100)
+		e.EntryNode = "lb"
+		e.RPS = 10
+
+		snaps := e.Run(1, 100)
+		if len(snaps[0].Emitted["lb"]) != 1 {
+			t.Errorf("expected lb to emit 1 request")
+		}
+
+		target := snaps[0].Emitted["lb"][0].Path[1]
+		if target != "b" {
+			t.Errorf("expected request to go to 'b', got %s", target)
+		}
+	})
 }
