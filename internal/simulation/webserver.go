@@ -6,7 +6,7 @@ type WebServerLogic struct {
 }
 
 func (l WebServerLogic) Tick(props map[string]any, queue []*Request, tick int) ([]*Request, bool) {
-	maxRPS := int(AsFloat64(props["capacityRPS"]))
+	maxRPS := int(AsFloat64(props["rpsCapacity"]))
 
 	toProcess := queue
 	if len(queue) > maxRPS {

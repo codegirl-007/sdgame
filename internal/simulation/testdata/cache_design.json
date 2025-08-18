@@ -1,0 +1,55 @@
+{
+  "nodes": [
+    {
+      "id": "webserver",
+      "type": "webserver",
+      "position": { "x": 0, "y": 0 },
+      "props": {
+        "label": "Web Server",
+        "rpsCapacity": 100
+      }
+    },
+    {
+      "id": "cache",
+      "type": "cache",
+      "position": { "x": 100, "y": 0 },
+      "props": {
+        "label": "Redis Cache",
+        "cacheTTL": 300000,
+        "maxEntries": 1000,
+        "evictionPolicy": "LRU"
+      }
+    },
+    {
+      "id": "database",
+      "type": "database",
+      "position": { "x": 200, "y": 0 },
+      "props": {
+        "label": "Primary DB",
+        "replication": 2,
+        "maxRPS": 500,
+        "baseLatencyMs": 20
+      }
+    }
+  ],
+  "connections": [
+    {
+      "source": "webserver",
+      "target": "cache",
+      "label": "Cache Lookup",
+      "direction": "forward",
+      "protocol": "Redis",
+      "tls": false,
+      "capacity": 1000
+    },
+    {
+      "source": "cache",
+      "target": "database",
+      "label": "Cache Miss",
+      "direction": "forward",
+      "protocol": "TCP",
+      "tls": true,
+      "capacity": 1000
+    }
+  ]
+}

@@ -1,0 +1,164 @@
+{
+  "nodes": [
+    {
+      "id": "webserver-1",
+      "type": "webserver",
+      "position": { "x": 100, "y": 200 },
+      "props": {
+        "label": "E-commerce API",
+        "rpsCapacity": 200
+      }
+    },
+    {
+      "id": "microservice-1", 
+      "type": "microservice",
+      "position": { "x": 300, "y": 200 },
+      "props": {
+        "label": "Payment Service",
+        "instanceCount": 2,
+        "cpu": 4,
+        "ramGb": 8,
+        "rpsCapacity": 100,
+        "scalingStrategy": "auto"
+      }
+    },
+    {
+      "id": "stripe-service",
+      "type": "third party service",
+      "position": { "x": 500, "y": 150 },
+      "props": {
+        "label": "Stripe Payments",
+        "provider": "Stripe",
+        "latency": 180
+      }
+    },
+    {
+      "id": "twilio-service",
+      "type": "third party service",
+      "position": { "x": 500, "y": 250 },
+      "props": {
+        "label": "SMS Notifications",
+        "provider": "Twilio",
+        "latency": 250
+      }
+    },
+    {
+      "id": "microservice-2",
+      "type": "microservice",
+      "position": { "x": 300, "y": 350 },
+      "props": {
+        "label": "Notification Service",
+        "instanceCount": 1,
+        "cpu": 2,
+        "ramGb": 4,
+        "rpsCapacity": 50,
+        "scalingStrategy": "manual"
+      }
+    },
+    {
+      "id": "sendgrid-service",
+      "type": "third party service",
+      "position": { "x": 500, "y": 350 },
+      "props": {
+        "label": "Email Service",
+        "provider": "SendGrid",
+        "latency": 200
+      }
+    },
+    {
+      "id": "slack-service",
+      "type": "third party service",
+      "position": { "x": 500, "y": 450 },
+      "props": {
+        "label": "Slack Alerts",
+        "provider": "Slack",
+        "latency": 300
+      }
+    },
+    {
+      "id": "monitor-1",
+      "type": "monitoring/alerting",
+      "position": { "x": 700, "y": 200 },
+      "props": {
+        "label": "System Monitor",
+        "tool": "Datadog",
+        "alertMetric": "latency",
+        "thresholdValue": 500,
+        "thresholdUnit": "ms"
+      }
+    },
+    {
+      "id": "db-1",
+      "type": "database",
+      "position": { "x": 700, "y": 350 },
+      "props": {
+        "label": "Transaction DB",
+        "replication": 2,
+        "maxRPS": 300,
+        "baseLatencyMs": 20
+      }
+    }
+  ],
+  "connections": [
+    {
+      "source": "webserver-1",
+      "target": "microservice-1",
+      "label": "Payment Requests",
+      "protocol": "https"
+    },
+    {
+      "source": "microservice-1",
+      "target": "stripe-service",
+      "label": "Process Payment",
+      "protocol": "https"
+    },
+    {
+      "source": "microservice-1",
+      "target": "twilio-service",
+      "label": "SMS Confirmation",
+      "protocol": "https"
+    },
+    {
+      "source": "webserver-1",
+      "target": "microservice-2",
+      "label": "Notification Requests",
+      "protocol": "https"
+    },
+    {
+      "source": "microservice-2",
+      "target": "sendgrid-service",
+      "label": "Send Email",
+      "protocol": "https"
+    },
+    {
+      "source": "microservice-2",
+      "target": "slack-service",
+      "label": "Admin Alerts",
+      "protocol": "https"
+    },
+    {
+      "source": "stripe-service",
+      "target": "monitor-1",
+      "label": "Payment Metrics",
+      "protocol": "http"
+    },
+    {
+      "source": "twilio-service",
+      "target": "monitor-1",
+      "label": "SMS Metrics",
+      "protocol": "http"
+    },
+    {
+      "source": "sendgrid-service",
+      "target": "monitor-1",
+      "label": "Email Metrics",
+      "protocol": "http"
+    },
+    {
+      "source": "monitor-1",
+      "target": "db-1",
+      "label": "Store Metrics",
+      "protocol": "tcp"
+    }
+  ]
+}

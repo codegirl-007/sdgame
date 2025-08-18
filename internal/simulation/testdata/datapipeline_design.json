@@ -1,0 +1,188 @@
+{
+  "nodes": [
+    {
+      "id": "data-source",
+      "type": "webserver",
+      "position": { "x": 100, "y": 200 },
+      "props": {
+        "label": "Data Ingestion API",
+        "rpsCapacity": 500
+      }
+    },
+    {
+      "id": "raw-data-queue",
+      "type": "messageQueue",
+      "position": { "x": 300, "y": 200 },
+      "props": {
+        "label": "Raw Data Queue",
+        "queueCapacity": 10000,
+        "retentionSeconds": 3600,
+        "processingRate": 200
+      }
+    },
+    {
+      "id": "etl-pipeline-1", 
+      "type": "data pipeline",
+      "position": { "x": 500, "y": 150 },
+      "props": {
+        "label": "Data Cleansing Pipeline",
+        "batchSize": 100,
+        "transformation": "validate"
+      }
+    },
+    {
+      "id": "etl-pipeline-2",
+      "type": "data pipeline",
+      "position": { "x": 500, "y": 250 },
+      "props": {
+        "label": "Data Transformation Pipeline",
+        "batchSize": 50,
+        "transformation": "aggregate"
+      }
+    },
+    {
+      "id": "ml-pipeline",
+      "type": "data pipeline",
+      "position": { "x": 700, "y": 150 },
+      "props": {
+        "label": "ML Feature Pipeline",
+        "batchSize": 200,
+        "transformation": "enrich"
+      }
+    },
+    {
+      "id": "analytics-pipeline",
+      "type": "data pipeline", 
+      "position": { "x": 700, "y": 250 },
+      "props": {
+        "label": "Analytics Pipeline",
+        "batchSize": 500,
+        "transformation": "join"
+      }
+    },
+    {
+      "id": "cache-1",
+      "type": "cache",
+      "position": { "x": 900, "y": 150 },
+      "props": {
+        "label": "Feature Cache",
+        "cacheTTL": 300,
+        "maxEntries": 50000,
+        "evictionPolicy": "LRU"
+      }
+    },
+    {
+      "id": "data-warehouse",
+      "type": "database",
+      "position": { "x": 900, "y": 250 },
+      "props": {
+        "label": "Data Warehouse",
+        "replication": 3,
+        "maxRPS": 1000,
+        "baseLatencyMs": 50
+      }
+    },
+    {
+      "id": "monitoring-1",
+      "type": "monitoring/alerting",
+      "position": { "x": 500, "y": 350 },
+      "props": {
+        "label": "Pipeline Monitor",
+        "tool": "Datadog",
+        "alertMetric": "latency",
+        "thresholdValue": 1000,
+        "thresholdUnit": "ms"
+      }
+    },
+    {
+      "id": "compression-pipeline",
+      "type": "data pipeline",
+      "position": { "x": 300, "y": 350 },
+      "props": {
+        "label": "Data Compression",
+        "batchSize": 1000,
+        "transformation": "compress"
+      }
+    }
+  ],
+  "connections": [
+    {
+      "source": "data-source",
+      "target": "raw-data-queue",
+      "label": "Raw Data Stream",
+      "protocol": "http"
+    },
+    {
+      "source": "raw-data-queue",
+      "target": "etl-pipeline-1",
+      "label": "Data Validation",
+      "protocol": "tcp"
+    },
+    {
+      "source": "raw-data-queue",
+      "target": "etl-pipeline-2",
+      "label": "Data Transformation",
+      "protocol": "tcp"
+    },
+    {
+      "source": "etl-pipeline-1",
+      "target": "ml-pipeline",
+      "label": "Clean Data",
+      "protocol": "tcp"
+    },
+    {
+      "source": "etl-pipeline-2",
+      "target": "analytics-pipeline",
+      "label": "Transformed Data",
+      "protocol": "tcp"
+    },
+    {
+      "source": "ml-pipeline",
+      "target": "cache-1",
+      "label": "ML Features",
+      "protocol": "tcp"
+    },
+    {
+      "source": "analytics-pipeline",
+      "target": "data-warehouse",
+      "label": "Analytics Data",
+      "protocol": "tcp"
+    },
+    {
+      "source": "etl-pipeline-1",
+      "target": "monitoring-1",
+      "label": "Pipeline Metrics",
+      "protocol": "http"
+    },
+    {
+      "source": "etl-pipeline-2",
+      "target": "monitoring-1",
+      "label": "Pipeline Metrics",
+      "protocol": "http"
+    },
+    {
+      "source": "ml-pipeline",
+      "target": "monitoring-1",
+      "label": "Pipeline Metrics",
+      "protocol": "http"
+    },
+    {
+      "source": "analytics-pipeline",
+      "target": "monitoring-1",
+      "label": "Pipeline Metrics",
+      "protocol": "http"
+    },
+    {
+      "source": "raw-data-queue",
+      "target": "compression-pipeline",
+      "label": "Archive Stream",
+      "protocol": "tcp"
+    },
+    {
+      "source": "compression-pipeline",
+      "target": "data-warehouse",
+      "label": "Compressed Archive",
+      "protocol": "tcp"
+    }
+  ]
+}

@@ -16,7 +16,7 @@
       "props": {
         "label": "Web Server",
         "instanceSize": "medium",
-        "capacityRPS": 5,
+        "rpsCapacity": 5,
         "baseLatencyMs": 50,
         "penaltyPerRPS": 10
       }

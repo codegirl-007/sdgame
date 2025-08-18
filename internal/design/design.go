@@ -10,8 +10,8 @@ type Node struct {
 }
 
 type Position struct {
-	X int `json:"x"`
-	Y int `json:"y"`
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
 }
 
 type Connection struct {
@@ -46,8 +46,10 @@ type CDN struct {
 }
 
 type Database struct {
-	Label       string `json:"label"`
-	Replication int    `json:"replication"`
+	Label         string `json:"label"`
+	Replication   int    `json:"replication"`
+	MaxRPS        int    `json:"maxRPS"`
+	BaseLatencyMs int    `json:"baseLatencyMs"`
 }
 
 type DataPipeline struct {
@@ -65,13 +67,14 @@ type MessageQueue struct {
 	Label            string `json:"label"`
 	QueueCapacity    int    `json:"queueCapacity"`
 	RetentionSeconds int    `json:"retentionSeconds"`
+	ProcessingRate   int    `json:"processingRate"`
 }
 
 type Microservice struct {
 	Label           string `json:"label"`
 	InstanceCount   int    `json:"instanceCount"`
 	CPU             int    `json:"cpu"`
-	RAMGb           int    `json:"ramGb"`
+	RamGb           int    `json:"ramGb"`
 	RPSCapacity     int    `json:"rpsCapacity"`
 	MonthlyUSD      int    `json:"monthlyUsd"`
 	ScalingStrategy string `json:"scalingStrategy"`

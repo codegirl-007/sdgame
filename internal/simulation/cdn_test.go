@@ -9,7 +9,7 @@ func TestCDNLogic(t *testing.T) {
 	cdn := CDNLogic{}
 	cache := map[string]int{} // shared mutable cache
 	props := map[string]any{
-		"ttlMs":  float64(1000),
+		"ttl":    float64(1000),
 		"_cache": cache,
 	}
 

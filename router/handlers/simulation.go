@@ -2,17 +2,24 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"systemdesigngame/internal/design"
+	"systemdesigngame/internal/level"
+	"systemdesigngame/internal/simulation"
 )
 
 type SimulationHandler struct{}
 
 type SimulationResponse struct {
-	Success  bool                   `json:"success"`
-	Metrics  map[string]interface{} `json:"metrics,omitempty"`
-	Timeline []interface{}          `json:"timeline,omitempty"`
-	Error    string                 `json:"error,omitempty"`
+	Success   bool                   `json:"success"`
+	Metrics   map[string]interface{} `json:"metrics,omitempty"`
+	Timeline  []interface{}          `json:"timeline,omitempty"`
+	Passed    bool                   `json:"passed,omitempty"`
+	Score     int                    `json:"score,omitempty"`
+	Feedback  []string               `json:"feedback,omitempty"`
+	LevelName string                 `json:"levelName,omitempty"`
+	Error     string                 `json:"error,omitempty"`
 }
 
 func (h *SimulationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -21,22 +28,96 @@ func (h *SimulationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var design design.Design
-	if err := json.NewDecoder(r.Body).Decode(&design); err != nil {
-		http.Error(w, "Invalid design JSON: "+err.Error(), http.StatusBadRequest)
+	var requestBody struct {
+		Design     design.Design `json:"design"`
+		LevelName  string        `json:"levelName,omitempty"`
+		Difficulty string        `json:"difficulty,omitempty"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
+		// Try to decode as just design for backward compatibility
+		r.Body.Close()
+		var design design.Design
+		if err2 := json.NewDecoder(r.Body).Decode(&design); err2 != nil {
+			http.Error(w, "Invalid request JSON: "+err.Error(), http.StatusBadRequest)
+			return
+		}
+		requestBody.Design = design
+	}
+
+	// Extract the design for processing
+	design := requestBody.Design
+
+	// Run the actual simulation
+	engine := simulation.NewEngineFromDesign(design, 100)
+	if engine == nil {
+		response := SimulationResponse{
+			Success: false,
+			Error:   "Failed to create simulation engine - no valid components found",
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
 		return
 	}
 
-	// For now, return a mock successful response but eventually, we want to go to the results page(s)
+	// Set simulation parameters
+	engine.RPS = 50 // Default RPS - could be configurable later
+
+	// Find entry node by analyzing topology
+	entryNode := findEntryNode(design)
+
+	if entryNode == "" {
+		response := SimulationResponse{
+			Success: false,
+			Error:   "No entry point found - design must include a component with no incoming connections (webserver, microservice, load balancer, etc.)",
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	engine.EntryNode = entryNode
+
+	// Run simulation for 60 ticks (6 seconds at 100ms per tick)
+	snapshots := engine.Run(60, 100)
+
+	// Calculate metrics from snapshots
+	metrics := calculateMetrics(snapshots)
+
+	// Convert snapshots to interface{} for JSON serialization
+	timeline := make([]interface{}, len(snapshots))
+	for i, snapshot := range snapshots {
+		timeline[i] = snapshot
+	}
+
+	// Perform level validation if level info provided
+	var passed bool
+	var score int
+	var feedback []string
+	var levelName string
+
+	if requestBody.LevelName != "" {
+		difficulty := level.DifficultyEasy // default
+		if requestBody.Difficulty != "" {
+			difficulty = level.Difficulty(requestBody.Difficulty)
+		}
+
+		if lvl, err := level.GetLevel(requestBody.LevelName, difficulty); err == nil {
+			levelName = lvl.Name
+			passed, score, feedback = validateLevel(lvl, design, metrics)
+		} else {
+			feedback = []string{"Warning: Level not found, simulation ran without validation"}
+		}
+	}
+
 	response := SimulationResponse{
-		Success: true,
-		Metrics: map[string]interface{}{
-			"throughput":   250,
-			"latency_p95":  85,
-			"cost_monthly": 120,
-			"availability": 99.5,
-		},
-		Timeline: []interface{}{}, // Will contain TickSnapshots later
+		Success:   true,
+		Metrics:   metrics,
+		Timeline:  timeline,
+		Passed:    passed,
+		Score:     score,
+		Feedback:  feedback,
+		LevelName: levelName,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -44,4 +125,313 @@ func (h *SimulationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 		return
 	}
+}
+
+// calculateMetrics computes key performance metrics from simulation snapshots
+func calculateMetrics(snapshots []*simulation.TickSnapshot) map[string]interface{} {
+	if len(snapshots) == 0 {
+		return map[string]interface{}{
+			"throughput":   0,
+			"latency_avg":  0,
+			"cost_monthly": 0,
+			"availability": 0,
+		}
+	}
+
+	totalRequests := 0
+	totalLatency := 0
+	totalHealthy := 0
+	totalNodes := 0
+
+	// Calculate aggregate metrics across all snapshots
+	for _, snapshot := range snapshots {
+		// Count total requests processed in this tick
+		for _, requests := range snapshot.Emitted {
+			totalRequests += len(requests)
+			for _, req := range requests {
+				totalLatency += req.LatencyMS
+			}
+		}
+
+		// Count healthy vs total nodes
+		for _, healthy := range snapshot.NodeHealth {
+			totalNodes++
+			if healthy {
+				totalHealthy++
+			}
+		}
+	}
+
+	// Calculate throughput (requests per second)
+	// snapshots represent 6 seconds of simulation (60 ticks * 100ms)
+	simulationSeconds := float64(len(snapshots)) * 0.1 // 100ms per tick
+	throughput := float64(totalRequests) / simulationSeconds
+
+	// Calculate average latency
+	avgLatency := 0.0
+	if totalRequests > 0 {
+		avgLatency = float64(totalLatency) / float64(totalRequests)
+	}
+
+	// Calculate availability percentage
+	availability := 0.0
+	if totalNodes > 0 {
+		availability = (float64(totalHealthy) / float64(totalNodes)) * 100
+	}
+
+	// Estimate monthly cost (placeholder - could be enhanced)
+	monthlyCost := float64(totalNodes) * 50 // $50 per node per month baseline
+
+	return map[string]interface{}{
+		"throughput":   int(throughput),
+		"latency_avg":  int(avgLatency),
+		"cost_monthly": int(monthlyCost),
+		"availability": availability,
+	}
+}
+
+// findEntryNode analyzes the design topology to find the best entry point
+func findEntryNode(design design.Design) string {
+	// Build map of incoming connections
+	incomingCount := make(map[string]int)
+
+	// Initialize all nodes with 0 incoming connections
+	for _, node := range design.Nodes {
+		incomingCount[node.ID] = 0
+	}
+
+	// Count incoming connections for each node
+	for _, conn := range design.Connections {
+		incomingCount[conn.Target]++
+	}
+
+	// Find nodes with no incoming connections (potential entry points)
+	var entryPoints []string
+	for nodeID, count := range incomingCount {
+		if count == 0 {
+			entryPoints = append(entryPoints, nodeID)
+		}
+	}
+
+	// If multiple entry points exist, prefer certain types
+	if len(entryPoints) > 1 {
+		return preferredEntryPoint(design.Nodes, entryPoints)
+	} else if len(entryPoints) == 1 {
+		return entryPoints[0]
+	}
+
+	return "" // No entry point found
+}
+
+// preferredEntryPoint selects the best entry point from candidates based on component type
+func preferredEntryPoint(nodes []design.Node, candidateIDs []string) string {
+	// Priority order for entry points (most logical first)
+	priority := []string{
+		"webserver",
+		"microservice",
+		"loadBalancer",  // Could be edge load balancer
+		"cdn",           // Edge CDN
+		"data pipeline", // Data ingestion entry
+		"messageQueue",  // For event-driven architectures
+	}
+
+	// Create lookup for candidate nodes
+	candidates := make(map[string]design.Node)
+	for _, node := range nodes {
+		for _, id := range candidateIDs {
+			if node.ID == id {
+				candidates[id] = node
+				break
+			}
+		}
+	}
+
+	// Find highest priority candidate
+	for _, nodeType := range priority {
+		for id, node := range candidates {
+			if node.Type == nodeType {
+				return id
+			}
+		}
+	}
+
+	// If no preferred type, return first candidate
+	if len(candidateIDs) > 0 {
+		return candidateIDs[0]
+	}
+
+	return ""
+}
+
+// validateLevel checks if the design and simulation results meet level requirements
+func validateLevel(lvl *level.Level, design design.Design, metrics map[string]interface{}) (bool, int, []string) {
+	var feedback []string
+	var failedRequirements []string
+	var passedRequirements []string
+
+	// Extract metrics
+	throughput := metrics["throughput"].(int)
+	avgLatency := metrics["latency_avg"].(int)
+	availability := metrics["availability"].(float64)
+	monthlyCost := metrics["cost_monthly"].(int)
+
+	// Check throughput requirement
+	if throughput >= lvl.TargetRPS {
+		passedRequirements = append(passedRequirements, "Throughput requirement met")
+	} else {
+		failedRequirements = append(failedRequirements,
+			fmt.Sprintf("Throughput: %d RPS (required: %d RPS)", throughput, lvl.TargetRPS))
+	}
+
+	// Check latency requirement (using avg latency as approximation for P95)
+	if avgLatency <= lvl.MaxP95LatencyMs {
+		passedRequirements = append(passedRequirements, "Latency requirement met")
+	} else {
+		failedRequirements = append(failedRequirements,
+			fmt.Sprintf("Latency: %dms (max allowed: %dms)", avgLatency, lvl.MaxP95LatencyMs))
+	}
+
+	// Check availability requirement
+	if availability >= lvl.RequiredAvailabilityPct {
+		passedRequirements = append(passedRequirements, "Availability requirement met")
+	} else {
+		failedRequirements = append(failedRequirements,
+			fmt.Sprintf("Availability: %.1f%% (required: %.1f%%)", availability, lvl.RequiredAvailabilityPct))
+	}
+
+	// Check cost requirement
+	if monthlyCost <= lvl.MaxMonthlyUSD {
+		passedRequirements = append(passedRequirements, "Cost requirement met")
+	} else {
+		failedRequirements = append(failedRequirements,
+			fmt.Sprintf("Cost: $%d/month (max allowed: $%d/month)", monthlyCost, lvl.MaxMonthlyUSD))
+	}
+
+	// Check component requirements
+	componentFeedback := validateComponentRequirements(lvl, design)
+	if len(componentFeedback.Failed) > 0 {
+		failedRequirements = append(failedRequirements, componentFeedback.Failed...)
+	}
+	if len(componentFeedback.Passed) > 0 {
+		passedRequirements = append(passedRequirements, componentFeedback.Passed...)
+	}
+
+	// Determine if passed
+	passed := len(failedRequirements) == 0
+
+	// Calculate score (0-100)
+	score := calculateScore(len(passedRequirements), len(failedRequirements), metrics)
+
+	// Build feedback
+	if passed {
+		feedback = append(feedback, "Level completed successfully!")
+		feedback = append(feedback, "")
+		feedback = append(feedback, passedRequirements...)
+	} else {
+		feedback = append(feedback, "Level failed - requirements not met:")
+		feedback = append(feedback, "")
+		feedback = append(feedback, failedRequirements...)
+		if len(passedRequirements) > 0 {
+			feedback = append(feedback, "")
+			feedback = append(feedback, "Requirements passed:")
+			feedback = append(feedback, passedRequirements...)
+		}
+	}
+
+	return passed, score, feedback
+}
+
+type ComponentValidationResult struct {
+	Passed []string
+	Failed []string
+}
+
+// validateComponentRequirements checks mustInclude, mustNotInclude, etc.
+func validateComponentRequirements(lvl *level.Level, design design.Design) ComponentValidationResult {
+	result := ComponentValidationResult{}
+
+	// Build map of component types in design
+	componentTypes := make(map[string]int)
+	for _, node := range design.Nodes {
+		componentTypes[node.Type]++
+	}
+
+	// Check mustInclude requirements
+	for _, required := range lvl.MustInclude {
+		if count, exists := componentTypes[required]; exists && count > 0 {
+			result.Passed = append(result.Passed, fmt.Sprintf("Required component '%s' included", required))
+		} else {
+			result.Failed = append(result.Failed, fmt.Sprintf("Missing required component: '%s'", required))
+		}
+	}
+
+	// Check mustNotInclude requirements
+	for _, forbidden := range lvl.MustNotInclude {
+		if count, exists := componentTypes[forbidden]; exists && count > 0 {
+			result.Failed = append(result.Failed, fmt.Sprintf("Forbidden component used: '%s'", forbidden))
+		}
+	}
+
+	// Check minReplicas requirements
+	for component, minCount := range lvl.MinReplicas {
+		if count, exists := componentTypes[component]; exists && count >= minCount {
+			result.Passed = append(result.Passed, fmt.Sprintf("Sufficient '%s' replicas (%d)", component, count))
+		} else {
+			actualCount := 0
+			if exists {
+				actualCount = count
+			}
+			result.Failed = append(result.Failed,
+				fmt.Sprintf("Insufficient '%s' replicas: %d (minimum: %d)", component, actualCount, minCount))
+		}
+	}
+
+	return result
+}
+
+// calculateScore computes a score from 0-100 based on performance
+func calculateScore(passedCount, failedCount int, metrics map[string]interface{}) int {
+	if failedCount > 0 {
+		// Failed level - score based on how many requirements passed
+		return (passedCount * 100) / (passedCount + failedCount)
+	}
+
+	// Passed level - bonus points for performance
+	baseScore := 70 // Base score for passing
+
+	// Performance bonuses (up to 30 points)
+	performanceBonus := 0
+
+	// Throughput bonus (higher throughput = better)
+	if throughput, ok := metrics["throughput"].(int); ok && throughput > 0 {
+		performanceBonus += min(10, throughput/100) // 1 point per 100 RPS, max 10
+	}
+
+	// Availability bonus (higher availability = better)
+	if availability, ok := metrics["availability"].(float64); ok {
+		if availability >= 99.9 {
+			performanceBonus += 10
+		} else if availability >= 99.5 {
+			performanceBonus += 5
+		}
+	}
+
+	// Cost efficiency bonus (lower cost = better)
+	if cost, ok := metrics["cost_monthly"].(int); ok && cost > 0 {
+		if cost <= 50 {
+			performanceBonus += 10
+		} else if cost <= 100 {
+			performanceBonus += 5
+		}
+	}
+
+	return min(100, baseScore+performanceBonus)
+}
+
+// Helper function
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

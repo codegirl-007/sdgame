@@ -185,6 +185,20 @@ func GetLogicForType(t string) NodeLogic {
 		return LoadBalancerLogic{}
 	case "cdn":
 		return CDNLogic{}
+	case "database":
+		return DatabaseLogic{}
+	case "cache":
+		return CacheLogic{}
+	case "messageQueue":
+		return MessageQueueLogic{}
+	case "microservice":
+		return MicroserviceLogic{}
+	case "monitoring/alerting":
+		return MonitoringLogic{}
+	case "third party service":
+		return ThirdPartyServiceLogic{}
+	case "data pipeline":
+		return DataPipelineLogic{}
 	default:
 		return nil
 	}

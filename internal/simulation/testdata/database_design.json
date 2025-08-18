@@ -1,0 +1,35 @@
+{
+  "nodes": [
+    {
+      "id": "webserver",
+      "type": "webserver",
+      "position": { "x": 0, "y": 0 },
+      "props": {
+        "label": "Web Server",
+        "rpsCapacity": 100
+      }
+    },
+    {
+      "id": "database",
+      "type": "database",
+      "position": { "x": 100, "y": 0 },
+      "props": {
+        "label": "Primary DB",
+        "replication": 2,
+        "maxRPS": 500,
+        "baseLatencyMs": 15
+      }
+    }
+  ],
+  "connections": [
+    {
+      "source": "webserver",
+      "target": "database",
+      "label": "DB Queries",
+      "direction": "forward",
+      "protocol": "TCP",
+      "tls": true,
+      "capacity": 1000
+    }
+  ]
+}

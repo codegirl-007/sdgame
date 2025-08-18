@@ -5,7 +5,7 @@ type CDNLogic struct{}
 func (c CDNLogic) Tick(props map[string]any, queue []*Request, tick int) ([]*Request, bool) {
 
 	// read the ttl for cached content
-	ttl := int(AsFloat64(props["ttlMs"]))
+	ttl := int(AsFloat64(props["ttl"]))
 
 	// retrieve the cdn's cache from props
 	cache, ok := props["_cache"].(map[string]int)

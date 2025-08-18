@@ -1,0 +1,53 @@
+{
+  "nodes": [
+    {
+      "id": "producer",
+      "type": "webserver",
+      "position": { "x": 0, "y": 0 },
+      "props": {
+        "label": "Message Producer",
+        "rpsCapacity": 50
+      }
+    },
+    {
+      "id": "messagequeue",
+      "type": "messageQueue",
+      "position": { "x": 100, "y": 0 },
+      "props": {
+        "label": "Event Queue",
+        "queueCapacity": 1000,
+        "retentionSeconds": 3600,
+        "processingRate": 100
+      }
+    },
+    {
+      "id": "consumer",
+      "type": "webserver",
+      "position": { "x": 200, "y": 0 },
+      "props": {
+        "label": "Message Consumer",
+        "rpsCapacity": 80
+      }
+    }
+  ],
+  "connections": [
+    {
+      "source": "producer",
+      "target": "messagequeue",
+      "label": "Publish Messages",
+      "direction": "forward",
+      "protocol": "AMQP",
+      "tls": false,
+      "capacity": 1000
+    },
+    {
+      "source": "messagequeue",
+      "target": "consumer",
+      "label": "Consume Messages",
+      "direction": "forward",
+      "protocol": "AMQP",
+      "tls": false,
+      "capacity": 1000
+    }
+  ]
+}

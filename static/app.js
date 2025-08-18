@@ -91,9 +91,54 @@ export class CanvasApp {
             node.y = y;
         });
 
-        this.runButton.addEventListener('click', () => {
+        this.runButton.addEventListener('click', async () => {
             const designData = this.exportDesign();
-            console.log(JSON.stringify(designData))
+            
+            // Try to get level info from URL or page context
+            const levelInfo = this.getLevelInfo();
+            
+            const requestBody = {
+                design: designData,
+                ...levelInfo
+            };
+            
+            console.log('Sending design to simulation:', JSON.stringify(requestBody));
+            
+            // Disable button and show loading state
+            this.runButton.disabled = true;
+            this.runButton.textContent = 'Running Simulation...';
+            
+            try {
+                const response = await fetch('/simulate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.Success) {
+                    console.log('Simulation successful:', result);
+                    this.showResults(result);
+                } else {
+                    console.error('Simulation failed:', result.Error);
+                    this.showError(result.Error || 'Simulation failed');
+                }
+                
+            } catch (error) {
+                console.error('Network error:', error);
+                this.showError('Failed to run simulation: ' + error.message);
+            } finally {
+                // Re-enable button
+                this.runButton.disabled = false;
+                this.runButton.textContent = 'Test Design';
+            }
         });
 
         this.canvas.addEventListener('click', () => {
@@ -266,5 +311,58 @@ export class CanvasApp {
         }));
 
         return { nodes, connections };
+    }
+
+    getLevelInfo() {
+        // Try to extract level info from URL path like /play/url-shortener
+        const pathParts = window.location.pathname.split('/');
+        if (pathParts.length >= 3 && pathParts[1] === 'play') {
+            const levelName = decodeURIComponent(pathParts[2]);
+            return {
+                levelName: levelName,
+                difficulty: 'easy' // Default difficulty, could be enhanced later
+            };
+        }
+        return {};
+    }
+
+    showResults(result) {
+        const metrics = result.Metrics;
+        let message = '';
+        
+        // Level validation results
+        if (result.LevelName) {
+            if (result.Passed) {
+                message += `Level "${result.LevelName}" PASSED!\n`;
+                message += `Score: ${result.Score}/100\n\n`;
+            } else {
+                message += `Level "${result.LevelName}" FAILED\n`;
+                message += `Score: ${result.Score}/100\n\n`;
+            }
+            
+            // Add detailed feedback
+            if (result.Feedback && result.Feedback.length > 0) {
+                message += result.Feedback.join('\n') + '\n\n';
+            }
+        } else {
+            message += `Simulation Complete!\n\n`;
+        }
+        
+        // Performance metrics
+        message += `Performance Metrics:\n`;
+        message += `• Throughput: ${metrics.throughput} req/sec\n`;
+        message += `• Avg Latency: ${metrics.latency_avg}ms\n`;
+        message += `• Availability: ${metrics.availability.toFixed(1)}%\n`;
+        message += `• Monthly Cost: $${metrics.cost_monthly}\n\n`;
+        message += `Timeline: ${result.Timeline.length} ticks simulated`;
+        
+        alert(message);
+        
+        // TODO: Later replace with redirect to results page or modal
+        console.log('Full simulation data:', result);
+    }
+
+    showError(errorMessage) {
+        alert(`Simulation Error:\n\n${errorMessage}\n\nPlease check your design and try again.`);
     }
 }

@@ -18,6 +18,7 @@ func SetupRoutes(tmpl *template.Template) *http.ServeMux {
 	mux.Handle("/simulate", auth.RequireAuth(&handlers.SimulationHandler{}))
 	mux.HandleFunc("/login", auth.LoginHandler)
 	mux.HandleFunc("/callback", auth.CallbackHandler)
+	mux.HandleFunc("/ws", handlers.Messages)
 
 	return mux
 }
