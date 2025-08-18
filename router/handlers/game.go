@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"systemdesigngame/internal/auth"
 	"systemdesigngame/internal/level"
 )
 
@@ -20,8 +21,8 @@ func (h *PlayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	username := "something"
-	avatar := "something"
+	username := r.Context().Value(auth.UserLoginKey).(string)
+	avatar := r.Context().Value(auth.UserAvatarKey).(string)
 	lvl, err := level.GetLevel(strings.ToLower(levelName), level.DifficultyEasy)
 	if err != nil {
 		http.Error(w, "Level not found: "+err.Error(), http.StatusNotFound)
