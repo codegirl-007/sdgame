@@ -409,6 +409,8 @@ body {
     color: var(--color-text-muted);
 }
 
+
+
 /* === RESPONSIVE === */
 @media (max-width: 1024px) {
     .game-mode-grid {
@@ -437,4 +439,4 @@ body {
     .stats-grid {
         grid-template-columns: 1fr;
     }
-} 
+}
