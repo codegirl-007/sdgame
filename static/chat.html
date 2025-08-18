@@ -1,0 +1,57 @@
+{{ define "chat" }}
+<label for="chat-checkbox">
+    <div aria-label="Send message" id="start-chat">
+
+        <svg class="chat-bubble" width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"
+            fill="none" stroke="white" stroke-width="4">
+            <path
+                d="M4 12C4 7.58 8.03 4 13 4h38c4.97 0 9 3.58 9 8v24c0 4.42-4.03 8-9 8H22l-12 12v-12H13c-4.97 0-9-3.58-9-8V12z" />
+        </svg>
+
+    </div>
+</label>
+<input type="checkbox" name="chat-checkbox" id="chat-checkbox" class="chat-checkbox" />
+<div class="chat">
+    <div id="chat-header">
+        <p class="chat-title">System Design Assistant</p>
+        <p class="powered-by">Powered by AI</p>
+    </div>
+    <section id="messages">
+        <p class="me">
+            1
+        </p>
+        <p class="other">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem doloremque exercitationem, blanditiis
+            obcaecati
+            earum recusandae quia laudantium assumenda nihil mollitia velit eos molestias odio quasi facilis suscipit
+            rem
+            nulla sapiente ea voluptatum repudiandae dicta enim ut! Sed perferendis aliquid vel ad incidunt? In sit id
+            voluptatibus fugit voluptates, architecto sequi.
+        </p>
+        <p class="me">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex beatae vero sit delectus, rem totam molestias.
+            Officia, suscipit error. Voluptatibus.
+        </p>
+        <div class="loading-indicator">
+            <div class="loading-dots">
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+                <div class="loading-dot"></div>
+            </div>
+            <span>loading...</span>
+        </div>
+    </section>
+    <footer>
+        <textarea name="chat-message" placeholder="Type your message here..."></textarea>
+        <button aria-label="Send message">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
+            </svg>
+        </button>
+    </footer>
+</div>
+
+
+{{ end }}

@@ -1,0 +1,16 @@
+{{ define "header" }}
+<div id="sd-header">
+    <h1 class="header-text">System Design Game</h1>
+    {{ if and .Username .Avatar }}
+    <div class="userbox">
+        <img src="{{ .Avatar }}" class="avatar" />
+        <span class="username">{{ .Username }}</span>
+    </div>
+    {{ else }}
+    <a href="/login" id="github-login-btn">
+        <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg" alt="GitHub Logo">
+        Login with GitHub
+    </a>
+    {{ end }}
+</div>
+{{ end }}
