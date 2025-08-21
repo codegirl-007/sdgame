@@ -41,7 +41,15 @@ export class Connection {
         this.selected = false;
         this.line.addEventListener('click', (e) => {
             e.stopPropagation();
-            this.app.clearSelection();
+            // Clear node selection via observer
+            if (this.app.selectedNode) {
+                this.app.nodeSelectionSubject.notifyNodeDeselected(this.app.selectedNode);
+                this.app.selectedNode = null;
+            }
+            // Clear any previously selected connection
+            if (this.app.selectedConnection) {
+                this.app.selectedConnection.deselect();
+            }
             this.select();
         });
 
@@ -117,7 +125,15 @@ export class Connection {
     }
 
     select() {
-        this.app.clearSelection();
+        // Clear node selection via observer
+        if (this.app.selectedNode) {
+            this.app.nodeSelectionSubject.notifyNodeDeselected(this.app.selectedNode);
+            this.app.selectedNode = null;
+        }
+        // Clear any previously selected connection
+        if (this.app.selectedConnection) {
+            this.app.selectedConnection.deselect();
+        }
         this.selected = true;
         this.line.setAttribute('stroke', '#007bff');
         this.line.setAttribute('stroke-width', 3);

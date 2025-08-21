@@ -62,15 +62,17 @@ export class ComponentNode {
             if (app.arrowMode) {
                 Connection.handleClick(this, app);
             } else {
-                app.clearSelection();
-                this.select();
+                // Use observer to notify node selection
+                app.nodeSelectionSubject.notifyNodeSelected(this);
+                app.selectedNode = this; // Keep app state in sync for now
             }
         });
 
         this.group.addEventListener('dblclick', (e) => {
             e.stopPropagation();
             if (!app.arrowMode) {
-                app.showPropsPanel(this);
+                // Use observer pattern instead of direct call
+                app.propertiesPanelSubject.notifyPropertiesPanelRequested(this);
             }
         });
 
@@ -144,7 +146,10 @@ export class ComponentNode {
     }
 
     select() {
-        this.app.clearSelection();
+        // Use observer to clear previous selection and select this node
+        if (this.app.selectedNode && this.app.selectedNode !== this) {
+            this.app.nodeSelectionSubject.notifyNodeDeselected(this.app.selectedNode);
+        }
         this.group.classList.add('selected');
         this.app.selectedNode = this;
     }

@@ -12,6 +12,7 @@ import './plugins/datapipeline.js';
 import './plugins/monitorAlerting.js';
 import './plugins/thirdPartyService.js';
 import { PluginRegistry } from './pluginRegistry.js';
+import { initializeObservers } from './observers.js';
 
 export class CanvasApp {
     constructor() {
@@ -55,6 +56,12 @@ export class CanvasApp {
         this._maxReconnectDelay = 15000;
         this._reconnectTimer = null;
 
+        // Initialize observer system (alongside existing event handling)
+        const observers = initializeObservers(this.nodePropsPanel, this.propsSaveBtn);
+        this.propertiesPanelSubject = observers.propertiesPanel;
+        this.nodeSelectionSubject = observers.nodeSelection;
+        this.connectionModeSubject = observers.connectionMode;
+
         this.initEventHandlers();
     }
 
@@ -77,13 +84,16 @@ export class CanvasApp {
             this.arrowMode = !this.arrowMode;
             if (this.arrowMode) {
                 this.arrowToolBtn.classList.add('active');
-                this.hidePropsPanel();
+                // Use observer to notify that arrow mode is enabled (will hide props panel)
+                this.connectionModeSubject.notifyConnectionModeChanged(true);
             } else {
                 this.arrowToolBtn.classList.remove('active');
                 if (this.connectionStart) {
                     this.connectionStart.group.classList.remove('selected');
                     this.connectionStart = null;
                 }
+                // Use observer to notify that arrow mode is disabled
+                this.connectionModeSubject.notifyConnectionModeChanged(false);
             }
         });
         this.startChatBtn.addEventListener('click', () => {
@@ -245,9 +255,17 @@ export class CanvasApp {
             
             // Don't hide props panel if clicking on it
             if (!this.nodePropsPanel.contains(e.target)) {
-                this.hidePropsPanel();
+                // Use observer to notify that properties panel should be closed
+                if (this.selectedNode) {
+                    this.propertiesPanelSubject.notifyPropertiesPanelClosed(this.selectedNode);
+                }
             }
-            this.clearSelection();
+            
+            // Use observer to notify that current node should be deselected
+            if (this.selectedNode) {
+                this.nodeSelectionSubject.notifyNodeDeselected(this.selectedNode);
+                this.selectedNode = null;
+            }
         });
 
         this.propsSaveBtn.addEventListener('click', () => {
@@ -258,7 +276,6 @@ export class CanvasApp {
             const plugin = PluginRegistry.get(node.type);
 
             if (!plugin || !plugin.props) {
-                this.hidePropsPanel();
                 return;
             }
 
@@ -280,8 +297,6 @@ export class CanvasApp {
                     node.updateLabel(value);
                 }
             }
-
-            this.hidePropsPanel();
         });
 
         // Prevent props panel from closing when clicking inside it
@@ -310,95 +325,14 @@ export class CanvasApp {
                     });
                     this.selectedNode = null;
                     this.activeNode = null;
-                    this.hidePropsPanel();
                 }
             }
         });
     }
 
-    showPropsPanel(node) {
-        this.activeNode = node;
-        const plugin = PluginRegistry.get(node.type);
-        const panel = this.nodePropsPanel;
 
-        if (!plugin || this.arrowMode) {
-            this.hidePropsPanel();
-            return;
-        }
 
-        // Get the node's actual screen position using getBoundingClientRect
-        const nodeRect = node.group.getBoundingClientRect();
-        const containerRect = this.canvasContainer.getBoundingClientRect();
-        const panelWidth = 220; // From CSS: #node-props-panel width
-        const panelHeight = 400; // Estimated height for boundary checking
-        
-        // Try to position dialog to the right of the node
-        let dialogX = nodeRect.right + 10;
-        let dialogY = nodeRect.top;
-        
-        // Check if dialog would go off the right edge of the screen
-        if (dialogX + panelWidth > window.innerWidth) {
-            // Position to the left of the node instead
-            dialogX = nodeRect.left - panelWidth - 10;
-        }
-        
-        // Check if dialog would go off the bottom of the screen
-        if (dialogY + panelHeight > window.innerHeight) {
-            // Move up to keep it visible
-            dialogY = window.innerHeight - panelHeight - 10;
-        }
-        
-        // Ensure dialog doesn't go above the top of the screen
-        if (dialogY < 10) {
-            dialogY = 10;
-        }
-        
-        panel.style.left = dialogX + 'px';
-        panel.style.top = dialogY + 'px';
 
-        // Hide all groups first
-        const allGroups = panel.querySelectorAll('.prop-group, #label-group, #compute-group, #lb-group');
-        allGroups.forEach(g => g.style.display = 'none');
-
-        const shownGroups = new Set();
-
-        for (const prop of plugin.props) {
-            const group = panel.querySelector(`[data-group='${prop.group}']`);
-            const input = panel.querySelector(`[name='${prop.name}']`);
-
-            // Show group once
-            if (group && !shownGroups.has(group)) {
-                group.style.display = 'block';
-                shownGroups.add(group);
-            }
-
-            // Set value
-            if (input) {
-                input.value = node.props[prop.name] ?? prop.default;
-            }
-        }
-
-        this.propsSaveBtn.disabled = false;
-        panel.style.display = 'block';
-        
-        // Trigger smooth animation
-        setTimeout(() => {
-            panel.classList.add('visible');
-        }, 10);
-    }
-
-    hidePropsPanel() {
-        const panel = this.nodePropsPanel;
-        panel.classList.remove('visible');
-        
-        // Hide after animation completes
-        setTimeout(() => {
-            panel.style.display = 'none';
-        }, 200);
-        
-        this.propsSaveBtn.disabled = true;
-        this.activeNode = null;
-    }
 
     updateConnectionsFor(movedNode) {
         this.connections.forEach(conn => {
@@ -408,17 +342,7 @@ export class CanvasApp {
         });
     }
 
-    clearSelection() {
-        if (this.selectedConnection) {
-            this.selectedConnection.deselect();
-            this.selectedConnection = null;
-        }
 
-        if (this.selectedNode) {
-            this.selectedNode.deselect();
-            this.selectedNode = null;
-        }
-    }
 
     exportDesign() {
         const nodes = this.placedComponents
