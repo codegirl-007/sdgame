@@ -1,37 +1,8 @@
 [
     {
-        "id": "url-shortener-easy",
-        "name": "URL Shortener",
-        "description": "Build a basic service to shorten URLs with a single backend.",
-        "difficulty": "easy",
-        "targetRps": 100,
-        "durationSec": 60,
-        "maxMonthlyUsd": 100,
-        "maxP95LatencyMs": 200,
-        "requiredAvailabilityPct": 99.0,
-        "mustInclude": ["database"],
-        "hints": ["Start with a basic backend and persistent storage."],
-        "interviewerRequirements": [
-            "Users should be able to shorten a URL via a basic web interface or API.",
-            "Each shortened URL should redirect to the original URL.",
-            "Data should be persisted so links remain valid after a restart."
-        ],
-        "functionalRequirements": [
-            "Must include a database to persist mappings"
-        ],
-        "nonFunctionalRequirements": [
-            "Target RPS: 100",
-            "Max P95 latency: 200ms",
-            "Required availability: 99.0%",
-            "Max monthly cost: $100",
-            "Simulation duration: 60 seconds"
-        ]
-    },
-    {
-        "id": "url-shortener-medium",
+        "id": "url-shortener",
         "name": "URL Shortener",
         "description": "Scale your URL shortener to handle traffic spikes and ensure high availability.",
-        "difficulty": "medium",
         "targetRps": 1000,
         "durationSec": 180,
         "maxMonthlyUsd": 300,
@@ -58,70 +29,9 @@
         ]
     },
     {
-        "id": "url-shortener-hard",
-        "name": "URL Shortener",
-        "description": "Design a globally distributed URL shortening service with low latency and high availability.",
-        "difficulty": "hard",
-        "targetRps": 10000,
-        "durationSec": 300,
-        "maxMonthlyUsd": 1000,
-        "maxP95LatencyMs": 100,
-        "requiredAvailabilityPct": 99.99,
-        "mustInclude": ["cdn", "database"],
-        "encouragedComponents": ["cache", "messageQueue"],
-        "hints": ["Think about write-path consistency and global replication."],
-        "interviewerRequirements": [
-            "The service must support globally distributed traffic with low latency.",
-            "Users across the world should get fast redirects via local CDN edge nodes.",
-            "Writes (shorten requests) should be consistent and durable."
-        ],
-        "functionalRequirements": [
-            "Must include a CDN and a database",
-            "Encouraged to include a cache and a message queue",
-            "Writes should pass through a queue before hitting storage (eventual consistency)"
-        ],
-        "nonFunctionalRequirements": [
-            "Target RPS: 10000",
-            "Max P95 latency: 100ms",
-            "Required availability: 99.99%",
-            "Max monthly cost: $1000",
-            "Simulation duration: 300 seconds"
-        ]
-    },
-
-    {
-        "id": "chat-app-easy",
-        "name": "Chat App",
-        "description": "Implement a simple chat app for small group communication.",
-        "difficulty": "easy",
-        "targetRps": 50,
-        "durationSec": 120,
-        "maxMonthlyUsd": 150,
-        "maxP95LatencyMs": 300,
-        "requiredAvailabilityPct": 99.0,
-        "mustInclude": ["webserver", "database"],
-        "hints": ["You don’t need to persist every message yet."],
-        "interviewerRequirements": [
-            "Users should be able to send and receive messages in real-time.",
-            "Messages should be stored to support reloading the page without data loss.",
-            "A basic frontend should connect to a backend service."
-        ],
-        "functionalRequirements": [
-            "Must include a webserver and a database"
-        ],
-        "nonFunctionalRequirements": [
-            "Target RPS: 50",
-            "Max P95 latency: 300ms",
-            "Required availability: 99.0%",
-            "Max monthly cost: $150",
-            "Simulation duration: 120 seconds"
-        ]
-    },
-    {
-        "id": "chat-app-medium",
+        "id": "chat-app",
         "name": "Chat App",
         "description": "Support real-time chat across mobile and web, with message persistence.",
-        "difficulty": "medium",
         "targetRps": 500,
         "durationSec": 300,
         "maxMonthlyUsd": 500,
@@ -148,70 +58,9 @@
         ]
     },
     {
-        "id": "chat-app-hard",
-        "name": "Chat App",
-        "description": "Design a Slack-scale chat platform supporting typing indicators, read receipts, and delivery guarantees.",
-        "difficulty": "hard",
-        "targetRps": 5000,
-        "durationSec": 600,
-        "maxMonthlyUsd": 1500,
-        "maxP95LatencyMs": 100,
-        "requiredAvailabilityPct": 99.99,
-        "mustInclude": ["messageQueue", "database"],
-        "discouragedComponents": ["single-instance webserver"],
-        "hints": ["Think about pub/sub, retries, and ordering guarantees."],
-        "interviewerRequirements": [
-            "Messages must support delivery guarantees and deduplication.",
-            "Users must receive typing indicators and read receipts in near-real-time.",
-            "System must scale horizontally and tolerate node failures."
-        ],
-        "functionalRequirements": [
-            "Must include a message queue and database",
-            "Discouraged from using a single-instance webserver",
-            "Encouraged to use a publish/subscribe system for fan-out"
-        ],
-        "nonFunctionalRequirements": [
-            "Target RPS: 5000",
-            "Max P95 latency: 100ms",
-            "Required availability: 99.99%",
-            "Max monthly cost: $1500",
-            "Simulation duration: 600 seconds"
-        ]
-    },
-
-    {
-        "id": "netflix-easy",
-        "name": "Netflix Clone",
-        "description": "Build a basic video streaming service with direct file access.",
-        "difficulty": "easy",
-        "targetRps": 200,
-        "durationSec": 300,
-        "maxMonthlyUsd": 500,
-        "maxP95LatencyMs": 500,
-        "requiredAvailabilityPct": 99.0,
-        "mustInclude": ["cdn"],
-        "hints": ["You don’t need full-blown adaptive streaming yet."],
-        "interviewerRequirements": [
-            "Users should be able to request and stream a video file.",
-            "Content should be served via a CDN to reduce latency and bandwidth cost.",
-            "Playback does not require adaptive streaming."
-        ],
-        "functionalRequirements": [
-            "Must include a CDN to serve static video content"
-        ],
-        "nonFunctionalRequirements": [
-            "Target RPS: 200",
-            "Max P95 latency: 500ms",
-            "Required availability: 99.0%",
-            "Max monthly cost: $500",
-            "Simulation duration: 300 seconds"
-        ]
-    },
-    {
-        "id": "netflix-medium",
+        "id": "netflix-clone",
         "name": "Netflix Clone",
         "description": "Add video transcoding, caching, and recommendations.",
-        "difficulty": "medium",
         "targetRps": 1000,
         "durationSec": 600,
         "maxMonthlyUsd": 2000,
@@ -238,70 +87,9 @@
         ]
     },
     {
-        "id": "netflix-hard",
-        "name": "Netflix Clone",
-        "description": "Design a globally resilient, multi-region Netflix-scale system with intelligent failover and real-time telemetry.",
-        "difficulty": "hard",
-        "targetRps": 10000,
-        "durationSec": 900,
-        "maxMonthlyUsd": 10000,
-        "maxP95LatencyMs": 200,
-        "requiredAvailabilityPct": 99.999,
-        "mustInclude": ["cdn", "data pipeline", "monitoring/alerting"],
-        "encouragedComponents": ["messageQueue", "cache", "third party service"],
-        "hints": ["You’ll need intelligent routing and fallback mechanisms."],
-        "interviewerRequirements": [
-            "Users worldwide should stream with minimal latency through regional CDN edge nodes.",
-            "The system must support failover between regions.",
-            "Real-time metrics and alerting must be integrated for proactive issue detection."
-        ],
-        "functionalRequirements": [
-            "Must include a CDN, data pipeline, and monitoring/alerting",
-            "Encouraged to use cache and queue for async video processing",
-            "Encouraged to simulate third-party service integrations (e.g. payment, licensing)"
-        ],
-        "nonFunctionalRequirements": [
-            "Target RPS: 10000",
-            "Max P95 latency: 200ms",
-            "Required availability: 99.999%",
-            "Max monthly cost: $10000",
-            "Simulation duration: 900 seconds"
-        ]
-    },
-    {
-        "id": "rate-limiter-easy",
-        "name": "Rate Limiter",
-        "description": "Build a basic in-memory rate limiter for a single instance service.",
-        "difficulty": "easy",
-        "targetRps": 200,
-        "durationSec": 60,
-        "maxMonthlyUsd": 50,
-        "maxP95LatencyMs": 100,
-        "requiredAvailabilityPct": 99.0,
-        "mustInclude": ["webserver"],
-        "hints": ["Use an in-memory store and sliding window or token bucket."],
-        "interviewerRequirements": [
-            "Each client should be limited to N requests per minute.",
-            "Rate limits should be enforced in memory.",
-            "Only one instance is required—no cross-node coordination."
-        ],
-        "functionalRequirements": [
-            "Must include a webserver that can reject requests over the configured RPS",
-            "Rate limiting must be enforced locally (no coordination with other nodes)"
-        ],
-        "nonFunctionalRequirements": [
-            "Target RPS: 200",
-            "Max P95 latency: 100ms",
-            "Required availability: 99.0%",
-            "Max monthly cost: $50",
-            "Simulation duration: 60 seconds"
-        ]
-    },
-    {
-        "id": "rate-limiter-medium",
+        "id": "rate-limiter",
         "name": "Rate Limiter",
         "description": "Design a rate limiter that works across multiple instances and enforces global quotas.",
-        "difficulty": "medium",
         "targetRps": 1000,
         "durationSec": 180,
         "maxMonthlyUsd": 300,
@@ -329,70 +117,9 @@
         ]
     },
     {
-        "id": "rate-limiter-hard",
-        "name": "Rate Limiter",
-        "description": "Build a globally distributed rate limiter with per-user and per-region policies.",
-        "difficulty": "hard",
-        "targetRps": 5000,
-        "durationSec": 300,
-        "maxMonthlyUsd": 1000,
-        "maxP95LatencyMs": 30,
-        "requiredAvailabilityPct": 99.99,
-        "mustInclude": ["cache"],
-        "encouragedComponents": ["cdn", "data pipeline", "monitoring/alerting"],
-        "hints": ["Ensure low latency despite distributed state. Avoid single points of failure."],
-        "interviewerRequirements": [
-            "Each user must be rate-limited independently and consistently across regions.",
-            "The system should avoid global bottlenecks while maintaining quota correctness.",
-            "Should include real-time metrics and alerting on quota violations or system degradation."
-        ],
-        "functionalRequirements": [
-            "Must include a cache that replicates or partitions rate-limit state regionally",
-            "Rate limiting should be enforced with user-scoped and region-scoped policies",
-            "Must simulate availability zones with failover and latency variance"
-        ],
-        "nonFunctionalRequirements": [
-            "Target RPS: 5000",
-            "Max P95 latency: 30ms",
-            "Required availability: 99.99%",
-            "Max monthly cost: $1000",
-            "Simulation duration: 300 seconds"
-        ]
-    },
-    {
-        "id": "metrics-system-easy",
-        "name": "Metrics System",
-        "description": "Create a basic system that collects and stores custom app metrics locally.",
-        "difficulty": "easy",
-        "targetRps": 100,
-        "durationSec": 120,
-        "maxMonthlyUsd": 100,
-        "maxP95LatencyMs": 200,
-        "requiredAvailabilityPct": 99.0,
-        "mustInclude": ["webserver", "database"],
-        "hints": ["Start by storing metrics as timestamped values in a simple DB."],
-        "interviewerRequirements": [
-            "Metrics should be received via HTTP and stored locally.",
-            "No external systems needed—simple write and read support.",
-            "Support querying metrics over a time range."
-        ],
-        "functionalRequirements": [
-            "Must include a webserver to receive metric data",
-            "Must include a database to persist metrics with timestamps"
-        ],
-        "nonFunctionalRequirements": [
-            "Target RPS: 100",
-            "Max P95 latency: 200ms",
-            "Required availability: 99.0%",
-            "Max monthly cost: $100",
-            "Simulation duration: 120 seconds"
-        ]
-    },
-    {
-        "id": "metrics-system-medium",
+        "id": "metrics-system",
         "name": "Metrics System",
         "description": "Design a pull-based metrics system like Prometheus that scrapes multiple services.",
-        "difficulty": "medium",
         "targetRps": 1000,
         "durationSec": 300,
         "maxMonthlyUsd": 500,
@@ -417,37 +144,6 @@
             "Required availability: 99.9%",
             "Max monthly cost: $500",
             "Simulation duration: 300 seconds"
-        ]
-    },
-    {
-        "id": "metrics-system-hard",
-        "name": "Metrics System",
-        "description": "Build a scalable, multi-tenant metrics platform with real-time alerts and dashboard support.",
-        "difficulty": "hard",
-        "targetRps": 5000,
-        "durationSec": 600,
-        "maxMonthlyUsd": 1500,
-        "maxP95LatencyMs": 50,
-        "requiredAvailabilityPct": 99.99,
-        "mustInclude": ["monitoring/alerting", "data pipeline"],
-        "encouragedComponents": ["messageQueue", "cache", "third party service"],
-        "hints": ["Think about downsampling, alert thresholds, and dashboard queries."],
-        "interviewerRequirements": [
-            "Support multi-tenant metrics isolation and quota enforcement.",
-            "Enable real-time alerting with low-latency threshold evaluation.",
-            "Expose APIs for dashboards and custom queries."
-        ],
-        "functionalRequirements": [
-            "Must include a data pipeline that can scale with RPS and tenants",
-            "Must include monitoring/alerting logic for low-latency threshold detection",
-            "Encouraged to buffer high-volume ingestion via message queues"
-        ],
-        "nonFunctionalRequirements": [
-            "Target RPS: 5000",
-            "Max P95 latency: 50ms",
-            "Required availability: 99.99%",
-            "Max monthly cost: $1500",
-            "Simulation duration: 600 seconds"
         ]
     }
 ]

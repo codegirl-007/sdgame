@@ -4,14 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
+	"slices"
 )
 
 type Level struct {
-	ID          string     `json:"id"`
-	Name        string     `json:"name"`
-	Description string     `json:"description"`
-	Difficulty  Difficulty `json:"difficulty"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 
 	TargetRPS               int     `json:"targetRps"`
 	DurationSec             int     `json:"durationSec"`
@@ -36,15 +35,7 @@ type Level struct {
 	NonFunctionalRequirements []string `json:"nonFunctionalRequirements,omitempty"`
 }
 
-type Difficulty string
-
-const (
-	DifficultyEasy   Difficulty = "easy"
-	DifficultyMedium Difficulty = "medium"
-	DifficultyHard   Difficulty = "hard"
-)
-
-var Registry map[string]map[string]Level
+var Registry map[string]Level
 
 type FailureEvent struct {
 	Type     string `json:"type"`
@@ -67,53 +58,33 @@ func LoadLevels(path string) ([]Level, error) {
 }
 
 func InitRegistry(levels []Level) {
-	Registry = make(map[string]map[string]Level)
+	Registry = make(map[string]Level)
 	for _, lvl := range levels {
-		// check if level already exists here
-		normalized := strings.ToLower(lvl.Name)
-		if _, ok := Registry[normalized]; !ok {
-			Registry[normalized] = make(map[string]Level)
-		}
-		// populate it
-		Registry[normalized][string(lvl.Difficulty)] = lvl
+		Registry[lvl.ID] = lvl
 	}
 }
 
-func GetLevel(name string, difficulty Difficulty) (*Level, error) {
-	name = strings.ToLower(name)
-	diffMap, ok := Registry[name]
+func GetLevelByID(id string) (*Level, error) {
+	lvl, ok := Registry[id]
 	if !ok {
-		return nil, fmt.Errorf("level name %s not found", name)
-	}
-
-	lvl, ok := diffMap[string(difficulty)]
-	if !ok {
-		return nil, fmt.Errorf("difficulty %s not available for level '%s'", difficulty, name)
+		return nil, fmt.Errorf("level with ID %s not found", id)
 	}
 	return &lvl, nil
 }
 
-func (d *Difficulty) UnmarshalJSON(b []byte) error {
-	var s string
-	if err := json.Unmarshal(b, &s); err != nil {
-		return err
-	}
-
-	switch s {
-	case string(DifficultyEasy), string(DifficultyMedium), string(DifficultyHard):
-		*d = Difficulty(s)
-		return nil
-	default:
-		return fmt.Errorf("invalid difficulty: %q", s)
-	}
-}
-
 func AllLevels() []Level {
 	var levels []Level
-	for _, diffMap := range Registry {
-		for _, lvl := range diffMap {
-			levels = append(levels, lvl)
-		}
+	for _, lvl := range Registry {
+		levels = append(levels, lvl)
 	}
+	slices.SortFunc(levels, func(i Level, j Level) int {
+		if i.Name < j.Name {
+			return -1
+		}
+		if i.Name > j.Name {
+			return 1
+		}
+		return 0
+	})
 	return levels
 }

@@ -1,10 +1,11 @@
 package handlers
 
 import (
+	"encoding/json"
+	"fmt"
+	"html"
 	"html/template"
 	"net/http"
-	"net/url"
-	"strings"
 	"systemdesigngame/internal/auth"
 	"systemdesigngame/internal/level"
 )
@@ -14,32 +15,36 @@ type PlayHandler struct {
 }
 
 func (h *PlayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	levelName := strings.TrimPrefix(r.URL.Path, "/play/")
-	levelName, err := url.PathUnescape(levelName)
-	if err != nil {
-		http.Error(w, "Invalid level name", http.StatusBadRequest)
-		return
-	}
+	levelId := r.PathValue("levelId")
 
 	username := r.Context().Value(auth.UserLoginKey).(string)
 	avatar := r.Context().Value(auth.UserAvatarKey).(string)
-	lvl, err := level.GetLevel(strings.ToLower(levelName), level.DifficultyEasy)
+	lvl, err := level.GetLevelByID(levelId)
 	if err != nil {
 		http.Error(w, "Level not found: "+err.Error(), http.StatusNotFound)
 		return
 	}
 
+	levelPayload, err := json.Marshal(lvl)
+	unescapedHtml := html.UnescapeString(string(levelPayload))
+	fmt.Printf("raw message: %v", string(json.RawMessage(unescapedHtml)))
+	if err != nil {
+		fmt.Printf("error marshaling level: %v", err)
+	}
+
 	allLevels := level.AllLevels()
 	data := struct {
-		Levels   []level.Level
-		Level    *level.Level
-		Avatar   string
-		Username string
+		LevelPayload template.JS
+		Levels       []level.Level
+		Level        *level.Level
+		Avatar       string
+		Username     string
 	}{
-		Levels:   allLevels,
-		Level:    lvl,
-		Avatar:   avatar,
-		Username: username,
+		LevelPayload: template.JS(levelPayload),
+		Levels:       allLevels,
+		Level:        lvl,
+		Avatar:       avatar,
+		Username:     username,
 	}
 
 	h.Tmpl.ExecuteTemplate(w, "game.html", data)

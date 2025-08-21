@@ -343,7 +343,8 @@ input[type="number"] {
 }
 
 #node-props-save,
-#run-button {
+#run-button,
+.continue-button {
     margin-top: 8px;
     padding: 10px;
     background-color: var(--color-button);
@@ -357,6 +358,16 @@ input[type="number"] {
         background-color: var(--color-button-disabled);
         cursor: not-allowed;
     }
+}
+
+.continue-section {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+}
+
+.continue-button {
+    width: 30%;
 }
 
 #github-login-btn {
@@ -497,9 +508,12 @@ input[name="tab"] {
         }
     }
 
-    .challenge-name {
+    .challenge-name a:link,
+    .challenge-name a:visited {
         font-weight: 500;
         margin-bottom: 5px;
+        color: #fff;
+        text-decoration: none;
     }
 
     .challenge-difficulty {
@@ -630,6 +644,8 @@ input[name="tab"] {
         overflow-y: auto;
         scrollbar-width: var(--_scrollbar_width);
         scrollbar-color: rgb(33, 38, 45) transparent;
+        height: 52vh;
+        width: 400px;
 
         &::-webkit-scrollbar {
             width: var(--_scrollbar_width);
@@ -644,7 +660,8 @@ input[name="tab"] {
             border-radius: 2px;
         }
 
-        p {
+        p.other,
+        p.me {
             --_border_width: 2px;
             --_border_radius: 8px;
             max-width: 85%;

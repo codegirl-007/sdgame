@@ -29,9 +29,8 @@ func (h *SimulationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var requestBody struct {
-		Design     design.Design `json:"design"`
-		LevelName  string        `json:"levelName,omitempty"`
-		Difficulty string        `json:"difficulty,omitempty"`
+		Design  design.Design `json:"design"`
+		LevelID string        `json:"levelId,omitempty"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
@@ -96,13 +95,8 @@ func (h *SimulationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var feedback []string
 	var levelName string
 
-	if requestBody.LevelName != "" {
-		difficulty := level.DifficultyEasy // default
-		if requestBody.Difficulty != "" {
-			difficulty = level.Difficulty(requestBody.Difficulty)
-		}
-
-		if lvl, err := level.GetLevel(requestBody.LevelName, difficulty); err == nil {
+	if requestBody.LevelID != "" {
+		if lvl, err := level.GetLevelByID(requestBody.LevelID); err == nil {
 			levelName = lvl.Name
 			passed, score, feedback = validateLevel(lvl, design, metrics)
 		} else {

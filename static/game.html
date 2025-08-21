@@ -2,22 +2,26 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>System Design Game</title>
-  <link rel="stylesheet" type="text/css" href="/static/style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Design Game</title>
+
+    <link rel="stylesheet" type="text/css" href="/static/style.css" />
 </head>
 
 <body>
-  <div id="page-container">
-    {{ template "header" . }}
-    <div id="main-content">
-      {{ template "challenges" . }}
+    <div id="page-container">
+        {{ template "header" . }}
+        <div id="main-content">
+            {{ template "challenges" . }}
 
-      {{ template "canvas" . }}
+            {{ template "canvas" . }}
 
-      {{ template "chat" . }}
-      <script type="module" src="/static/index.js"></script>
+            {{ template "chat" . }}
+            <script>
+                window.levelData = {{.LevelPayload}};
+            </script>
+            <script type="module" src="/static/index.js"></script>
 </body>
 
 </html>

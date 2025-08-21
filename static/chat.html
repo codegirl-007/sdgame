@@ -1,7 +1,6 @@
 {{ define "chat" }}
 <label for="chat-checkbox">
     <div aria-label="Send message" id="start-chat">
-
         <svg class="chat-bubble" width="32" height="32" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"
             fill="none" stroke="white" stroke-width="4">
             <path
@@ -11,28 +10,13 @@
     </div>
 </label>
 <input type="checkbox" name="chat-checkbox" id="chat-checkbox" class="chat-checkbox" />
-<div class="chat">
+<div class="chat" id="chat-box">
     <div id="chat-header">
         <p class="chat-title">System Design Assistant</p>
         <p class="powered-by">Powered by AI</p>
     </div>
     <section id="messages">
-        <p class="me">
-            1
-        </p>
-        <p class="other">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem doloremque exercitationem, blanditiis
-            obcaecati
-            earum recusandae quia laudantium assumenda nihil mollitia velit eos molestias odio quasi facilis suscipit
-            rem
-            nulla sapiente ea voluptatum repudiandae dicta enim ut! Sed perferendis aliquid vel ad incidunt? In sit id
-            voluptatibus fugit voluptates, architecto sequi.
-        </p>
-        <p class="me">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex beatae vero sit delectus, rem totam molestias.
-            Officia, suscipit error. Voluptatibus.
-        </p>
-        <div class="loading-indicator">
+        <div class="loading-indicator" id="loading-indicator">
             <div class="loading-dots">
                 <div class="loading-dot"></div>
                 <div class="loading-dot"></div>
@@ -42,7 +26,7 @@
         </div>
     </section>
     <footer>
-        <textarea name="chat-message" placeholder="Type your message here..."></textarea>
+        <textarea name="chat-message" placeholder="Type your message here..." disabled id="chat-message-box"></textarea>
         <button aria-label="Send message">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                 stroke="currentColor">

@@ -19,12 +19,12 @@ func TestLoadLevels(t *testing.T) {
 
 	InitRegistry(levels)
 
-	lvl, err := GetLevel("Metrics System", DifficultyHard)
+	lvl, err := GetLevelByID("metrics-system")
 	if err != nil {
-		t.Fatalf("expected to retrieve Metrics System (hard), got %v", err)
+		t.Fatalf("expected to retrieve metrics-system, got %v", err)
 	}
 
-	if lvl.Difficulty != DifficultyHard {
-		t.Errorf("unexpected difficulty: got %s, want %s", lvl.Difficulty, DifficultyHard)
+	if lvl.ID != "metrics-system" {
+		t.Errorf("unexpected level ID: got %s, want %s", lvl.ID, "metrics-system")
 	}
 }

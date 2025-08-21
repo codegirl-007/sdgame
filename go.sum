@@ -4,8 +4,16 @@ github.com/coder/websocket v1.8.12 h1:5bUXkEPPIbewrnkU8LTCLVaxi4N4J8ahufH2vlo4NA
 github.com/coder/websocket v1.8.12/go.mod h1:LNVeNrXQZfe5qhS9ALED3uA+l5pPqvwXg3CKoDBB2gs=
 github.com/golang-jwt/jwt/v5 v5.2.2 h1:Rl4B7itRWVtYIHFrSNd7vhTiz9UpLdi6gZhZ3wEeDy8=
 github.com/golang-jwt/jwt/v5 v5.2.2/go.mod h1:pqrtFR0X4osieyHYxtmOUWsAWrfe1Q5UVIyoH402zdk=
+github.com/gorilla/mux v1.8.1 h1:TuBL49tXwgrFYWhqrNgrUNEY92u81SPhu7sTdzQEiWY=
+github.com/gorilla/mux v1.8.1/go.mod h1:AKf9I4AEqPTmMytcMc0KkNouC66V3BtZ4qD5fmWSiMQ=
+github.com/gorilla/websocket v1.5.3 h1:saDtZ6Pbx/0u+bgYQ3q96pZgCzfhKXGPqt7kZ72aNNg=
+github.com/gorilla/websocket v1.5.3/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
 github.com/joho/godotenv v1.5.1/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=
+github.com/potproject/claude-sdk-go v1.3.2 h1:n27wJoGbObQ0xcWucNI1f4RY29+4vAWfyblTLfOLmSk=
+github.com/potproject/claude-sdk-go v1.3.2/go.mod h1:0cfNkl21VJGW/XZg+5VfP5eJVRRtRj24cHSBQ/lMNPA=
+github.com/tmaxmax/go-sse v0.8.0 h1:pPpTgyyi1r7vG2o6icebnpGEh3ebcnBXqDWkb7aTofs=
+github.com/tmaxmax/go-sse v0.8.0/go.mod h1:HLoxqxdH+7oSUItjtnpxjzJedfr/+Rrm/dNWBcTxJFM=
 github.com/tursodatabase/libsql-client-go v0.0.0-20240902231107-85af5b9d094d h1:dOMI4+zEbDI37KGb0TI44GUAwxHF9cMsIoDTJ7UmgfU=
 github.com/tursodatabase/libsql-client-go v0.0.0-20240902231107-85af5b9d094d/go.mod h1:l8xTsYB90uaVdMHXMCxKKLSgw5wLYBwBKKefNIUnm9s=
 golang.org/x/exp v0.0.0-20240325151524-a685a6edb6d8 h1:aAcj0Da7eBAtrTp03QXWvm88pSyOt+UgdZw2BFZ+lEw=

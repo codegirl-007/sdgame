@@ -1,12 +1,10 @@
 {{ define "challenges" }}
 <div id="challenge-container">
     <h2 class="sidebar-title">Challenges</h2>
-
     <ul class="challenge-list">
         {{range .Levels}}
-        <li class="challenge-item {{if and (eq .Name $.Level.Name) (eq .Difficulty $.Level.Difficulty)}}active{{end}}">
-            <div class="challenge-name">{{.Name}}</div>
-            <div class="challenge-difficulty {{.Difficulty}}">{{.Difficulty}}</div>
+        <li class="challenge-item {{if eq .ID $.Level.ID}}active{{end}}">
+            <div class="challenge-name"><a href="/play/{{.ID}}">{{.Name}}</a></div>
         </li>
         {{end}}
     </ul>

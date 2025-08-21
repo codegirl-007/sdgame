@@ -1,14 +1,14 @@
 {{ define "canvas" }}
 <div id="canvas-wrapper">
-    <input type="radio" id="tab1" name="tab" checked>
-    <input type="radio" id="tab2" name="tab">
-    <input type="radio" id="tab3" name="tab">
+    <input class="tabinput" type="radio" id="tab1" name="tab" checked>
+    <input class="tabinput" type="radio" id="tab2" name="tab">
+    <input class="tabinput" type="radio" id="tab3" name="tab">
 
     <div class="tabs">
         <div class="tab-labels">
             <label for="tab1">Requirements</label>
             <label for="tab2">Design</label>
-            <label for="tab3">Metrics</label>
+            <label for="tab3">Resources</label>
         </div>
 
         <!-- Requirements -->
@@ -45,6 +45,11 @@
                 </ul>
             </div>
             {{ end }}
+
+            <div class="continue-section">
+                <button class="continue-button" id="create-design-button">Create your design</button>
+                <button class="continue-button" id="learn-more-button">Learn more</button>
+            </div>
         </div>
 
         <!-- Design-->
