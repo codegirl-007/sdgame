@@ -232,12 +232,21 @@ export class CanvasApp {
             }
         });
 
-        this.canvas.addEventListener('click', () => {
+        this.canvas.addEventListener('click', (e) => {
+            // If this is part of a double-click sequence (detail > 1), ignore it
+            if (e.detail > 1) {
+                return;
+            }
+            
             if (this.connectionStart) {
                 this.connectionStart.group.classList.remove('selected');
                 this.connectionStart = null;
             }
-            this.hidePropsPanel();
+            
+            // Don't hide props panel if clicking on it
+            if (!this.nodePropsPanel.contains(e.target)) {
+                this.hidePropsPanel();
+            }
             this.clearSelection();
         });
 
@@ -273,6 +282,11 @@ export class CanvasApp {
             }
 
             this.hidePropsPanel();
+        });
+
+        // Prevent props panel from closing when clicking inside it
+        this.nodePropsPanel.addEventListener('click', (e) => {
+            e.stopPropagation();
         });
 
         document.addEventListener('keydown', (e) => {
@@ -312,12 +326,35 @@ export class CanvasApp {
             return;
         }
 
-        const bbox = node.group.getBBox();
-        const ctm = node.group.getCTM();
-        const screenX = ctm.e + bbox.x;
-        const screenY = ctm.f + bbox.y + bbox.height;
-        panel.style.left = (screenX + this.canvasContainer.getBoundingClientRect().left) + 'px';
-        panel.style.top = (screenY + this.canvasContainer.getBoundingClientRect().top) + 'px';
+        // Get the node's actual screen position using getBoundingClientRect
+        const nodeRect = node.group.getBoundingClientRect();
+        const containerRect = this.canvasContainer.getBoundingClientRect();
+        const panelWidth = 220; // From CSS: #node-props-panel width
+        const panelHeight = 400; // Estimated height for boundary checking
+        
+        // Try to position dialog to the right of the node
+        let dialogX = nodeRect.right + 10;
+        let dialogY = nodeRect.top;
+        
+        // Check if dialog would go off the right edge of the screen
+        if (dialogX + panelWidth > window.innerWidth) {
+            // Position to the left of the node instead
+            dialogX = nodeRect.left - panelWidth - 10;
+        }
+        
+        // Check if dialog would go off the bottom of the screen
+        if (dialogY + panelHeight > window.innerHeight) {
+            // Move up to keep it visible
+            dialogY = window.innerHeight - panelHeight - 10;
+        }
+        
+        // Ensure dialog doesn't go above the top of the screen
+        if (dialogY < 10) {
+            dialogY = 10;
+        }
+        
+        panel.style.left = dialogX + 'px';
+        panel.style.top = dialogY + 'px';
 
         // Hide all groups first
         const allGroups = panel.querySelectorAll('.prop-group, #label-group, #compute-group, #lb-group');
@@ -343,10 +380,22 @@ export class CanvasApp {
 
         this.propsSaveBtn.disabled = false;
         panel.style.display = 'block';
+        
+        // Trigger smooth animation
+        setTimeout(() => {
+            panel.classList.add('visible');
+        }, 10);
     }
 
     hidePropsPanel() {
-        this.nodePropsPanel.style.display = 'none';
+        const panel = this.nodePropsPanel;
+        panel.classList.remove('visible');
+        
+        // Hide after animation completes
+        setTimeout(() => {
+            panel.style.display = 'none';
+        }, 200);
+        
         this.propsSaveBtn.disabled = true;
         this.activeNode = null;
     }
@@ -368,7 +417,6 @@ export class CanvasApp {
         if (this.selectedNode) {
             this.selectedNode.deselect();
             this.selectedNode = null;
-            this.hidePropsPanel();
         }
     }
 

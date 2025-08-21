@@ -275,7 +275,7 @@ body {
 }
 
 #node-props-panel {
-    position: absolute;
+    position: fixed;
     width: 220px;
     background-color: var(--color-bg-sidebar);
     border: 1px solid var(--color-border);
@@ -285,6 +285,14 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
     display: none;
     z-index: 10;
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+
+    &.visible {
+        opacity: 1;
+        transform: scale(1);
+    }
 
     h3 {
         margin-top: 0;
