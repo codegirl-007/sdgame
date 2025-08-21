@@ -12,7 +12,6 @@ export class CanvasState {
      */
     enter(app) {
         // Override in concrete states
-        console.log(`Entering ${this.constructor.name}`);
     }
 
     /**
@@ -21,7 +20,6 @@ export class CanvasState {
      */
     exit(app) {
         // Override in concrete states
-        console.log(`Exiting ${this.constructor.name}`);
     }
 
     /**

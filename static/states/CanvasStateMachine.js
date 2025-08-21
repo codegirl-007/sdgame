@@ -31,12 +31,10 @@ export class CanvasStateMachine {
         const newState = this.states[stateName];
         
         if (!newState) {
-            console.error(`Unknown state: ${stateName}`);
             return;
         }
         
         if (this.currentState === newState) {
-            console.log(`Already in ${stateName} state`);
             return;
         }
         
@@ -49,8 +47,6 @@ export class CanvasStateMachine {
         const previousState = this.currentState;
         this.currentState = newState;
         this.currentState.enter(this.app);
-        
-        console.log(`State transition: ${previousState?.getStateName() || 'none'} -> ${newState.getStateName()}`);
         
         // Notify any listeners about state change
         this.onStateChanged(previousState, newState);

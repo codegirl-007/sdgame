@@ -1020,21 +1020,6 @@
         </footer>
 
         <script>
-        // Form handling
-        document.getElementById('betaForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const email = this.querySelector('input[type="email"]').value;
-
-            // Simulate API call
-            setTimeout(() => {
-                document.getElementById('successMessage').style.display = 'block';
-                this.style.display = 'none';
-
-                // Track conversion (in real app, send to analytics)
-                console.log('Beta signup:', email);
-            }, 500);
-        });
-
         // Smooth scrolling
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {

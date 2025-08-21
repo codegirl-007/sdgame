@@ -50,13 +50,11 @@ export class ConnectionState extends CanvasState {
             // First click - start connection
             app.connectionStart = node;
             node.group.classList.add('selected');
-            console.log('Connection started from:', node.type);
             
         } else if (app.connectionStart === node) {
             // Clicked same node - cancel connection
             app.connectionStart.group.classList.remove('selected');
             app.connectionStart = null;
-            console.log('Connection cancelled');
             
         } else {
             // Second click - complete connection
@@ -69,7 +67,6 @@ export class ConnectionState extends CanvasState {
     handleNodeDoubleClick(app, node) {
         // In connection mode, double-click does nothing
         // Properties panel is disabled in this state
-        console.log('Properties panel disabled in connection mode');
     }
 
     handleCanvasClick(app, event) {
@@ -77,7 +74,6 @@ export class ConnectionState extends CanvasState {
         if (app.connectionStart) {
             app.connectionStart.group.classList.remove('selected');
             app.connectionStart = null;
-            console.log('Connection cancelled by canvas click');
         }
         
         // Don't clear node selections in connection mode
@@ -101,8 +97,6 @@ export class ConnectionState extends CanvasState {
         Connection.tlsCheckbox.checked = false;
         Connection.capacityInput.value = '1000';
         Connection.modal.style.display = 'block';
-        
-        console.log(`Connection setup: ${startNode.type} -> ${endNode.type}`);
     }
 
     getCursor() {
