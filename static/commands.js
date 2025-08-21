@@ -56,10 +56,7 @@ export class CommandInvoker {
             if (this.history.length > this.maxHistorySize) {
                 this.history.shift();
             }
-            
-            console.log(`Executed: ${command.getDescription()}`);
         } catch (error) {
-            console.error(`Command execution failed: ${command.getDescription()}`, error);
             throw error;
         }
     }
@@ -73,7 +70,6 @@ export class CommandInvoker {
         const command = this.history.pop();
         if (command.undo) {
             command.undo(this.app);
-            console.log(`Undid: ${command.getDescription()}`);
         }
     }
 
