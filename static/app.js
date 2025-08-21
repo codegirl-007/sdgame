@@ -13,6 +13,21 @@ import './plugins/monitorAlerting.js';
 import './plugins/thirdPartyService.js';
 import { PluginRegistry } from './pluginRegistry.js';
 import { initializeObservers } from './observers.js';
+import { 
+    CommandInvoker,
+    SwitchToResourcesTabCommand,
+    SwitchToDesignTabCommand,
+    ToggleArrowModeCommand,
+    StartChatCommand,
+    SendChatMessageCommand,
+    HandleDragStartCommand,
+    HandleDragEndCommand,
+    DropComponentCommand,
+    RunSimulationCommand,
+    HandleCanvasClickCommand,
+    SaveNodePropertiesCommand,
+    DeleteSelectionCommand
+} from './commands.js';
 
 export class CanvasApp {
     constructor() {
@@ -62,6 +77,9 @@ export class CanvasApp {
         this.nodeSelectionSubject = observers.nodeSelection;
         this.connectionModeSubject = observers.connectionMode;
 
+        // Initialize command system
+        this.commandInvoker = new CommandInvoker(this);
+
         this.initEventHandlers();
     }
 
@@ -71,232 +89,53 @@ export class CanvasApp {
         const resourcestab = this.tabs[2];
 
         this.learnMoreBtn.addEventListener('click', () => {
-            requirementstab.checked = false;
-            resourcestab.checked = true;
+            this.commandInvoker.execute(new SwitchToResourcesTabCommand());
         });
 
         this.createDesignBtn.addEventListener('click', () => {
-            requirementstab.checked = false;
-            designtab.checked = true;
+            this.commandInvoker.execute(new SwitchToDesignTabCommand());
         });
 
         this.arrowToolBtn.addEventListener('click', () => {
-            this.arrowMode = !this.arrowMode;
-            if (this.arrowMode) {
-                this.arrowToolBtn.classList.add('active');
-                // Use observer to notify that arrow mode is enabled (will hide props panel)
-                this.connectionModeSubject.notifyConnectionModeChanged(true);
-            } else {
-                this.arrowToolBtn.classList.remove('active');
-                if (this.connectionStart) {
-                    this.connectionStart.group.classList.remove('selected');
-                    this.connectionStart = null;
-                }
-                // Use observer to notify that arrow mode is disabled
-                this.connectionModeSubject.notifyConnectionModeChanged(false);
-            }
+            this.commandInvoker.execute(new ToggleArrowModeCommand());
         });
         this.startChatBtn.addEventListener('click', () => {
-            const scheme = location.protocol === "https:" ? "wss://" : "ws://";
-
-            this.ws = new WebSocket(scheme + location.host + "/ws");
-
-            this.ws.onopen = () => {
-                this.ws.send(JSON.stringify({
-                    'designPayload': JSON.stringify(this.exportDesign()),
-                    'message': ''
-                }));
-            }
-
-            this.ws.onmessage = (e) => {
-                this.chatLoadingIndicator.style.display = 'none';
-                this.chatTextField.disabled = false;
-                this.chatTextField.focus();
-                const message = document.createElement('p');
-                message.innerHTML = e.data;
-                message.className = "other";
-                this.chatMessages.insertBefore(message, this.chatLoadingIndicator)
-            }
-
-            this.ws.onerror = (err) => {
-                console.log("ws error:", err);
-                this._scheduleReconnect()
-            };
-
-            this.ws.onclose = () => {
-                console.log("leaving chat...")
-                this.ws = null;
-                this._sentJoin = false;
-                delete this.players[this.pageData.username]
-                this._scheduleReconnect()
-            }
-
-
-        })
+            this.commandInvoker.execute(new StartChatCommand());
+        });
         this.chatTextField.addEventListener('keydown', (e) => {
-
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
-                console.log('you sent a message')
-
-                const message = document.createElement('p');
-                message.innerHTML = this.chatTextField.value;
-                message.className = "me";
-                this.chatMessages.insertBefore(message, this.chatLoadingIndicator);
-
-
-                this.ws.send(JSON.stringify({
-                    'message': this.chatTextField.value,
-                    'designPayload': JSON.stringify(this.exportDesign()),
-                }));
-
-                this.chatTextField.value = '';
-                this.chatLoadingIndicator.style.display = 'block';
+                console.log('you sent a message');
+                
+                const message = this.chatTextField.value;
+                if (message.trim()) {
+                    this.commandInvoker.execute(new SendChatMessageCommand(message));
+                }
             }
-
-        })
-        // start a ws connection
-        // onopen, send the payload
+        });
 
         this.sidebar.addEventListener('dragstart', (e) => {
-            const type = e.target.getAttribute('data-type');
-            const plugin = PluginRegistry.get(type);
-
-            if (!plugin) return;
-
-            e.dataTransfer.setData('text/plain', type)
+            this.commandInvoker.execute(new HandleDragStartCommand(e));
         });
         this.sidebar.addEventListener('dragend', (e) => {
-            if (e.target.classList.contains('component-icon')) {
-                e.target.classList.remove('dragging');
-            }
+            this.commandInvoker.execute(new HandleDragEndCommand(e));
         });
 
         this.canvasContainer.addEventListener('dragover', (e) => e.preventDefault());
         this.canvasContainer.addEventListener('drop', (e) => {
-            const type = e.dataTransfer.getData('text/plain');
-            const plugin = PluginRegistry.get(type);
-            if (!plugin) return;
-
-            const pt = this.canvas.createSVGPoint();
-            pt.x = e.clientX;
-            pt.y = e.clientY;
-
-            const svgP = pt.matrixTransform(this.canvas.getScreenCTM().inverse());
-            const x = svgP.x - this.componentSize.width / 2;
-            const y = svgP.y - this.componentSize.height / 2;
-
-            const props = generateDefaultProps(plugin);
-            const node = new ComponentNode(type, x, y, this, props);
-            node.x = x;
-            node.y = y;
+            this.commandInvoker.execute(new DropComponentCommand(e));
         });
 
-        this.runButton.addEventListener('click', async () => {
-            const designData = this.exportDesign();
-
-            // Try to get level info from URL or page context
-            const levelInfo = this.getLevelInfo();
-
-            const requestBody = {
-                design: designData,
-                ...levelInfo
-            };
-
-            console.log('Sending design to simulation:', JSON.stringify(requestBody));
-
-            // Disable button and show loading state
-            this.runButton.disabled = true;
-            this.runButton.textContent = 'Running Simulation...';
-
-            try {
-                const response = await fetch('/simulate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(requestBody)
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-
-                const result = await response.json();
-
-                if (result.Success) {
-                    console.log('Simulation successful:', result);
-                    this.showResults(result);
-                } else {
-                    console.error('Simulation failed:', result.Error);
-                    this.showError(result.Error || 'Simulation failed');
-                }
-
-            } catch (error) {
-                console.error('Network error:', error);
-                this.showError('Failed to run simulation: ' + error.message);
-            } finally {
-                // Re-enable button
-                this.runButton.disabled = false;
-                this.runButton.textContent = 'Test Design';
-            }
+        this.runButton.addEventListener('click', () => {
+            this.commandInvoker.execute(new RunSimulationCommand());
         });
 
         this.canvas.addEventListener('click', (e) => {
-            // If this is part of a double-click sequence (detail > 1), ignore it
-            if (e.detail > 1) {
-                return;
-            }
-            
-            if (this.connectionStart) {
-                this.connectionStart.group.classList.remove('selected');
-                this.connectionStart = null;
-            }
-            
-            // Don't hide props panel if clicking on it
-            if (!this.nodePropsPanel.contains(e.target)) {
-                // Use observer to notify that properties panel should be closed
-                if (this.selectedNode) {
-                    this.propertiesPanelSubject.notifyPropertiesPanelClosed(this.selectedNode);
-                }
-            }
-            
-            // Use observer to notify that current node should be deselected
-            if (this.selectedNode) {
-                this.nodeSelectionSubject.notifyNodeDeselected(this.selectedNode);
-                this.selectedNode = null;
-            }
+            this.commandInvoker.execute(new HandleCanvasClickCommand(e));
         });
 
         this.propsSaveBtn.addEventListener('click', () => {
-            if (!this.activeNode) return;
-
-            const node = this.activeNode;
-            const panel = this.nodePropsPanel;
-            const plugin = PluginRegistry.get(node.type);
-
-            if (!plugin || !plugin.props) {
-                return;
-            }
-
-            // Loop through plugin-defined props and update the node
-            for (const prop of plugin.props) {
-                const input = panel.querySelector(`[name='${prop.name}']`);
-                if (!input) continue;
-
-                let value;
-                if (prop.type === 'number') {
-                    value = parseFloat(input.value);
-                    if (isNaN(value)) value = prop.default ?? 0;
-                } else {
-                    value = input.value;
-                }
-
-                node.props[prop.name] = value;
-                if (prop.name === 'label') {
-                    node.updateLabel(value);
-                }
-            }
+            this.commandInvoker.execute(new SaveNodePropertiesCommand());
         });
 
         // Prevent props panel from closing when clicking inside it
@@ -305,28 +144,7 @@ export class CanvasApp {
         });
 
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' || e.key === 'Delete') {
-                if (this.selectedConnection) {
-                    this.canvas.removeChild(this.selectedConnection.line);
-                    this.canvas.removeChild(this.selectedConnection.text);
-                    const index = this.connections.indexOf(this.selectedConnection);
-                    if (index !== -1) this.connections.splice(index, 1);
-                    this.selectedConnection = null;
-                } else if (this.selectedNode) {
-                    this.canvas.removeChild(this.selectedNode.group);
-                    this.placedComponents = this.placedComponents.filter(n => n !== this.selectedNode);
-                    this.connections = this.connections.filter(conn => {
-                        if (conn.start === this.selectedNode || conn.end === this.selectedNode) {
-                            this.canvas.removeChild(conn.line);
-                            this.canvas.removeChild(conn.text);
-                            return false;
-                        }
-                        return true;
-                    });
-                    this.selectedNode = null;
-                    this.activeNode = null;
-                }
-            }
+            this.commandInvoker.execute(new DeleteSelectionCommand(e.key));
         });
     }
 
