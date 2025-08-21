@@ -319,29 +319,8 @@ export class HandleCanvasClickCommand extends Command {
     }
     
     execute(app) {
-        // If this is part of a double-click sequence (detail > 1), ignore it
-        if (this.event.detail > 1) {
-            return;
-        }
-        
-        if (app.connectionStart) {
-            app.connectionStart.group.classList.remove('selected');
-            app.connectionStart = null;
-        }
-        
-        // Don't hide props panel if clicking on it
-        if (!app.nodePropsPanel.contains(this.event.target)) {
-            // Use observer to notify that properties panel should be closed
-            if (app.selectedNode) {
-                app.propertiesPanelSubject.notifyPropertiesPanelClosed(app.selectedNode);
-            }
-        }
-        
-        // Use observer to notify that current node should be deselected
-        if (app.selectedNode) {
-            app.nodeSelectionSubject.notifyNodeDeselected(app.selectedNode);
-            app.selectedNode = null;
-        }
+        // Delegate to current state
+        app.stateMachine.handleCanvasClick(this.event);
     }
 }
 

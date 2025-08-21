@@ -28,6 +28,7 @@ import {
     SaveNodePropertiesCommand,
     DeleteSelectionCommand
 } from './commands.js';
+import { CanvasStateMachine } from './states/CanvasStateMachine.js';
 
 export class CanvasApp {
     constructor() {
@@ -79,6 +80,9 @@ export class CanvasApp {
 
         // Initialize command system
         this.commandInvoker = new CommandInvoker(this);
+
+        // Initialize state machine
+        this.stateMachine = new CanvasStateMachine(this);
 
         this.initEventHandlers();
     }
