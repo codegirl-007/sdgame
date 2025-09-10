@@ -93,6 +93,25 @@
             color: #000;
         }
 
+        .go-play-button {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #000;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .go-play-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3);
+            color: #000;
+        }
+
         .beta-badge {
             background: linear-gradient(45deg, #ff6b35, #f7931e);
             color: white;
@@ -801,7 +820,11 @@
                     <li><a href="#faq">FAQ</a></li>
                 </ul>
                 <div class="header-actions">
-                    <a href="/login" class="login-button">Login</a>
+                    <!-- Logged out state -->
+                    <a href="/login" class="login-button" id="login-button">Login</a>
+                    
+                    <!-- Logged in state -->
+                    <a href="/play/chat-app" class="go-play-button" id="go-play-button" style="display: none;">Go Play</a>
                 </div>
             </nav>
         </header>
@@ -1069,6 +1092,28 @@
                 }
             });
         });
+
+        // Check authentication state and toggle buttons
+        function checkAuthState() {
+            // Check if user is logged in (you can modify this logic based on your auth implementation)
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true' || 
+                              document.cookie.includes('session=') ||
+                              window.location.search.includes('logged_in=true');
+            
+            const loginButton = document.getElementById('login-button');
+            const goPlayButton = document.getElementById('go-play-button');
+            
+            if (isLoggedIn) {
+                loginButton.style.display = 'none';
+                goPlayButton.style.display = 'inline-block';
+            } else {
+                loginButton.style.display = 'inline-block';
+                goPlayButton.style.display = 'none';
+            }
+        }
+
+        // Check auth state on page load
+        document.addEventListener('DOMContentLoaded', checkAuthState);
         </script>
     </body>
 </html>
