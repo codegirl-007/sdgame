@@ -638,6 +638,7 @@ input[name="tab"] {
 
 /* === CHATBOT STYLES ===*/
 #start-chat {
+    display: none !important; /* Hide chat button temporarily */
     position: fixed;
     bottom: 25px;
     right: 25px;
@@ -648,7 +649,6 @@ input[name="tab"] {
     color: white;
     cursor: pointer;
     transition: all 0.3s ease;
-    display: flex;
     align-items: center;
     justify-content: center;
     min-width: 48px;
