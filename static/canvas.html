@@ -112,16 +112,8 @@
                             <select id="connection-protocol">
                                 <option>HTTP</option>
                                 <option>HTTPS</option>
-                                <option>gRPC</option>
-                                <option>WebSocket</option>
-                                <option>GraphQL</option>
-                                <option>Kafka</option>
-                                <option>AMQP</option>
-                                <option>MQTT</option>
-                                <option>SQL</option>
-                                <option>NoSQL</option>
+                                <option>Database</option>
                                 <option>Redis</option>
-                                <option>TLS</option>
                             </select>
                         </label>
                         <label style="margin-top: 10px;">
@@ -146,8 +138,6 @@
                                 id="constraint-rps">{{.Level.TargetRPS}}</span></div>
                         <div class="panel-metric"><span class="label">⏱️ max p95 latency:</span> <span
                                 id="constraint-latency">{{.Level.MaxP95LatencyMs}}ms</span></div>
-                        <div class="panel-metric"><span class="label">💸 max cost:</span> <span
-                                id="constraint-cost">${{.Level.MaxMonthlyUSD}}</span></div>
                         <div class="panel-metric"><span class="label">🔒 availability:</span> <span
                                 id="constraint-availability">{{printf "%.2f" .Level.RequiredAvailabilityPct}}%</span>
                         </div>
@@ -180,30 +170,23 @@
                         <label>Max Entries: <input name="maxEntries" type="number" /></label>
                         <label>Eviction Policy:
                             <select name="evictionPolicy">
-                                <option value="LRU">LRU</option>
-                                <option value="LFU">LFU</option>
-                                <option value="Random">Random</option>
+                                <option value="LRU">LRU (Least Recently Used)</option>
+                                <option value="LFU">LFU (Least Frequently Used)</option>
                             </select>
                         </label>
                     </div>
                     <div id="compute-group" data-group="compute-group" class="prop-group">
-                        <label>CPU Cores:</label>
-                        <input type="number" name="cpu" min="1" />
-
-                        <label>RAM (GB):</label>
-                        <input type="number" name="ramGb" min="1" />
-
                         <label>RPS Capacity:</label>
                         <input type="number" name="rpsCapacity" min="1" />
 
-                        <label>Monthly Cost (USD):</label>
-                        <input type="number" name="monthlyCostUsd" min="0" />
+                        <label>Base Latency (ms):</label>
+                        <input type="number" name="baseLatencyMs" min="1" />
                     </div>
                     <div id="lb-group" data-group="lb-group" class="prop-group">
                         <label>Algorithm</label>
                         <select name="algorithm">
                             <option value="round-robin">Round Robin</option>
-                            <option value="least-connections">Least Connections</option>
+                            <option value="least-connection">Least Connection</option>
                         </select>
                     </div>
                     <div id="mq-group" data-group="mq-group" class="prop-group">
@@ -266,21 +249,11 @@
                         </label>
 
                         <label>
-                            Monthly Cost (USD):
-                            <input type="number" name="monthlyUsd" value="18" min="0" step="1" />
-                        </label>
-
-                        <label>
                             Scaling Strategy:
                             <select name="scalingStrategy">
                                 <option value="auto" selected>Auto</option>
                                 <option value="manual">Manual</option>
                             </select>
-                        </label>
-
-                        <label>
-                            API Version:
-                            <input type="text" name="apiVersion" value="v1" />
                         </label>
                     </div>
                     <div id="datapipeline-group" data-group="pipeline-group" class="prop-group">

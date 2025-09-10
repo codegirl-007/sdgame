@@ -68,6 +68,31 @@
             color: #00ff88;
         }
 
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .login-button {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #000;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.3);
+            color: #000;
+        }
+
         .beta-badge {
             background: linear-gradient(45deg, #ff6b35, #f7931e);
             color: white;
@@ -678,6 +703,15 @@
             .nav-links {
                 display: none;
             }
+
+            .header-actions {
+                gap: 10px;
+            }
+
+            .login-button {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
         }
 
         .success-message {
@@ -766,7 +800,9 @@
                     <li><a href="#how">How It Works</a></li>
                     <li><a href="#faq">FAQ</a></li>
                 </ul>
-                <div class="beta-badge">COMING SOON</div>
+                <div class="header-actions">
+                    <a href="/login" class="login-button">Login</a>
+                </div>
             </nav>
         </header>
 
@@ -780,18 +816,18 @@
                     </div>
 
                     <div class="cta-form">
-                        <h3>🚀 Get Early Access</h3>
+                        <h3>🚀 Get Updates</h3>
                         <form class="final-cta-form" id="finalBetaForm" action="https://gmail.us7.list-manage.com/subscribe/post?u=913ad95101d97bff0b1873301&amp;id=77dabc87db&amp;f_id=0070c9e4f0" method="post" target="_blank" novalidate>
                             <input type="email" name="EMAIL" id="mce-EMAIL" placeholder="Enter your email" required>
                             <div style="position: absolute; left: -5000px;" aria-hidden="true">
                                 <input type="text" name="b_913ad95101d97bff0b1873301_77dabc87db" tabindex="-1" value="">
                             </div>
-                            <button type="submit">Join Waitlist</button>
+                            <button type="submit">Get Updates</button>
                         </form>
                         <div class="success-message" id="successMessage">
-                            ✅ You're in! We'll notify you when beta access is available.
+                            ✅ You're in! We'll keep you updated on our progress.
                         </div>
-                        <p class="beta-info">🔥 Be the first to know when we launch</p>
+                        <p class="beta-info">🔥 Stay updated on our latest developments</p>
                     </div>
                 </div>
             </div>
@@ -974,7 +1010,7 @@
                 <div class="faq-list">
                     <div class="faq-item">
                         <div class="faq-question">When will the beta be available?</div>
-                        <div class="faq-answer">We're currently in development and aiming to launch the beta in the coming months. Sign up for the waitlist to be notified as soon as it's ready.</div>
+                        <div class="faq-answer">We're currently in development and aiming to launch in the coming months. Sign up for updates to be notified as soon as it's ready.</div>
                     </div>
                     <div class="faq-item">
                         <div class="faq-question">Do I need to install anything to use the System Design Game?</div>
@@ -999,13 +1035,13 @@
         <section class="final-cta">
             <div class="container">
                 <h2>Ready to Level Up Your System Design Skills?</h2>
-                <p>Join the waitlist and be the first to know when our interactive browser-based platform launches.</p>
+                <p>Get updates and be the first to know about our latest platform developments.</p>
                 <form class="final-cta-form" id="finalBetaForm" action="https://gmail.us7.list-manage.com/subscribe/post?u=913ad95101d97bff0b1873301&amp;id=77dabc87db&amp;f_id=0070c9e4f0" method="post" target="_blank" novalidate>
                     <input type="email" name="EMAIL" id="mce-EMAIL" placeholder="Enter your email" required>
                     <div style="position: absolute; left: -5000px;" aria-hidden="true">
                         <input type="text" name="b_913ad95101d97bff0b1873301_77dabc87db" tabindex="-1" value="">
                     </div>
-                    <button type="submit">Join Waitlist</button>
+                    <button type="submit">Get Updates</button>
                 </form>
             </div>
         </section>

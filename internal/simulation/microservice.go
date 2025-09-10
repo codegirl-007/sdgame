@@ -1,6 +1,10 @@
 package simulation
 
-import "math"
+import (
+	"fmt"
+	"hash/fnv"
+	"math"
+)
 
 type MicroserviceLogic struct{}
 
@@ -8,6 +12,21 @@ type ServiceInstance struct {
 	ID           int
 	CurrentLoad  int
 	HealthStatus string
+}
+
+// CacheEntry represents a cached item in the microservice's cache
+type MicroserviceCacheEntry struct {
+	Data        string
+	Timestamp   int
+	AccessTime  int
+	AccessCount int
+}
+
+// hash function for cache keys
+func hashKey(s string) uint32 {
+	h := fnv.New32a()
+	h.Write([]byte(s))
+	return h.Sum32()
 }
 
 func (m MicroserviceLogic) Tick(props map[string]any, queue []*Request, tick int) ([]*Request, bool) {
@@ -56,42 +75,102 @@ func (m MicroserviceLogic) Tick(props map[string]any, queue []*Request, tick int
 		toProcess = queue[:totalCapacity]
 	}
 
-	output := []*Request{}
+	// Initialize cache in microservice props
+	cache, ok := props["_microserviceCache"].(map[string]*MicroserviceCacheEntry)
+	if !ok {
+		cache = make(map[string]*MicroserviceCacheEntry)
+		props["_microserviceCache"] = cache
+	}
 
-	// Distribute requests across instances using round-robin
+	cacheTTL := 300000        // 5 minutes default TTL
+	currentTime := tick * 100 // assuming 100ms per tick
+
+	output := []*Request{}     // Only cache misses go here (forwarded to database)
+	cacheHits := []*Request{}  // Cache hits - completed locally
+	dbRequests := []*Request{} // Requests that need to go to database
+
+	// Process each request with cache-aside logic
 	for i, req := range toProcess {
+		// Generate cache key for this request (simulate URL patterns)
+		hashValue := hashKey(req.ID) % 100 // Create 100 possible "URLs"
+		cacheKey := fmt.Sprintf("url-%d-%s", hashValue, req.Type)
 
-		// Create processed request copy
-		reqCopy := *req
+		// Check cache first (Cache-Aside pattern)
+		entry, hit := cache[cacheKey]
+		if hit && !m.isCacheExpired(entry, currentTime, cacheTTL) {
+			// CACHE HIT - serve from cache (NO DATABASE QUERY)
 
-		// Add microservice processing latency
-		processingLatency := baseLatencyMs
+			reqCopy := *req
+			reqCopy.LatencyMS += 1 // 1ms for cache access
+			reqCopy.Path = append(reqCopy.Path, "microservice-cache-hit-completed")
 
-		// Simulate CPU-bound vs I/O-bound operations
-		if req.Type == "GET" {
-			processingLatency = baseLatencyMs // Fast reads
-		} else if req.Type == "POST" || req.Type == "PUT" {
-			processingLatency = baseLatencyMs + 10 // Writes take longer
-		} else if req.Type == "COMPUTE" {
-			processingLatency = baseLatencyMs + 50 // CPU-intensive operations
+			// Update cache access tracking
+			entry.AccessTime = currentTime
+			entry.AccessCount++
+
+			// Cache hits do NOT go to database - they complete here
+			// In a real system, this response would go back to the client
+			// Store separately - these do NOT get forwarded to database
+			cacheHits = append(cacheHits, &reqCopy)
+
+		} else {
+			// CACHE MISS - need to query database
+
+			reqCopy := *req
+
+			// Add microservice processing latency
+			processingLatency := baseLatencyMs
+
+			// Simulate CPU-bound vs I/O-bound operations
+			if req.Type == "GET" {
+				processingLatency = baseLatencyMs // Fast reads
+			} else if req.Type == "POST" || req.Type == "PUT" {
+				processingLatency = baseLatencyMs + 10 // Writes take longer
+			} else if req.Type == "COMPUTE" {
+				processingLatency = baseLatencyMs + 50 // CPU-intensive operations
+			}
+
+			// Instance load affects latency (queuing delay)
+			instanceLoad := m.calculateInstanceLoad(i, len(toProcess), instanceCount)
+			if float64(instanceLoad) > float64(rpsCapacity)*0.8 { // Above 80% capacity
+				processingLatency += int(float64(processingLatency) * 0.5) // 50% penalty
+			}
+
+			reqCopy.LatencyMS += processingLatency
+			reqCopy.Path = append(reqCopy.Path, "microservice-cache-miss")
+
+			// Store cache key in request for when database response comes back
+			reqCopy.CacheKey = cacheKey
+
+			// Forward to database for actual data
+			dbRequests = append(dbRequests, &reqCopy)
+		}
+	}
+
+	// For cache misses, we would normally wait for database response and then cache it
+	// In this simulation, we'll immediately cache the "result" for future requests
+	for _, req := range dbRequests {
+		// Simulate caching the database response
+		cache[req.CacheKey] = &MicroserviceCacheEntry{
+			Data:        "cached-response-data",
+			Timestamp:   currentTime,
+			AccessTime:  currentTime,
+			AccessCount: 1,
 		}
 
-		// Instance load affects latency (queuing delay)
-		instanceLoad := m.calculateInstanceLoad(i, len(toProcess), instanceCount)
-		if float64(instanceLoad) > float64(rpsCapacity)*0.8 { // Above 80% capacity
-			processingLatency += int(float64(processingLatency) * 0.5) // 50% penalty
-		}
-
-		reqCopy.LatencyMS += processingLatency
-		reqCopy.Path = append(reqCopy.Path, "microservice-processed")
-
-		output = append(output, &reqCopy)
+		// Forward request to database
+		output = append(output, req)
 	}
 
 	// Health check: service is healthy if not severely overloaded
 	healthy := len(queue) <= totalCapacity*2 // Allow some buffering
 
 	return output, healthy
+}
+
+// isCacheExpired checks if a cache entry has expired
+func (m MicroserviceLogic) isCacheExpired(entry *MicroserviceCacheEntry, currentTime, ttl int) bool {
+	return (currentTime - entry.Timestamp) > ttl
 }
 
 // calculateBaseLatency determines base processing time based on resources

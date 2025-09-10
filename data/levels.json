@@ -5,7 +5,6 @@
         "description": "Scale your URL shortener to handle traffic spikes and ensure high availability.",
         "targetRps": 1000,
         "durationSec": 180,
-        "maxMonthlyUsd": 300,
         "maxP95LatencyMs": 150,
         "requiredAvailabilityPct": 99.9,
         "mustInclude": ["database", "loadBalancer"],
@@ -24,7 +23,6 @@
             "Target RPS: 1000",
             "Max P95 latency: 150ms",
             "Required availability: 99.9%",
-            "Max monthly cost: $300",
             "Simulation duration: 180 seconds"
         ]
     },
@@ -34,7 +32,6 @@
         "description": "Support real-time chat across mobile and web, with message persistence.",
         "targetRps": 500,
         "durationSec": 300,
-        "maxMonthlyUsd": 500,
         "maxP95LatencyMs": 200,
         "requiredAvailabilityPct": 99.9,
         "mustInclude": ["webserver", "database", "messageQueue"],
@@ -53,7 +50,6 @@
             "Target RPS: 500",
             "Max P95 latency: 200ms",
             "Required availability: 99.9%",
-            "Max monthly cost: $500",
             "Simulation duration: 300 seconds"
         ]
     },
@@ -63,7 +59,6 @@
         "description": "Add video transcoding, caching, and recommendations.",
         "targetRps": 1000,
         "durationSec": 600,
-        "maxMonthlyUsd": 2000,
         "maxP95LatencyMs": 300,
         "requiredAvailabilityPct": 99.9,
         "mustInclude": ["cdn", "data pipeline", "cache"],
@@ -82,7 +77,6 @@
             "Target RPS: 1000",
             "Max P95 latency: 300ms",
             "Required availability: 99.9%",
-            "Max monthly cost: $2000",
             "Simulation duration: 600 seconds"
         ]
     },
@@ -92,7 +86,6 @@
         "description": "Design a rate limiter that works across multiple instances and enforces global quotas.",
         "targetRps": 1000,
         "durationSec": 180,
-        "maxMonthlyUsd": 300,
         "maxP95LatencyMs": 50,
         "requiredAvailabilityPct": 99.9,
         "mustInclude": ["webserver", "cache"],
@@ -112,7 +105,6 @@
             "Target RPS: 1000",
             "Max P95 latency: 50ms",
             "Required availability: 99.9%",
-            "Max monthly cost: $300",
             "Simulation duration: 180 seconds"
         ]
     },
@@ -122,7 +114,6 @@
         "description": "Design a pull-based metrics system like Prometheus that scrapes multiple services.",
         "targetRps": 1000,
         "durationSec": 300,
-        "maxMonthlyUsd": 500,
         "maxP95LatencyMs": 100,
         "requiredAvailabilityPct": 99.9,
         "mustInclude": ["data pipeline", "monitoring/alerting"],
@@ -142,7 +133,6 @@
             "Target RPS: 1000",
             "Max P95 latency: 100ms",
             "Required availability: 99.9%",
-            "Max monthly cost: $500",
             "Simulation duration: 300 seconds"
         ]
     }

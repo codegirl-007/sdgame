@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"html"
 	"html/template"
 	"net/http"
 	"systemdesigngame/internal/auth"
@@ -26,8 +25,7 @@ func (h *PlayHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	levelPayload, err := json.Marshal(lvl)
-	unescapedHtml := html.UnescapeString(string(levelPayload))
-	fmt.Printf("raw message: %v", string(json.RawMessage(unescapedHtml)))
+
 	if err != nil {
 		fmt.Printf("error marshaling level: %v", err)
 	}

@@ -15,7 +15,7 @@ type SimulationResponse struct {
 	Success   bool                   `json:"success"`
 	Metrics   map[string]interface{} `json:"metrics,omitempty"`
 	Timeline  []interface{}          `json:"timeline,omitempty"`
-	Passed    bool                   `json:"passed,omitempty"`
+	Passed    bool                   `json:"passed"`
 	Score     int                    `json:"score,omitempty"`
 	Feedback  []string               `json:"feedback,omitempty"`
 	LevelName string                 `json:"levelName,omitempty"`
@@ -60,7 +60,16 @@ func (h *SimulationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Set simulation parameters
-	engine.RPS = 50 // Default RPS - could be configurable later
+	defaultRPS := 50
+	targetRPS := defaultRPS
+
+	if requestBody.LevelID != "" {
+		if lvl, err := level.GetLevelByID(requestBody.LevelID); err == nil {
+			targetRPS = lvl.TargetRPS
+		}
+	}
+
+	engine.RPS = targetRPS
 
 	// Find entry node by analyzing topology
 	entryNode := findEntryNode(design)
@@ -81,7 +90,7 @@ func (h *SimulationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	snapshots := engine.Run(60, 100)
 
 	// Calculate metrics from snapshots
-	metrics := calculateMetrics(snapshots)
+	metrics := calculateMetrics(snapshots, design)
 
 	// Convert snapshots to interface{} for JSON serialization
 	timeline := make([]interface{}, len(snapshots))
@@ -122,7 +131,7 @@ func (h *SimulationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // calculateMetrics computes key performance metrics from simulation snapshots
-func calculateMetrics(snapshots []*simulation.TickSnapshot) map[string]interface{} {
+func calculateMetrics(snapshots []*simulation.TickSnapshot, design design.Design) map[string]interface{} {
 	if len(snapshots) == 0 {
 		return map[string]interface{}{
 			"throughput":   0,
@@ -173,12 +182,12 @@ func calculateMetrics(snapshots []*simulation.TickSnapshot) map[string]interface
 		availability = (float64(totalHealthy) / float64(totalNodes)) * 100
 	}
 
-	// Estimate monthly cost (placeholder - could be enhanced)
-	monthlyCost := float64(totalNodes) * 50 // $50 per node per month baseline
+	// Calculate monthly cost based on component specifications
+	monthlyCost := calculateRealMonthlyCost(design.Nodes)
 
 	return map[string]interface{}{
 		"throughput":   int(throughput),
-		"latency_avg":  int(avgLatency),
+		"latency_avg":  avgLatency,
 		"cost_monthly": int(monthlyCost),
 		"availability": availability,
 	}
@@ -264,18 +273,9 @@ func validateLevel(lvl *level.Level, design design.Design, metrics map[string]in
 	var passedRequirements []string
 
 	// Extract metrics
-	throughput := metrics["throughput"].(int)
-	avgLatency := metrics["latency_avg"].(int)
+	avgLatency := int(metrics["latency_avg"].(float64))
 	availability := metrics["availability"].(float64)
 	monthlyCost := metrics["cost_monthly"].(int)
-
-	// Check throughput requirement
-	if throughput >= lvl.TargetRPS {
-		passedRequirements = append(passedRequirements, "Throughput requirement met")
-	} else {
-		failedRequirements = append(failedRequirements,
-			fmt.Sprintf("Throughput: %d RPS (required: %d RPS)", throughput, lvl.TargetRPS))
-	}
 
 	// Check latency requirement (using avg latency as approximation for P95)
 	if avgLatency <= lvl.MaxP95LatencyMs {
@@ -420,6 +420,34 @@ func calculateScore(passedCount, failedCount int, metrics map[string]interface{}
 	}
 
 	return min(100, baseScore+performanceBonus)
+}
+
+// calculateRealMonthlyCost computes monthly cost based on actual component specifications
+func calculateRealMonthlyCost(nodes []design.Node) float64 {
+	totalCost := 0.0
+
+	for _, node := range nodes {
+		switch node.Type {
+		case "user":
+			// User components don't cost anything
+			continue
+		case "microservice":
+			if monthlyUsd, ok := node.Props["monthlyUsd"].(float64); ok {
+				if instanceCount, ok := node.Props["instanceCount"].(float64); ok {
+					totalCost += monthlyUsd * instanceCount
+				}
+			}
+		case "webserver":
+			if monthlyCost, ok := node.Props["monthlyCostUsd"].(float64); ok {
+				totalCost += monthlyCost
+			}
+		default:
+			// Default cost for other components (cache, database, load balancer, etc.)
+			totalCost += 20 // $20/month baseline
+		}
+	}
+
+	return totalCost
 }
 
 // Helper function

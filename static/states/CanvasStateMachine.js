@@ -158,3 +158,4 @@ export class CanvasStateMachine {
         this.changeState('design');
     }
 }
+

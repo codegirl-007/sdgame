@@ -1,10 +1,19 @@
 package simulation
 
 import (
+	"fmt"
+	"hash/fnv"
 	"time"
 )
 
 type CacheLogic struct{}
+
+// hash function to simulate URL patterns
+func hash(s string) uint32 {
+	h := fnv.New32a()
+	h.Write([]byte(s))
+	return h.Sum32()
+}
 
 type CacheEntry struct {
 	Data        string
@@ -52,12 +61,16 @@ func (c CacheLogic) Tick(props map[string]any, queue []*Request, tick int) ([]*R
 	output := []*Request{}
 
 	for _, req := range queue {
-		cacheKey := req.ID + "-" + req.Type // Use request ID and type as cache key
+		// For URL shortener simulation, use hash of request ID to simulate repeated URL access
+		// This creates realistic cache patterns where some URLs are accessed multiple times
+		hashValue := hash(req.ID) % 100 // Create 100 possible "URLs"
+		cacheKey := fmt.Sprintf("url-%d-%s", hashValue, req.Type)
 
 		// Check for cache hit
 		entry, hit := cacheData[cacheKey]
 		if hit && !c.isExpired(entry, currentTime, cacheTTL) {
 			// Cache hit - return immediately with minimal latency
+			// Cache hit - served from cache component
 			reqCopy := *req
 			reqCopy.LatencyMS += 1 // 1ms for in-memory access
 			reqCopy.Path = append(reqCopy.Path, "cache-hit")
@@ -69,6 +82,7 @@ func (c CacheLogic) Tick(props map[string]any, queue []*Request, tick int) ([]*R
 			output = append(output, &reqCopy)
 		} else {
 			// Cache miss - forward request downstream
+			// Cache miss - forwarding to database
 			reqCopy := *req
 			reqCopy.Path = append(reqCopy.Path, "cache-miss")
 

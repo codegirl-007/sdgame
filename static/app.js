@@ -67,7 +67,6 @@ export class CanvasApp {
         this.learnMoreBtn = document.getElementById('learn-more-button');
         this.tabs = document.getElementsByClassName('tabinput');
 
-        console.log(this.tabs)
         this._reconnectDelay = 1000;
         this._maxReconnectDelay = 15000;
         this._reconnectTimer = null;
@@ -168,7 +167,6 @@ export class CanvasApp {
 
     exportDesign() {
         const nodes = this.placedComponents
-            .filter(n => n.type !== 'user')
             .map(n => {
                 const plugin = PluginRegistry.get(n.type);
                 const result = {
@@ -198,8 +196,8 @@ export class CanvasApp {
         return {
             nodes,
             connections,
-            level: JSON.parse(this.level),
-            availableComponents: JSON.stringify(this.plugins)
+            level: this.level,
+            availableComponents: this.plugins
         };
     }
 
@@ -216,17 +214,17 @@ export class CanvasApp {
     }
 
     showResults(result) {
-        const metrics = result.Metrics;
+        const metrics = result.metrics;
         let message = '';
 
         // Level validation results
-        if (result.LevelName) {
-            if (result.Passed) {
-                message += `Level "${result.LevelName}" PASSED!\n`;
-                message += `Score: ${result.Score}/100\n\n`;
+        if (result.levelName) {
+            if (result.passed) {
+                message += `Level "${result.levelName}" PASSED!\n`;
+                message += `Score: ${result.score}/100\n\n`;
             } else {
-                message += `Level "${result.LevelName}" FAILED\n`;
-                message += `Score: ${result.Score}/100\n\n`;
+                message += `Level "${result.levelName}" FAILED\n`;
+                message += `Score: ${result.score}/100\n\n`;
             }
 
             // Add detailed feedback
@@ -243,7 +241,7 @@ export class CanvasApp {
         message += `• Avg Latency: ${metrics.latency_avg}ms\n`;
         message += `• Availability: ${metrics.availability.toFixed(1)}%\n`;
         message += `• Monthly Cost: $${metrics.cost_monthly}\n\n`;
-        message += `Timeline: ${result.Timeline.length} ticks simulated`;
+        message += `Timeline: ${result.timeline.length} ticks simulated`;
 
         alert(message);
 
@@ -253,6 +251,43 @@ export class CanvasApp {
 
     showError(errorMessage) {
         alert(`Simulation Error:\n\n${errorMessage}\n\nPlease check your design and try again.`);
+    }
+
+    _initWebSocket() {
+        const scheme = location.protocol === "https:" ? "wss://" : "ws://";
+        this.ws = new WebSocket(scheme + location.host + "/ws");
+
+        this.ws.onopen = () => {
+            console.log("WebSocket connected");
+            // Reset reconnection delay on successful connection
+            this._reconnectDelay = 1000;
+            
+            this.ws.send(JSON.stringify({
+                'designPayload': JSON.stringify(this.exportDesign()),
+                'message': ''
+            }));
+        };
+
+        this.ws.onmessage = (e) => {
+            this.chatLoadingIndicator.style.display = 'none';
+            this.chatTextField.disabled = false;
+            this.chatTextField.focus();
+            const message = document.createElement('p');
+            message.innerHTML = e.data;
+            message.className = "other";
+            this.chatMessages.insertBefore(message, this.chatLoadingIndicator);
+        };
+
+        this.ws.onerror = (err) => {
+            console.log("ws error:", err);
+            this._scheduleReconnect();
+        };
+
+        this.ws.onclose = () => {
+            console.log("WebSocket closed, scheduling reconnect...");
+            this.ws = null;
+            this._scheduleReconnect();
+        };
     }
 
     _scheduleReconnect() {
@@ -265,7 +300,7 @@ export class CanvasApp {
 
         const jitter = this._reconnectDelay * (Math.random() * 0.4 - 0.2);
         const delay = Math.max(250, Math.min(this._maxReconnectDelay, this._reconnectDelay + jitter));
-        console.log(`Reconnecting websocket...`)
+        console.log(`Reconnecting websocket in ${delay}ms...`)
 
         this._reconnectTimer = setTimeout(() => {
             this._reconnectTimer = null;

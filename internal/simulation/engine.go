@@ -33,6 +33,8 @@ type Request struct {
 	Type string
 	// records where it's been (used to prevent loops)
 	Path []string
+	// cache key for cache-aside pattern (used by microservices)
+	CacheKey string
 }
 
 // what hte system looks like given a tick
@@ -128,7 +130,7 @@ func (e *SimulationEngine) Run(duration int, tickMs int) []*TickSnapshot {
 			}
 
 			// this will preopulate some props so that we can use different load balancing algorithms
-			if node.Type == "loadbalancer" {
+			if node.Type == "loadbalancer" || node.Type == "loadBalancer" {
 				targets := e.Edges[id]
 				node.Props["_numTargets"] = float64(len(targets))
 				node.Props["_targetIDs"] = targets
@@ -179,9 +181,11 @@ func (e *SimulationEngine) Run(duration int, tickMs int) []*TickSnapshot {
 
 func GetLogicForType(t string) NodeLogic {
 	switch t {
+	case "user":
+		return UserLogic{}
 	case "webserver":
 		return WebServerLogic{}
-	case "loadbalancer":
+	case "loadBalancer":
 		return LoadBalancerLogic{}
 	case "cdn":
 		return CDNLogic{}
