@@ -69,10 +69,27 @@ body {
     align-items: center;
     justify-content: space-between;
 
+    .header-logo-container {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
     .header-text {
         font-size: 24px;
         margin: 0;
         text-shadow: 0 0 10px rgba(0, 255, 136, 0.8);
+    }
+
+    .beta-pill {
+        background: linear-gradient(45deg, #ff6b35, #f7931e);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 }
 
