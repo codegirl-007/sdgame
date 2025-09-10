@@ -131,18 +131,6 @@
                 <div id="canvas-toolbar">
                     <button id="arrow-tool-btn" class="toolbar-btn">Arrow Tool</button>
                 </div>
-                <div id="info-panel">
-                    <div id="constraints-panel">
-                        <div class="panel-title">level constraints</div>
-                        <div class="panel-metric"><span class="label">🎯 target rps:</span> <span
-                                id="constraint-rps">{{.Level.TargetRPS}}</span></div>
-                        <div class="panel-metric"><span class="label">⏱️ max p95 latency:</span> <span
-                                id="constraint-latency">{{.Level.MaxP95LatencyMs}}ms</span></div>
-                        <div class="panel-metric"><span class="label">🔒 availability:</span> <span
-                                id="constraint-availability">{{printf "%.2f" .Level.RequiredAvailabilityPct}}%</span>
-                        </div>
-                    </div>
-                </div>
 
                 <svg id="canvas">
                     <defs>
