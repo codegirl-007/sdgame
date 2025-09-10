@@ -591,25 +591,25 @@ input[name="tab"] {
       <div style="max-width: 600px; width: 100%; background: var(--color-bg-component); border: 1px solid var(--color-border); border-radius: var(--radius-large); padding: 32px;">
         <h2 style="color: var(--color-text-accent); font-size: 32px; text-align: center; margin-top: 0;">🏆 Mission Accomplished</h2>
         <p style="text-align: center; font-size: 16px; color: var(--color-text-muted); margin-bottom: 32px;">
-          Your architecture scaled successfully and met all performance targets. Well done!
+          {{.LevelName}} completed successfully! Your architecture scaled and met all performance targets. Well done!
         </p>
 
         <div class="failure-metrics" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
           <div class="metric-item" style="background: var(--color-bg-dark); border: 1px solid var(--color-border); padding: 16px; border-radius: var(--radius-medium); text-align: center;">
             <div class="metric-label" style="color: var(--color-text-muted); margin-bottom: 6px;">Target RPS</div>
-            <div class="metric-value" style="font-size: 20px; font-weight: bold;">10,000</div>
+            <div class="metric-value" style="font-size: 20px; font-weight: bold;">{{.TargetRPS | printf "%d"}}</div>
           </div>
           <div class="metric-item" style="background: var(--color-bg-dark); border: 1px solid var(--color-border); padding: 16px; border-radius: var(--radius-medium); text-align: center;">
             <div class="metric-label" style="color: var(--color-text-muted); margin-bottom: 6px;">Achieved RPS</div>
-            <div class="metric-value" style="font-size: 20px; font-weight: bold; color: var(--color-text-accent);">10,417</div>
+            <div class="metric-value" style="font-size: 20px; font-weight: bold; color: var(--color-text-accent);">{{.AchievedRPS | printf "%d"}}</div>
           </div>
           <div class="metric-item" style="background: var(--color-bg-dark); border: 1px solid var(--color-border); padding: 16px; border-radius: var(--radius-medium); text-align: center;">
             <div class="metric-label" style="color: var(--color-text-muted); margin-bottom: 6px;">Max Latency</div>
-            <div class="metric-value" style="font-size: 20px; font-weight: bold;">200ms</div>
+            <div class="metric-value" style="font-size: 20px; font-weight: bold;">{{.TargetLatency}}ms</div>
           </div>
           <div class="metric-item" style="background: var(--color-bg-dark); border: 1px solid var(--color-border); padding: 16px; border-radius: var(--radius-medium); text-align: center;">
             <div class="metric-label" style="color: var(--color-text-muted); margin-bottom: 6px;">Actual Latency</div>
-            <div class="metric-value" style="font-size: 20px; font-weight: bold; color: var(--color-text-accent);">87ms</div>
+            <div class="metric-value" style="font-size: 20px; font-weight: bold; color: var(--color-text-accent);">{{.ActualLatency | printf "%.0f"}}ms</div>
           </div>
         </div>
 
@@ -618,6 +618,9 @@ input[name="tab"] {
           <div>[INFO] Load balancer handled traffic with 0% errors</div>
           <div>[INFO] Cache hit ratio: 97%</div>
           <div>[SUCCESS] SLA met - all objectives achieved</div>
+          {{range .Feedback}}
+          <div>[SUCCESS] {{.}}</div>
+          {{end}}
         </div>
 
         <div class="action-buttons" style="display: flex; justify-content: center; gap: 16px; margin-top: 32px;">
@@ -636,8 +639,10 @@ input[name="tab"] {
         const btn = document.getElementById('retry-button');
         btn.textContent = '⏳ Reloading...';
         btn.disabled = true;
+        const levelId = '{{.LevelID}}';
+        const retryUrl = levelId ? `/play/${levelId}?retry=true` : '/game?retry=true';
         setTimeout(() => {
-          window.location.href = '/game?retry=true';
+          window.location.href = retryUrl;
         }, 1500);
       }
 

@@ -285,8 +285,15 @@ export class RunSimulationCommand extends Command {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
 
-            const result = await response.json();
+            // Check if response is a redirect (status 303)
+            if (response.redirected || response.status === 303) {
+                // Follow the redirect to the result page
+                window.location.href = response.url;
+                return;
+            }
 
+            // Fallback: try to parse as JSON for backward compatibility
+            const result = await response.json();
             console.log('result', result);
             if (result.passed && result.success) {
                 console.log('Simulation successful:', result);

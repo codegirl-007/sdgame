@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 	"systemdesigngame/internal/design"
 	"systemdesigngame/internal/level"
 	"systemdesigngame/internal/simulation"
@@ -113,21 +114,18 @@ func (h *SimulationHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	response := SimulationResponse{
-		Success:   true,
-		Metrics:   metrics,
-		Timeline:  timeline,
-		Passed:    passed,
-		Score:     score,
-		Feedback:  feedback,
-		LevelName: levelName,
+	// Build redirect URL based on success/failure
+	var redirectURL string
+	if passed {
+		// Success page
+		redirectURL = buildSuccessURL(levelName, score, metrics, feedback, requestBody.LevelID)
+	} else {
+		// Failure page
+		redirectURL = buildFailureURL(levelName, metrics, feedback, requestBody.LevelID)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-		return
-	}
+	// Redirect to appropriate result page
+	http.Redirect(w, r, redirectURL, http.StatusSeeOther)
 }
 
 // calculateMetrics computes key performance metrics from simulation snapshots
@@ -456,4 +454,97 @@ func min(a, b int) int {
 		return a
 	}
 	return b
+}
+
+// buildSuccessURL creates a URL for the success page with simulation results
+func buildSuccessURL(levelName string, score int, metrics map[string]interface{}, feedback []string, levelID string) string {
+	baseURL := "/success"
+
+	// Get level data if available
+	var targetRPS, targetLatency int
+	var targetAvail float64
+	if levelID != "" {
+		if lvl, err := level.GetLevelByID(levelID); err == nil {
+			targetRPS = lvl.TargetRPS
+			targetLatency = lvl.MaxP95LatencyMs
+			targetAvail = lvl.RequiredAvailabilityPct
+		}
+	}
+
+	// Use defaults if level not found
+	if targetRPS == 0 {
+		targetRPS = 10000
+	}
+	if targetLatency == 0 {
+		targetLatency = 200
+	}
+	if targetAvail == 0 {
+		targetAvail = 99.9
+	}
+
+	params := []string{
+		fmt.Sprintf("level=%s", levelName),
+		fmt.Sprintf("score=%d", score),
+		fmt.Sprintf("targetRPS=%d", targetRPS),
+		fmt.Sprintf("achievedRPS=%d", int(metrics["throughput"].(float64))),
+		fmt.Sprintf("targetLatency=%d", targetLatency),
+		fmt.Sprintf("actualLatency=%.1f", metrics["latency_avg"].(float64)),
+		fmt.Sprintf("availability=%.1f", metrics["availability"].(float64)),
+		fmt.Sprintf("levelId=%s", levelID),
+	}
+
+	// Add feedback as pipe-separated values
+	if len(feedback) > 0 {
+		feedbackStr := strings.Join(feedback, "|")
+		params = append(params, fmt.Sprintf("feedback=%s", feedbackStr))
+	}
+
+	return baseURL + "?" + strings.Join(params, "&")
+}
+
+// buildFailureURL creates a URL for the failure page with simulation results
+func buildFailureURL(levelName string, metrics map[string]interface{}, feedback []string, levelID string) string {
+	baseURL := "/failure"
+
+	// Get level data if available
+	var targetRPS, targetLatency int
+	var targetAvail float64
+	if levelID != "" {
+		if lvl, err := level.GetLevelByID(levelID); err == nil {
+			targetRPS = lvl.TargetRPS
+			targetLatency = lvl.MaxP95LatencyMs
+			targetAvail = lvl.RequiredAvailabilityPct
+		}
+	}
+
+	// Use defaults if level not found
+	if targetRPS == 0 {
+		targetRPS = 10000
+	}
+	if targetLatency == 0 {
+		targetLatency = 200
+	}
+	if targetAvail == 0 {
+		targetAvail = 99.9
+	}
+
+	params := []string{
+		fmt.Sprintf("level=%s", levelName),
+		fmt.Sprintf("reason=performance"),
+		fmt.Sprintf("targetRPS=%d", targetRPS),
+		fmt.Sprintf("achievedRPS=%d", int(metrics["throughput"].(float64))),
+		fmt.Sprintf("targetLatency=%d", targetLatency),
+		fmt.Sprintf("actualLatency=%.1f", metrics["latency_avg"].(float64)),
+		fmt.Sprintf("targetAvail=%.1f", targetAvail),
+		fmt.Sprintf("actualAvail=%.1f", metrics["availability"].(float64)),
+		fmt.Sprintf("levelId=%s", levelID),
+	}
+
+	// Add failed requirements as pipe-separated values
+	if len(feedback) > 0 {
+		failedReqsStr := strings.Join(feedback, "|")
+		params = append(params, fmt.Sprintf("failedReqs=%s", failedReqsStr))
+	}
+
+	return baseURL + "?" + strings.Join(params, "&")
 }
