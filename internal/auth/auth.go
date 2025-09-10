@@ -131,7 +131,7 @@ func CallbackHandler(w http.ResponseWriter, r *http.Request) {
 		Secure:   true, // Set to true in production (HTTPS)
 	})
 
-	http.Redirect(w, r, "/play", http.StatusFound)
+	http.Redirect(w, r, "/play/chat-app", http.StatusFound)
 }
 
 func GenerateJWT(userID string, login string, avatarUrl string) (string, error) {
