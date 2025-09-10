@@ -125,10 +125,29 @@
             50% { opacity: 0.8; }
         }
 
+        .header-logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
         .header-text {
             font-size: 24px;
             margin: 0;
             text-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+            transition: all 3s ease-in-out;
+        }
+
+        .beta-pill {
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
             transition: all 3s ease-in-out;
         }
 
@@ -636,7 +655,10 @@
     <div class="screen-overlay"></div>
     
     <div class="header">
-        <h1 class="header-text">System Design Game</h1>
+        <div class="header-logo-container">
+            <h1 class="header-text">System Design Game</h1>
+            <div class="beta-pill">BETA</div>
+        </div>
     </div>
 
     <div class="failure-container">

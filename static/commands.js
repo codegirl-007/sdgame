@@ -292,16 +292,9 @@ export class RunSimulationCommand extends Command {
                 return;
             }
 
-            // Fallback: try to parse as JSON for backward compatibility
-            const result = await response.json();
-            console.log('result', result);
-            if (result.passed && result.success) {
-                console.log('Simulation successful:', result);
-                app.showResults(result);
-            } else {
-                console.error('Simulation failed:', result.Error);
-                app.showError(result.Error || 'Simulation failed');
-            }
+            // If we get here, something went wrong - the server should always redirect
+            console.error('Unexpected response from server - expected redirect but got:', response.status);
+            app.showError('Unexpected server response. Please try again.');
 
         } catch (error) {
             console.error('Network error:', error);

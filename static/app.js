@@ -213,41 +213,7 @@ export class CanvasApp {
         return {};
     }
 
-    showResults(result) {
-        const metrics = result.metrics;
-        let message = '';
-
-        // Level validation results
-        if (result.levelName) {
-            if (result.passed) {
-                message += `Level "${result.levelName}" PASSED!\n`;
-                message += `Score: ${result.score}/100\n\n`;
-            } else {
-                message += `Level "${result.levelName}" FAILED\n`;
-                message += `Score: ${result.score}/100\n\n`;
-            }
-
-            // Add detailed feedback
-            if (result.Feedback && result.Feedback.length > 0) {
-                message += result.Feedback.join('\n') + '\n\n';
-            }
-        } else {
-            message += `Simulation Complete!\n\n`;
-        }
-
-        // Performance metrics
-        message += `Performance Metrics:\n`;
-        message += `• Throughput: ${metrics.throughput} req/sec\n`;
-        message += `• Avg Latency: ${metrics.latency_avg}ms\n`;
-        message += `• Availability: ${metrics.availability.toFixed(1)}%\n`;
-        message += `• Monthly Cost: $${metrics.cost_monthly}\n\n`;
-        message += `Timeline: ${result.timeline.length} ticks simulated`;
-
-        alert(message);
-
-        // TODO: Later replace with redirect to results page or modal
-        console.log('Full simulation data:', result);
-    }
+    // showResults function removed - now handled by redirect to success/failure pages
 
     showError(errorMessage) {
         alert(`Simulation Error:\n\n${errorMessage}\n\nPlease check your design and try again.`);

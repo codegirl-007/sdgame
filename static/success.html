@@ -77,9 +77,27 @@ body {
     justify-content: space-between;
 }
 
+.header-logo-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 .header-text {
     font-size: 24px;
     margin: 0;
+}
+
+.beta-pill {
+    background: linear-gradient(45deg, #ff6b35, #f7931e);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 #main-content {
@@ -579,7 +597,10 @@ input[name="tab"] {
 <body>
   <div id="page-container">
     <div id="sd-header">
-      <h1 class="header-text">System Design Game</h1>
+      <div class="header-logo-container">
+        <h1 class="header-text">System Design Game</h1>
+        <div class="beta-pill">BETA</div>
+      </div>
       <div class="userbox">
         <div class="status-indicator" style="color: var(--color-text-accent); font-weight: bold;">
           ✅ SYSTEM SUCCESS

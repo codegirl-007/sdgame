@@ -144,13 +144,22 @@ func calculateMetrics(snapshots []*simulation.TickSnapshot, design design.Design
 	totalHealthy := 0
 	totalNodes := 0
 
+	// Build map of outgoing connections to identify final destinations
+	outgoingConnections := make(map[string]bool)
+	for _, conn := range design.Connections {
+		outgoingConnections[conn.Source] = true
+	}
+
 	// Calculate aggregate metrics across all snapshots
 	for _, snapshot := range snapshots {
 		// Count total requests processed in this tick
-		for _, requests := range snapshot.Emitted {
-			totalRequests += len(requests)
-			for _, req := range requests {
-				totalLatency += req.LatencyMS
+		for nodeID, requests := range snapshot.Emitted {
+			// Only count requests from final destination nodes (no outgoing connections)
+			if !outgoingConnections[nodeID] {
+				totalRequests += len(requests)
+				for _, req := range requests {
+					totalLatency += req.LatencyMS
+				}
 			}
 		}
 
