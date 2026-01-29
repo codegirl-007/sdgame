@@ -5,8 +5,7 @@ go 1.23.0
 toolchain go1.23.10
 
 require (
-	github.com/golang-jwt/jwt/v5 v5.2.2
-	github.com/gorilla/mux v1.8.1
+	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/gorilla/websocket v1.5.3
 	github.com/joho/godotenv v1.5.1
 	github.com/potproject/claude-sdk-go v1.3.2
